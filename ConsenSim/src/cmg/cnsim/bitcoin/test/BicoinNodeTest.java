@@ -44,7 +44,7 @@ class BicoinNodeTest {
         
         //
         // Network Construction
-        //
+        // ...
         
         //Create the a node factory
         nf = new BitcoinNodeFactory("Honest",s);
