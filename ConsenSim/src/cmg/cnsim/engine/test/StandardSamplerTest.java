@@ -29,7 +29,7 @@ class StandardSamplerTest {
 		Random r = new Random();
 
 		
-		/**
+		/**  
 		 * Average number of times to get it right under difficulty d is equal to d.
 		 * Specifically for a repeated process with probability of successful outcome p 
 		 * the average number of repeated trials until we get successful outcome is 1/p. 
