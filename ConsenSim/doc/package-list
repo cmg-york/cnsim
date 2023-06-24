@@ -1,0 +1,10 @@
+cmg.cnsim.bitcoin
+cmg.cnsim.bitcoin.test
+cmg.cnsim.engine
+cmg.cnsim.engine.event
+cmg.cnsim.engine.message
+cmg.cnsim.engine.network
+cmg.cnsim.engine.network.test
+cmg.cnsim.engine.node
+cmg.cnsim.engine.test
+cmg.cnsim.engine.transaction
