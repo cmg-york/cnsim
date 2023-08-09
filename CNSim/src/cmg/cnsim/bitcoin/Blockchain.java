@@ -72,7 +72,7 @@ public class Blockchain implements IStructure {
 		if (parent == null) {
 			addToOrphans(b);
 		} else {
-			Debug.p("Propagated Block " + b.getID());
+			//Debug.p("Propagated Block " + b.getID());
 			if (!hasChainOverlap(b,parent)) {
 				//Debug.p("----> * Block OK, adding on " + parent.getID());
 
@@ -237,7 +237,7 @@ public class Blockchain implements IStructure {
 			//Debug.p("--> Trying tip " + t.getID() + " with height " + t.getHeight() + " and transactions " + t.printIDs(","));
 			//Check for overlaps
 			if (!hasChainOverlap(b,t)) {
-				Debug.p("--> " + t.getID() + " it is!");
+				//Debug.p("--> " + t.getID() + " it is!");
 				found = true;
 				winningTip = t;
 			} else {
