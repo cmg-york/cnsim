@@ -27,11 +27,12 @@ public class BitcoinMainDriver {
         TransactionWorkload ts;
         AbstractNodeFactory nf;
         
-        Config.init("./resources/config.txt");
+        Config.init("/home/amir/Projects/CNSim/cnsim/CNSim/resources/config.txt");
 
         //Creating sampler
         sampler = new StandardSampler();
         sampler.LoadConfig();
+        //TODO add reading from file option
 
         
         //Create first the simulator
@@ -41,7 +42,7 @@ public class BitcoinMainDriver {
         // Network Construction
         //
         
-        //Create the a node factory
+        //Create the node factory
         nf = new BitcoinNodeFactory("Honest",s);
         //Create and populate a NodeSet.
         ns = new NodeSet(nf);
@@ -55,18 +56,18 @@ public class BitcoinMainDriver {
         //
         // Workload Construction
         //
-        
-        ts = new TransactionWorkload(sampler);
-        //ts.appendTransactions(Parameters.numTransactions);
-        ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
-        s.schedule(ts);
 
-        Profiling.simBeginningTime = System.currentTimeMillis();
-        
-       
-        s.run();
-        long realTime = (System.currentTimeMillis() - Profiling.simBeginningTime); // in Milli-Sec
-        System.out.printf("\n");
+            ts = new TransactionWorkload(sampler);
+            //ts.appendTransactions(Parameters.numTransactions);
+            ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
+            s.schedule(ts);
+
+            Profiling.simBeginningTime = System.currentTimeMillis();
+
+
+            s.run();
+            long realTime = (System.currentTimeMillis() - Profiling.simBeginningTime); // in Milli-Sec
+            System.out.printf("\n");
         System.out.println("Real time(ms): " + realTime);
         System.out.println("Simulation time(ms): " + Simulation.currTime);
         

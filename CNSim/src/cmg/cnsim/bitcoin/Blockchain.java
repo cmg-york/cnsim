@@ -1,13 +1,13 @@
 package cmg.cnsim.bitcoin;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import cmg.cnsim.engine.Debug;
 import cmg.cnsim.engine.IStructure;
 import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.transaction.ITxContainer;
 import cmg.cnsim.engine.transaction.Transaction;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * The Bitcoin's blockchain structure
@@ -406,6 +406,5 @@ public class Blockchain implements IStructure {
     		s = s + "}";
     	return (s);
     }
-	
 
 }

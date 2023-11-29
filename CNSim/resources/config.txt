@@ -17,8 +17,14 @@ sim.reporting.window = 100000
 # Number of nodes for this simulation
 net.numOfNodes = 3
 
+# Flag to indicate if a malicious node should be created (true/false)
+node.createMaliciousNode = true
+
+# Hash power for the malicious node (e.g., in GH)
+node.maliciousHashPower = 50000f
+
 # (bits/sec) - bandwidth
-net.throughputMean = 5000 
+net.throughputMean = 5000
 net.throughputSD = 500
 
 # Average node characteristics
@@ -41,12 +47,13 @@ pow.difficulty = 1e17
 # HashPower in GH
 # Antminer S9 has 14Th: https://www.asicminervalue.com/miners/bitmain/antminer-s9-14th
 # We assume a network of such
-pow.hashPowerMean = 14000f 
+pow.hashPowerMean = 14000f
 pow.hashPowerSD = 5000f
 
 
+
 #
-# TANGLE 
+# TANGLE
 #
 tangle.alpha = 0.01f
 tangle.numOfFounders = 10
@@ -55,9 +62,9 @@ tangle.startingCutset = 1000
 tangle.wMaxPercentile = 0.75f
 tangle.wMinPercentile = 0.5f
 tangle.randomSeed = 123
-  
+
 #
-# BITCOIN 
+# BITCOIN
 #
 # Maximum blocksize in bytes
 # bitcoin.maxBlockSize = 1000000 # Bitcoin
@@ -67,7 +74,7 @@ bitcoin.minSizeToMine = 1000
 # Minimum block value before you start mining
 bitcoin.minValueToMine = 100
 
-    
+
 #
 # Workload Default Parameters
 #

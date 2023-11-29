@@ -52,6 +52,25 @@ public class RandomEndToEndNetwork extends AbstractNetwork {
 	        }
 	    }
 	}
-         
+
+	// #TODO
+	/**
+	 * @deprecated
+	 * Create an overload constructor that takes in matrix and populates the networl
+	 * each cell is throughput (check what the units are too
+	 * think about exceptiions, how matrices are going to be represented, comma seperatd values?
+	 * allow 0, prohibit negative values, file missing, etc
+	 *
+	 * param: filename
+	 *
+	 *
+	 *
+	 *
+	 * fid a way to update net.nodes in memmory from config file
+	 * think about exceptions too(size of files differs from "config.txt")
+	 *
+	 *
+	 *
+	 */
 	
 }

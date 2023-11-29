@@ -1,10 +1,10 @@
 package cmg.cnsim.bitcoin;
 
-import java.util.ArrayList;
-
 import cmg.cnsim.engine.node.Node;
 import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionGroup;
+
+import java.util.ArrayList;
 
 /**
  * 
@@ -28,7 +28,7 @@ public class Block extends TransactionGroup {
 	protected TransactionGroup parent = null;
 	//The height in blochain (if in one)
 	protected int height = 0;
-	
+
 	
 	
 	/**
@@ -168,6 +168,12 @@ public class Block extends TransactionGroup {
      */
 	public boolean hasParent() {
 		return (parent != null);
+	}
+
+
+	public void addTransaction(Transaction transaction) {
+		// Add the transaction to the block
+		// Implement as needed
 	}
 
 }

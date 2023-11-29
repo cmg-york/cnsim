@@ -1,25 +1,20 @@
 package cmg.cnsim.bitcoin.test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import cmg.cnsim.bitcoin.BitcoinNode;
 import cmg.cnsim.bitcoin.BitcoinNodeFactory;
 import cmg.cnsim.bitcoin.Block;
-import cmg.cnsim.engine.AbstractSampler;
-import cmg.cnsim.engine.Config;
-import cmg.cnsim.engine.Debug;
-import cmg.cnsim.engine.Simulation;
-import cmg.cnsim.engine.StandardSampler;
+import cmg.cnsim.engine.*;
 import cmg.cnsim.engine.network.AbstractNetwork;
 import cmg.cnsim.engine.network.RandomEndToEndNetwork;
 import cmg.cnsim.engine.node.AbstractNodeFactory;
 import cmg.cnsim.engine.node.NodeSet;
 import cmg.cnsim.engine.transaction.TransactionGroup;
 import cmg.cnsim.engine.transaction.TransactionWorkload;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class BicoinNodeTest {
 	private AbstractSampler sampler;
@@ -46,8 +41,9 @@ class BicoinNodeTest {
         // Network Construction
         // ...
         
-        //Create the a node factory
+        //Create the node factory
         nf = new BitcoinNodeFactory("Honest",s);
+		nf = new BitcoinNodeFactory("Malicious",s);
         //Create and populate a NodeSet.
         ns = new NodeSet(nf);
         //ns.addNodes(Parameters.NumofNodes); //a network where all nodes are honest
