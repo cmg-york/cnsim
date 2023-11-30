@@ -202,4 +202,9 @@ public class BitcoinNode extends Node {
 	public void setBehaviorStrategy(NodeBehaviorStrategy strategy) {
 		this.behaviorStrategy = strategy;
 	}
+
+
+	public NodeBehaviorStrategy getBehaviorStrategy() {
+		return behaviorStrategy;
+	}
 }

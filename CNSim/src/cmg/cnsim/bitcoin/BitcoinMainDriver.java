@@ -1,15 +1,16 @@
 package cmg.cnsim.bitcoin;
 
-import cmg.cnsim.engine.AbstractSampler;
-import cmg.cnsim.engine.Config;
-import cmg.cnsim.engine.Profiling;
-import cmg.cnsim.engine.Simulation;
-import cmg.cnsim.engine.StandardSampler;
+import cmg.cnsim.engine.*;
 import cmg.cnsim.engine.network.AbstractNetwork;
 import cmg.cnsim.engine.network.RandomEndToEndNetwork;
 import cmg.cnsim.engine.node.AbstractNodeFactory;
+import cmg.cnsim.engine.node.INode;
 import cmg.cnsim.engine.node.NodeSet;
+import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionWorkload;
+
+import java.util.List;
+import java.util.Scanner;
 
 
 public class BitcoinMainDriver {
@@ -20,47 +21,35 @@ public class BitcoinMainDriver {
 	}
 
 	private void run() {
-        AbstractSampler sampler;
-    	AbstractNetwork n;
-        Simulation s;
-        NodeSet ns;
-        TransactionWorkload ts;
-        AbstractNodeFactory nf;
-        
         Config.init("/home/amir/Projects/CNSim/cnsim/CNSim/resources/config.txt");
 
-        //Creating sampler
-        sampler = new StandardSampler();
+        // Initialize components
+        AbstractSampler sampler = new StandardSampler();
         sampler.LoadConfig();
-        //TODO add reading from file option
+        Simulation s = new Simulation(sampler);
+        AbstractNodeFactory nf = new BitcoinNodeFactory("Honest", s);
+        NodeSet ns = new NodeSet(nf);
 
-        
-        //Create first the simulator
-        s = new Simulation(sampler);
-        
-        //
-        // Network Construction
-        //
-        
-        //Create the node factory
-        nf = new BitcoinNodeFactory("Honest",s);
-        //Create and populate a NodeSet.
-        ns = new NodeSet(nf);
-        //ns.addNodes(Parameters.NumofNodes); //a network where all nodes are honest
+        // Adding nodes
         ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
-        //Create a network based on the NodeSet and the sampler
-        n = new RandomEndToEndNetwork(ns,sampler);
-        //Set this network to the simulator
+        AbstractNetwork n = new RandomEndToEndNetwork(ns, sampler);
         s.setNetwork(n);
-        
-        //
-        // Workload Construction
-        //
 
-            ts = new TransactionWorkload(sampler);
-            //ts.appendTransactions(Parameters.numTransactions);
-            ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
-            s.schedule(ts);
+        // Transaction workload
+        TransactionWorkload ts = new TransactionWorkload(sampler);
+        ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
+        s.schedule(ts);
+
+        // Assign a target transaction for malicious behavior
+        Transaction targetTransaction = getTargetTransactionFromUser(ts.getAllTransactions());
+        for (INode node : ns.getNodes()) {
+            if (node instanceof BitcoinNode) {
+                BitcoinNode bNode = (BitcoinNode) node;
+                if (bNode.getBehaviorStrategy() instanceof MaliciousNodeBehavior) {
+                    ((MaliciousNodeBehavior) bNode.getBehaviorStrategy()).setTargetTransaction(targetTransaction);
+                }
+            }
+        }
 
             Profiling.simBeginningTime = System.currentTimeMillis();
 
@@ -70,9 +59,9 @@ public class BitcoinMainDriver {
             System.out.printf("\n");
         System.out.println("Real time(ms): " + realTime);
         System.out.println("Simulation time(ms): " + Simulation.currTime);
-        
+
         s.getNodeSet().closeNodes();
-        
+
         BitcoinReporter.flushBlockReport();
         BitcoinReporter.flushStructReport();
         BitcoinReporter.flushEvtReport();
@@ -80,6 +69,22 @@ public class BitcoinMainDriver {
         BitcoinReporter.flushInputReport();
         BitcoinReporter.flushConfig();
 	}
-	
-	
+
+
+    private Transaction getTargetTransactionFromUser(List<Transaction> transactions) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Select a transaction ID to target for the attack:");
+        for (Transaction t : transactions) {
+            System.out.println("Transaction ID: " + t.getID() + " - Details: " + t.toString());
+        }
+        String chosenId = scanner.nextLine();
+        for (Transaction t : transactions) {
+            if (t.getID() == Integer.parseInt(chosenId)) {
+                return t;
+            }
+        }
+        return null; // Or handle invalid selection appropriately
+    }
+
+
 }

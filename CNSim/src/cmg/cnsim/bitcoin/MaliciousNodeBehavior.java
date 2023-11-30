@@ -28,7 +28,9 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     public void event_NodeReceivesClientTransaction(Transaction t, long time) {
         if (!t.equals(targetTransaction)) {
             honestBehavior.event_NodeReceivesClientTransaction(t, time);
+            System.out.println(t.getID() + " is not the target transaction");
         } else if (!isAttackInProgress) {
+            System.out.println("Malicious node " + node.getID() + " starts double-spending attack on transaction " + t.getID());
             startAttack();
         }
     }
@@ -39,6 +41,12 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         hiddenChain = new ArrayList<Block>();
         blockchainSizeAtAttackStart = node.blockchain.blockchain.size();
         // create a getter method for the blockchain
+        if (blockchainSizeAtAttackStart > 0) {
+            lastBlock = node.blockchain.blockchain.get(blockchainSizeAtAttackStart - 1);
+        }
+        else {
+            lastBlock = null;
+        }
     }
 
     @Override
@@ -85,10 +93,12 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     }
 
     private void revealHiddenChain() {
-        for (Block b : hiddenChain) {
-            honestBehavior.event_NodeCompletesValidation(b, System.currentTimeMillis());
-            //TODO change the currentTimeMillis to the simulation time (and also check if we need it)Done
+        for (int i = hiddenChain.size()-1; i >= 0; i--) {
+            honestBehavior.event_NodeReceivesPropagatedContainer(hiddenChain.get(i));
         }
+            //TODO change the currentTimeMillis to the simulation time (and also check if we need it)Done
+        //reveal in reverse order
+
 
         isAttackInProgress = false;
         hiddenChain = new ArrayList<Block>();
@@ -96,4 +106,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     }
 
 
+    public void setTargetTransaction(Transaction targetTransaction) {
+        this.targetTransaction = targetTransaction;
+    }
 }

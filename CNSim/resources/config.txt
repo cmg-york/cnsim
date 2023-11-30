@@ -21,7 +21,7 @@ net.numOfNodes = 3
 node.createMaliciousNode = true
 
 # Hash power for the malicious node (e.g., in GH)
-node.maliciousHashPower = 50000f
+node.maliciousHashPower = 50000000f
 
 # (bits/sec) - bandwidth
 net.throughputMean = 5000
