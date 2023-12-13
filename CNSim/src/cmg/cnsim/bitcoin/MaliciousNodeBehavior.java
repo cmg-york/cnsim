@@ -1,112 +1,301 @@
 package cmg.cnsim.bitcoin;
 
+import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.transaction.ITxContainer;
 import cmg.cnsim.engine.transaction.Transaction;
 
 import java.util.ArrayList;
 
+
+//TODO we can also remove the target tarnsaction in first. So we do not need to validate it.
+
 public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
-    private ArrayList<Block> hiddenChain;
+    private static final int MIN_CHAIN_LENGTH = 6;
+    private static final int MAX_CHAIN_LENGTH = 15;
+
+
+    private ArrayList<Block> hiddenChain=new ArrayList<Block>();
+    private ArrayList<Long> hiddenChainTimes = new ArrayList<Long>();
     private Transaction targetTransaction;
-    private boolean isAttackInProgress;
-    private int hiddenChainLength;
+    private boolean isAttackInProgress = false;
     private BitcoinNode node;
     private HonestNodeBehavior honestBehavior;
     private int blockchainSizeAtAttackStart;
-    final int MIN_CHAIN_LENGTH = 6;
     private Block lastBlock;
+
+
+    private int publicChainGrowthSinceAttack;
+    private boolean isAttackFinished;
 
     public MaliciousNodeBehavior(BitcoinNode node) {
         this.isAttackInProgress = false;
         this.node = node;
         this.honestBehavior = new HonestNodeBehavior(node);
-        this.hiddenChain = new ArrayList<Block>();
-        this.hiddenChainLength = 0;
+        logCreation();
+
     }
+
+
 
     @Override
     public void event_NodeReceivesClientTransaction(Transaction t, long time) {
-        if (!t.equals(targetTransaction)) {
-            honestBehavior.event_NodeReceivesClientTransaction(t, time);
-            System.out.println(t.getID() + " is not the target transaction");
-        } else if (!isAttackInProgress) {
-            System.out.println("Malicious node " + node.getID() + " starts double-spending attack on transaction " + t.getID());
-            startAttack();
-        }
-    }
-
-    private void startAttack() {
-        // Start building a hidden chain including the double-spent transaction
-        isAttackInProgress = true;
-        hiddenChain = new ArrayList<Block>();
-        blockchainSizeAtAttackStart = node.blockchain.blockchain.size();
-        // create a getter method for the blockchain
-        if (blockchainSizeAtAttackStart > 0) {
-            lastBlock = node.blockchain.blockchain.get(blockchainSizeAtAttackStart - 1);
-        }
-        else {
-            lastBlock = null;
-        }
+        honestBehavior.event_NodeReceivesClientTransaction(t, time);
+        logTransaction("client", t);
     }
 
     @Override
     public void event_NodeReceivesPropagatedTransaction(Transaction t, long time) {
         honestBehavior.event_NodeReceivesPropagatedTransaction(t, time);
+        logTransaction("propagated", t);
+    }
+
+    private void startAttack() {
+        isAttackInProgress = true;
+        configureNodeForAttack(140000f, 13750f);
+        calculateBlockchainSizeAtAttackStart();
+        logStartAttack();
     }
 
 
     @Override
     public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
-        // Process the container as an honest node
-        honestBehavior.event_NodeReceivesPropagatedContainer(t);
 
-        if (isAttackInProgress) {
-            // Calculate the growth of the public blockchain since the attack started
-            int publicChainGrowthSinceAttack = node.blockchain.blockchain.size() - blockchainSizeAtAttackStart;
-            //TODO check for the len of the blockchain to substitute
-            //TODO getter method for Blockchain
+        System.out.println("Malicious node receives propagated container");
+        Block b = (Block) t;
+        updateBlockContext(b);
+        reportBlockEvent(b, b.getContext().blockEvt);
 
-            // Reveal the hidden chain only if it's longer than the growth of the public blockchain
-            if (hiddenChain.size() > publicChainGrowthSinceAttack  && publicChainGrowthSinceAttack > MIN_CHAIN_LENGTH){
-                revealHiddenChain();
+        if (!isAttackInProgress && t.contains(targetTransaction)) {
+            lastBlock = (Block) b.parent;
+            System.out.println("Malicious Node Attack started by receiving the target transaction");
+            startAttack();
+
+            if (!node.blockchain.contains(b)) {
+                System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in receives propagated container");
+                //Add block to blockchain
+                handleNewBlockReceptionInAttack(b);
+            } else {
+                System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in recieves propagated container");
+                //Discard the block and report the event.
+                reportBlockEvent(b, "Propagated Block Discarded");
             }
+        }
+
+        else if (isAttackInProgress) {
+            if (!node.blockchain.contains(b)) {
+                System.out.println("chaghaaaal"+node.getID() + " does not contain " + b.getID() + " in its blockchain in recieves propagated container");
+                handleNewBlockReceptionInAttack(b);
+
+            } else {
+                System.out.println("chaghaaaaaaal"+node.getID()+ " contains " + b.getID() + " in its blockchain in recieves propagated container");
+                //Discard the block and report the event.
+                reportBlockEvent(b, "Propagated Block Discarded");
+            }
+
+            checkAndRevealHiddenChain();
+        }
+        else {
+            System.out.println("Malicious node is acting event noderecieves propogated container while attack is not started and target transaction has not been seen");
+            if (!node.blockchain.contains(b)) {
+                System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain");
+                //Add block to blockchain
+                honestBehavior.handleNewBlockReception(b);
+            } else {
+                System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain");
+                //Discard the block and report the event.
+                reportBlockEvent(b, "Propagated Block Discarded");
+            }
+
         }
     }
 
+
+
     @Override
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
+        logBlockValidation(t);
 
         if (isAttackInProgress) {
-            if (!hiddenChain.isEmpty()){
-                ((Block) t).parent = hiddenChain.get(hiddenChain.size()-1);
+            Block newBlock = (Block) t;
+            newBlock.validateBlock(node.miningPool.getGroup(), Simulation.currTime, System.currentTimeMillis(), node.getID(), "Node Completes Validation", node.getOperatingDifficulty(), node.getProspectiveCycles());
+            node.completeValidation(node.miningPool, time);
+            reportBlockEvent(newBlock, newBlock.getContext().blockEvt);
+
+            if (!node.blockchain.contains(newBlock)) {
+                System.out.println(node.getID() + " does not contain " + newBlock.getID() + " in its blockchain in completes validation");
+                hiddenChain.add(newBlock);
+                hiddenChainTimes.add(time);
+                //TODO you can remove the HiddenCHainTimes
+            } else {
+                System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
+                reportBlockEvent(newBlock, "Discarding own Block (ERROR)");
             }
-            else {
-                ((Block) t).parent = lastBlock;
+
+            manageMiningPostValidation();
+            checkAndRevealHiddenChain();
+
+        }
+        else if (t.contains(targetTransaction) && !isAttackInProgress) {
+            startAttack();
+            logStartAttackByValidation(t);
+            Block b = (Block) t;
+
+            //TODO we have problem here. the block context will disappear after b.validate block*******
+            b.validateBlock(node.miningPool.getGroup(), Simulation.currTime, System.currentTimeMillis(), node.getID(), "Node Completes Validation", node.getOperatingDifficulty(), node.getProspectiveCycles());node.completeValidation(node.miningPool, time);
+            //Report validation
+            reportBlockEvent(b, b.getContext().blockEvt);
+
+            if (!node.blockchain.contains(b)) {
+                System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in completes validation");
+                node.blockchain.addToStructure(b);
+                node.propagateContainer(b, time);
+            } else {
+                System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in completes validation");
+                reportBlockEvent(b, "Discarding own Block (ERROR)");
             }
-            hiddenChain.add((Block) t);
+            lastBlock = (Block) b.parent;
+            manageMiningPostValidation();
         }
         else {
             honestBehavior.event_NodeCompletesValidation(t, time);
         }
 
-        //TODO Pointer to the previous block
     }
+
+
 
     private void revealHiddenChain() {
+        System.out.println("********Revealing hidden chain******");
         for (int i = hiddenChain.size()-1; i >= 0; i--) {
-            honestBehavior.event_NodeReceivesPropagatedContainer(hiddenChain.get(i));
+            Block b = hiddenChain.get(i);
+            b.parent = i==0 ? lastBlock : hiddenChain.get(i-1);
+            node.blockchain.addToStructure(b);
+            node.propagateContainer(b, hiddenChainTimes.get(i));
+            if (b.getParent() == null) {
+                System.out.println("hidden chain is revealing. Its parent is: " + "null" + " and its height is: " + b.getHeight() + " and its ID is: " + b.getID());
+            }
+            else {
+                System.out.println("hidden chain is revealing. Its parent is: " + b.getParent().getID() + " and its height is: " + b.getHeight() + " and its ID is: " + b.getID());
+            }
+            System.out.println(b.printIDs(";"));
+
         }
-            //TODO change the currentTimeMillis to the simulation time (and also check if we need it)Done
-        //reveal in reverse order
-
-
         isAttackInProgress = false;
+        isAttackFinished = true;
         hiddenChain = new ArrayList<Block>();
-        hiddenChainLength = 0;
+        hiddenChainTimes = new ArrayList<Long>();
+        node.removeFromPool(targetTransaction);
+
     }
 
+    private void reportBlockEvent(Block b, String blockEvt) {
+        // Report a block event
+        BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+                b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
+                blockEvt, b.getContext().difficulty,b.getContext().cycles);
+    }
+
+    private void updateBlockContext(Block b) {
+        //TODO: updating of context here seems wrong!
+        //Update context information for reporting
+        b.getContext().simTime = Simulation.currTime;
+        b.getContext().sysTime = System.currentTimeMillis();
+        b.getContext().nodeID = node.getID();
+        b.getContext().blockEvt = "Node Receives Propagated Block";
+        b.getContext().cycles = -1;
+        b.getContext().difficulty = -1;
+    }
 
     public void setTargetTransaction(Transaction targetTransaction) {
         this.targetTransaction = targetTransaction;
     }
+
+
+    private void configureNodeForAttack(float HashPower, float ElectricPower) {
+        node.setElectricPower(13750f);
+        node.setHashPower(140000f);
+    }
+
+    private void manageMiningPostValidation() {
+        node.stopMining();
+        //Reset the next validation event. TODO: why do you do this?
+        node.resetNextValidationEvent();
+        //Remove the block's transactions from the mining pool.
+        node.removeFromPool(node.miningPool);
+        //Reconstruct mining pool, with whatever other transactions are there.
+        node.reconstructMiningPool();
+        node.miningPool.removeTxFromContainer(targetTransaction);
+        //Consider if it is worth mining.
+        node.startMining(node.scheduleValidationEvent(new Block(node.miningPool.getGroup()), Simulation.currTime));
+
+    }
+
+    private void calculateBlockchainSizeAtAttackStart() {
+        Block tip = node.blockchain.getLongestTip();
+        blockchainSizeAtAttackStart = tip.contains(targetTransaction) ? tip.getHeight() - 1 : tip.getHeight();
+    }
+
+    private void handleNewBlockReceptionInAttack(Block b) {
+        node.blockchain.addToStructure(b);
+        // Reconstruct mining pool based on the new information.
+        node.reconstructMiningPool();
+        //remove target transaction from pool
+        node.miningPool.removeTxFromContainer(targetTransaction);
+        //Consider starting or stopping mining.
+        node.startMining(node.scheduleValidationEvent(new Block(node.miningPool.getGroup()), Simulation.currTime));
+    }
+
+    private boolean shouldRevealHiddenChain() {
+        return hiddenChain.size() > publicChainGrowthSinceAttack && publicChainGrowthSinceAttack > MIN_CHAIN_LENGTH
+                || publicChainGrowthSinceAttack > MAX_CHAIN_LENGTH;
+    }
+
+    private void checkAndRevealHiddenChain() {
+        publicChainGrowthSinceAttack = node.blockchain.getLongestTip().height - blockchainSizeAtAttackStart;
+        logBlockchainGrowth(publicChainGrowthSinceAttack, hiddenChain);
+        if (shouldRevealHiddenChain()) {
+            revealHiddenChain();
+        }
+    }
+
+
+    //Logging
+
+    private void logCreation() {
+        System.out.println("Malicious node created");
+        System.out.println("Malicious Node ID: " + node.getID());
+        System.out.println("Malicious Hash Power: " + node.getHashPower());
+        System.out.println("Malicious Electric Power: " + node.getElectricPower());
+    }
+
+    private void logTransaction(String client, Transaction t) {
+        System.out.println("Malicious node receives " + client + " transaction with ID: " + t.getID());
+    }
+
+    private void logStartAttack() {
+        System.out.println("Hash power and electricity power of Malicious node : " + node.getHashPower() + " " + node.getElectricPower());
+        System.out.println("---------------------------------------Starting attack------------------------------------------");
+        System.out.println("Blockchain size at attack start: "+ blockchainSizeAtAttackStart);
+    }
+
+    public void logBlockchainGrowth(int publicChainGrowthSinceAttack, ArrayList<Block> hiddenChain) {
+        System.out.println(node.blockchain.getBlockchainHeight() + " blockchain height");
+        System.out.println("public chain growth since attack: " + publicChainGrowthSinceAttack);
+        System.out.println("hidden chain size: " + hiddenChain.size());
+    }
+
+    private void logBlockValidation(ITxContainer t) {
+        System.out.println("Malicious node completes validation of Block + " + t.getID() + ". You can see the transactions below: ");
+        System.out.println(t.printIDs(";"));
+    }
+
+    private void logStartAttackByValidation(ITxContainer t) {
+        System.out.println("________________________Attack started by validating the target transaction________________________________");
+        System.out.println("Node ID: " + node.getID() + " completes validation" + " Hash power: " + node.getHashPower() + " Electricity power: " + node.getElectricPower());
+        System.out.println("The block contains: " + t.printIDs(";"));
+    }
+
 }
+
+
+

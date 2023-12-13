@@ -270,11 +270,10 @@ public class Blockchain implements IStructure {
 		}
 		return(found);
 	}
-	
-	
+
 	/**
 	 * Checks if a {@linkplain Transaction} is contained (anywhere) in the blockchain. Likely to be used in the gossip stage.
-	 * 
+	 *
 	 * @param t The {@linkplain Transaction} to be checked.
 	 * @return <tt>true</tt> if it is contained, <tt>false</tt> if it is not.
 	 */
@@ -291,22 +290,42 @@ public class Blockchain implements IStructure {
 	/**
 	 * Checks if a {@linkplain Block} is contained in the blockchain. Search by ID.
 	 * @param block Is the {@linkplain Block} to be checked.
-	 * @return Return <tt>true</tt> if it is contained <tt>false</tt> otherwise. 
+	 * @return Return <tt>true</tt> if it is contained <tt>false</tt> otherwise.
 	 */
 	public boolean contains(Block block) {
-		boolean found1 = false, found2 = false;
-		//Does it exist as a block?
-		for (Block b : blockchain) {
-			// Check by ID
-			if (b.overlapsWith(block)) found1 = true;
-			if (b.overlapsWithbyObj(block)) found1 = true;
-			
-			// alert if one is true and the other false
-			assert(!(found1 ^ found2));
+		// Start checking from the parent of the block passed
+		int counter=1;
+		if (block.getParent() == null) {
+			return false;
 		}
-		return (found1 || found2);
+		Block current = (Block) block.getParent();
+
+		// Traverse the parental structure from the parent of the given block
+		while (current != null) {
+			counter++;
+			boolean found1 = false, found2 = false;
+
+			// Check if any block in the blockchain overlaps with the current block
+
+			if (block.overlapsWith(current)) found1 = true;
+			if (block.overlapsWithbyObj(current)) found2 = true;
+
+				// Assert to ensure consistency between overlapsWith and overlapsWithbyObj methods
+			assert(!(found1 ^ found2));
+
+			if (found1 || found2) {
+				System.out.println("Block " + block.getID() + " is contained in the blockchain at height " + counter);
+				return true; // Found the block in the parental structure
+				}
+
+			// Move to the next parent in the chain
+			current = (Block) current.getParent();
+		}
+
+		return false; // Block not found in the parental structure
 	}
-	
+
+
 	/**
 	 * @deprecated
 	 */
@@ -406,5 +425,36 @@ public class Blockchain implements IStructure {
     		s = s + "}";
     	return (s);
     }
+
+	public int getBlockchainHeight() {
+		int maxHeight = 0;
+		for (Block block : blockchain) {
+			if (block.getHeight() > maxHeight) {
+				maxHeight = block.getHeight();
+			}
+		}
+		return maxHeight;
+	}
+
+	/**
+	 * Returns the tip with the longest height.
+	 * @return The Block with the longest height from the tips list. If the list is empty, returns null.
+	 */
+	public Block getLongestTip() {
+		if (tips.isEmpty()) {
+			return null;
+		}
+
+		Block longestTip = tips.get(0);
+		for (Block tip : tips) {
+			if (tip.getHeight() > longestTip.getHeight()) {
+				longestTip = tip;
+			}
+		}
+		return longestTip;
+	}
+
+
+
 
 }

@@ -266,6 +266,11 @@ public abstract class Node implements INode {
 		if ( (pool.getGroup().size()>0) && (removeThese.getContent().length > 0) )
 			pool.getGroup().removeAll(Arrays.asList(removeThese.getContent()));
 	}
+
+	public void removeFromPool(Transaction removeThis) {
+		if ( (pool.getGroup().size()>0) && (removeThis != null) )
+			pool.getGroup().remove(removeThis);
+	}
 	
 	/**
 	 * Propagates the specified transaction container to other nodes in the simulation.

@@ -75,7 +75,6 @@ public class BitcoinMainDriver {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Select a transaction ID to target for the attack:");
         for (Transaction t : transactions) {
-            System.out.println("Transaction ID: " + t.getID() + " - Details: " + t.toString());
         }
         String chosenId = scanner.nextLine();
         for (Transaction t : transactions) {
