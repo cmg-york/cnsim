@@ -95,7 +95,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             checkAndRevealHiddenChain();
         }
         else {
-            System.out.println("Malicious node is acting event noderecieves propogated container while attack is not started and target transaction has not been seen");
+            System.out.println("Malicious node is acting event NodeRecievesPropogatedContainer while attack is not started and target transaction has not been seen");
             if (!node.blockchain.contains(b)) {
                 System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain");
                 //Add block to blockchain
@@ -226,7 +226,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         node.reconstructMiningPool();
         node.miningPool.removeTxFromContainer(targetTransaction);
         //Consider if it is worth mining.
-        node.startMining(node.scheduleValidationEvent(new Block(node.miningPool.getGroup()), Simulation.currTime));
+        node.considerMining(Simulation.currTime);
 
     }
 
@@ -242,7 +242,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         //remove target transaction from pool
         node.miningPool.removeTxFromContainer(targetTransaction);
         //Consider starting or stopping mining.
-        node.startMining(node.scheduleValidationEvent(new Block(node.miningPool.getGroup()), Simulation.currTime));
+        node.considerMining(Simulation.currTime);
     }
 
     private boolean shouldRevealHiddenChain() {
