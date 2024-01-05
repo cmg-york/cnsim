@@ -68,6 +68,8 @@ public class BitcoinMainDriver {
         BitcoinReporter.flushNodeReport();
         BitcoinReporter.flushInputReport();
         BitcoinReporter.flushConfig();
+
+
 	}
 
 

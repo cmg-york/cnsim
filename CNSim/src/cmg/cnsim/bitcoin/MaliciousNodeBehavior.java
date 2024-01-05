@@ -7,7 +7,7 @@ import cmg.cnsim.engine.transaction.Transaction;
 import java.util.ArrayList;
 
 
-//TODO we can also remove the target tarnsaction in first. So we do not need to validate it.
+//TODO we can also remove the target transaction in first. So we do not need to validate it.
 
 public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     private static final int MIN_CHAIN_LENGTH = 6;
@@ -23,7 +23,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     private int blockchainSizeAtAttackStart;
     private Block lastBlock;
 
-
     private int publicChainGrowthSinceAttack;
     private boolean isAttackFinished;
 
@@ -32,7 +31,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         this.node = node;
         this.honestBehavior = new HonestNodeBehavior(node);
         logCreation();
-
     }
 
 
@@ -59,8 +57,9 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
     @Override
     public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
-
+        System.out.println(t.printIDs(";") + "this is propagated container in malicious node");
         System.out.println("Malicious node receives propagated container");
+
         Block b = (Block) t;
         updateBlockContext(b);
         reportBlockEvent(b, b.getContext().blockEvt);
@@ -68,12 +67,12 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         if (!isAttackInProgress && t.contains(targetTransaction)) {
             lastBlock = (Block) b.parent;
             System.out.println("Malicious Node Attack started by receiving the target transaction");
-            startAttack();
+
+            //TODO start the attack only if the block is valid - Done by moving under if condition
 
             if (!node.blockchain.contains(b)) {
-                System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in receives propagated container");
-                //Add block to blockchain
                 handleNewBlockReceptionInAttack(b);
+                startAttack();
             } else {
                 System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in recieves propagated container");
                 //Discard the block and report the event.
@@ -91,7 +90,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 //Discard the block and report the event.
                 reportBlockEvent(b, "Propagated Block Discarded");
             }
-
             checkAndRevealHiddenChain();
         }
         else {
@@ -114,6 +112,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     @Override
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
         logBlockValidation(t);
+        System.out.println("____" + node.miningPool.printIDs(";") + "this is mining pool in completes validation");
 
         if (isAttackInProgress) {
             Block newBlock = (Block) t;
@@ -125,7 +124,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 System.out.println(node.getID() + " does not contain " + newBlock.getID() + " in its blockchain in completes validation");
                 hiddenChain.add(newBlock);
                 hiddenChainTimes.add(time);
-                //TODO you can remove the HiddenCHainTimes
+                //TODO you can remove the HiddenChainTimes
             } else {
                 System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
                 reportBlockEvent(newBlock, "Discarding own Block (ERROR)");
@@ -136,9 +135,10 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
         }
         else if (t.contains(targetTransaction) && !isAttackInProgress) {
-            startAttack();
-            logStartAttackByValidation(t);
+
             Block b = (Block) t;
+
+            //TODO start attack only if our blockchain does not contain it - Done by moving it under if condition
 
             //TODO we have problem here. the block context will disappear after b.validate block*******
             b.validateBlock(node.miningPool.getGroup(), Simulation.currTime, System.currentTimeMillis(), node.getID(), "Node Completes Validation", node.getOperatingDifficulty(), node.getProspectiveCycles());node.completeValidation(node.miningPool, time);
@@ -146,6 +146,9 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             reportBlockEvent(b, b.getContext().blockEvt);
 
             if (!node.blockchain.contains(b)) {
+                startAttack();
+                logStartAttackByValidation(t);
+
                 System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in completes validation");
                 node.blockchain.addToStructure(b);
                 node.propagateContainer(b, time);
@@ -170,6 +173,8 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             Block b = hiddenChain.get(i);
             b.parent = i==0 ? lastBlock : hiddenChain.get(i-1);
             node.blockchain.addToStructure(b);
+            if (b.getParent()!=null){
+                System.out.println("goooda" + b.getParent().getID());}
             node.propagateContainer(b, hiddenChainTimes.get(i));
             if (b.getParent() == null) {
                 System.out.println("hidden chain is revealing. Its parent is: " + "null" + " and its height is: " + b.getHeight() + " and its ID is: " + b.getID());
@@ -182,6 +187,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         }
         isAttackInProgress = false;
         isAttackFinished = true;
+        //TODO add document to explain why we need isAttackFinished
         hiddenChain = new ArrayList<Block>();
         hiddenChainTimes = new ArrayList<Long>();
         node.removeFromPool(targetTransaction);
@@ -212,8 +218,8 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
 
     private void configureNodeForAttack(float HashPower, float ElectricPower) {
-        node.setElectricPower(13750f);
-        node.setHashPower(140000f);
+        node.setElectricPower(137500f);
+        node.setHashPower(1400000f);
     }
 
     private void manageMiningPostValidation() {
@@ -227,17 +233,26 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         node.miningPool.removeTxFromContainer(targetTransaction);
         //Consider if it is worth mining.
         node.considerMining(Simulation.currTime);
+        //TODO check how modify consider mining to make sure it always mining
 
     }
 
     private void calculateBlockchainSizeAtAttackStart() {
+        if (node.blockchain.getBlockchainHeight() == 0) {
+            blockchainSizeAtAttackStart = 0;
+            return;
+        }
         Block tip = node.blockchain.getLongestTip();
         blockchainSizeAtAttackStart = tip.contains(targetTransaction) ? tip.getHeight() - 1 : tip.getHeight();
+        //Block tip = node.blockchain.getLongestTip().getHeight();
     }
 
-    private void handleNewBlockReceptionInAttack(Block b) {
+    private void
+    handleNewBlockReceptionInAttack(Block b) {
+        //Add block to blockchain
         node.blockchain.addToStructure(b);
         // Reconstruct mining pool based on the new information.
+        //TODO we should store them so if the attack was not successful we can remove them from the mining pool later.
         node.reconstructMiningPool();
         //remove target transaction from pool
         node.miningPool.removeTxFromContainer(targetTransaction);
@@ -246,7 +261,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     }
 
     private boolean shouldRevealHiddenChain() {
-        return hiddenChain.size() > publicChainGrowthSinceAttack && publicChainGrowthSinceAttack > MIN_CHAIN_LENGTH
+        return (hiddenChain.size() > publicChainGrowthSinceAttack && publicChainGrowthSinceAttack > MIN_CHAIN_LENGTH)
                 || publicChainGrowthSinceAttack > MAX_CHAIN_LENGTH;
     }
 

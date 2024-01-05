@@ -66,15 +66,20 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
                 "Node Completes Validation",
                 node.getOperatingDifficulty(),
                 node.getProspectiveCycles());
+
         //System.out.println(b.printIDs("-")+ " validated in honest node after validation");
         node.completeValidation(node.miningPool, time);
+
         //System.out.println(b.printIDs("-")+ " validated in honest node after completion of validation");
 
         //Report validation
         reportBlockEvent(b, b.getContext().blockEvt);
 
 
+        //TODO IT is not a good idea to set the parent here. We need to change the structure of the code.
+        b.setParent(node.blockchain.getLongestTip());
         if (!node.blockchain.contains(b)) {
+            b.setParent(null);
             //Add block to blockchain
             node.blockchain.addToStructure(b);
             //Propagate block to the rest of the network
@@ -108,6 +113,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         node.reconstructMiningPool();
         //Consider starting or stopping mining.
         node.considerMining(Simulation.currTime);
+        node.blockchain.printLongestChain();
     }
 
     private void reportBlockEvent(Block b, String blockEvt) {

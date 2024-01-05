@@ -99,28 +99,29 @@ public class Blockchain implements IStructure {
 		}
 	}
 
-	
-	
-	
+
+
+
 	//For new parentless blocks. You need to find the tip
 	/**
-	 * Pushes a newly validated {@linkplain Block block} without parents (e.g., just validated by the node) to blockchain. 
-	 * 
-	 * It gets the tallest non-overlapping tip and appends the block there while replacing the block's parent with the block in the tips list. 
-	 * 
-	 * While a block always contains a parent while being validated, we assume here that the parent is selected after validation. This normally does not cause any violence to the consensus proceedings, given that such parents is guaranteed to exist (mining pool is always valid and non-overlapping). In case it does, an error is printed in the Log file. 
-	 * 
-	 * If the chain is empty, make the block a genesis block with null as a parent. 
-	 * 
+	 * Pushes a newly validated {@linkplain Block block} without parents (e.g., just validated by the node) to blockchain.
+	 *
+	 * It gets the tallest non-overlapping tip and appends the block there while replacing the block's parent with the block in the tips list.
+	 *
+	 * While a block always contains a parent while being validated, we assume here that the parent is selected after validation. This normally does not cause any violence to the consensus proceedings, given that such parents is guaranteed to exist (mining pool is always valid and non-overlapping). In case it does, an error is printed in the Log file.
+	 *
+	 * If the chain is empty, make the block a genesis block with null as a parent.
+	 *
 	 * @param b The block to be pushed to the blockchain
-	 * 
+	 *
 	 */
 	private void pushBlockToChain(Block b) {
-		
-		//Nonempty blockchain - find the tallest non conflicting tip
+
+		//Nonempty blockchain - find the tallest non-conflicting tip
 		if (!blockchain.isEmpty()) {
 
-			Block par = this.getNonOverlappingTip(b);
+			//Block par = this.getNonOverlappingTip(b);
+			Block par = this.getLongestTip();
 			if (par != null) {
 				//Prepare and block to structure
 				b.setParent(par);
@@ -131,9 +132,9 @@ public class Blockchain implements IStructure {
 				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
 						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
 						"Appended On Chain (parentless)", b.getContext().difficulty,b.getContext().cycles);
-				
+
 				processOrphans();
-			
+
 			} else {
 				//Do nothing, block should be discarded.
 				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
@@ -146,12 +147,52 @@ public class Blockchain implements IStructure {
 			b.setHeight(1);
 			blockchain.add(b);
 			tips.add(b);
-			
+
 			processOrphans();
 		}
-		
 	}
-	
+
+
+	private void pushBlockToChain2(Block b) {
+
+		//Nonempty blockchain - find the tallest non-conflicting tip
+		if (!blockchain.isEmpty()) {
+
+			Block par = this.getLongestTip();
+			if (par != null) {
+				//Prepare and block to structure
+				b.setParent(par);
+				b.setHeight(par.getHeight() + 1);
+				blockchain.add(b);
+				tips.add(b);
+				tips.remove(b.getParent());
+				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
+						"Appended On Chain (parentless)", b.getContext().difficulty,b.getContext().cycles);
+
+				processOrphans();
+
+			} else {
+				//Do nothing, block should be discarded.
+				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
+						"Discarding due to chain overlap", b.getContext().difficulty,b.getContext().cycles);
+			}
+		} else {
+			//It is a genesis block
+			b.setParent(null); // it was already but for clarity
+			b.setHeight(1);
+			blockchain.add(b);
+			tips.add(b);
+
+			processOrphans();
+		}
+	}
+
+
+
+
+
 	/**
 	 * @deprecated
 	 */
@@ -168,7 +209,7 @@ public class Blockchain implements IStructure {
 			placeBlockInChain(b);
 		}
 		if ( (orphans.size() < initNumOrphans) && (orphans.size() > 0) ){
-			// do it again if the loop above actually affected the blockchain, and there are still orphans in the list.  
+			// do it again if the loop above actually affected the blockchain, and there are still orphans in the list.
 			processOrphans();
 		}
 	}
@@ -444,7 +485,11 @@ public class Blockchain implements IStructure {
 		if (tips.isEmpty()) {
 			return null;
 		}
-
+		//TODO delete the following line
+		System.out.println("Tips: "+printTips(","));
+		for (Block tip : tips) {
+			System.out.println("Tip " + tip.getID() +" size: "+tip.getHeight());
+		}
 		Block longestTip = tips.get(0);
 		for (Block tip : tips) {
 			if (tip.getHeight() > longestTip.getHeight()) {
@@ -452,6 +497,19 @@ public class Blockchain implements IStructure {
 			}
 		}
 		return longestTip;
+	}
+
+	public void printLongestChain() {
+		Block longestTip = getLongestTip();
+		if (longestTip == null) {
+			System.out.println("No longest tip found");
+			return;
+		}
+		Block current = longestTip;
+		while (current != null) {
+			System.out.println("Block " + current.getID() + " with height " + current.getHeight() + " and transactions " + current.printIDs(","));
+			current = (Block) current.getParent();
+		}
 	}
 
 
