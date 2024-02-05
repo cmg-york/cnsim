@@ -108,7 +108,8 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         //Add block to blockchain
         node.blockchain.addToStructure(b);
         //Remove block transactions from pool.
-        node.miningPool.extractGroup(b);
+        node.getPool().extractGroup(b);
+        //node.miningPool.extractGroup(b);
         // Reconstruct mining pool based on the new information.
         node.reconstructMiningPool();
         //Consider starting or stopping mining.

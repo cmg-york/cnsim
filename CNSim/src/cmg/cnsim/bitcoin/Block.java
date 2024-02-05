@@ -172,8 +172,7 @@ public class Block extends TransactionGroup {
 
 
 	public void addTransaction(Transaction transaction) {
-		// Add the transaction to the block
-		// Implement as needed
+		super.addTransaction(transaction);
 	}
 
 }

@@ -120,8 +120,8 @@ public class Blockchain implements IStructure {
 		//Nonempty blockchain - find the tallest non-conflicting tip
 		if (!blockchain.isEmpty()) {
 
-			//Block par = this.getNonOverlappingTip(b);
-			Block par = this.getLongestTip();
+			Block par = this.getNonOverlappingTip(b);
+			//Block par = this.getLongestTip();
 			if (par != null) {
 				//Prepare and block to structure
 				b.setParent(par);
@@ -512,7 +512,13 @@ public class Blockchain implements IStructure {
 		}
 	}
 
-
-
+	public Block getBlockByID(int id) {
+		for (Block block : blockchain) {
+			if (block.getID() == id) {
+				return block;
+			}
+		}
+		return null;
+	}
 
 }
