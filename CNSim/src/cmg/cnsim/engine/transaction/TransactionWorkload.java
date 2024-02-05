@@ -91,6 +91,7 @@ public class TransactionWorkload extends TransactionGroup {
     public ArrayList<Transaction> getAllTransactions() {
     	return getGroup();
     }
+    //TODO Why did not used get group directly
 	   
 
     //Workload generation from File

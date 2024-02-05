@@ -49,7 +49,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
     private void startAttack() {
         isAttackInProgress = true;
-        configureNodeForAttack(140000f, 13750f);
+        configureNodeForAttack(740000f, 13750f);
         calculateBlockchainSizeAtAttackStart();
         logStartAttack();
     }
@@ -61,6 +61,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         System.out.println("Malicious node receives propagated container");
 
         Block b = (Block) t;
+
         updateBlockContext(b);
         reportBlockEvent(b, b.getContext().blockEvt);
 
@@ -135,7 +136,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
         }
         else if (t.contains(targetTransaction) && !isAttackInProgress) {
-
             Block b = (Block) t;
 
             //TODO start attack only if our blockchain does not contain it - Done by moving it under if condition
@@ -218,8 +218,8 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
 
     private void configureNodeForAttack(float HashPower, float ElectricPower) {
-        node.setElectricPower(137500f);
-        node.setHashPower(1400000f);
+        node.setElectricPower(HashPower);
+        node.setHashPower(ElectricPower);
     }
 
     private void manageMiningPostValidation() {
