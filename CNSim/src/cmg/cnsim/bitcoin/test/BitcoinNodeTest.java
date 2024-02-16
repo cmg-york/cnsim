@@ -1,12 +1,16 @@
 package cmg.cnsim.bitcoin.test;
 
-import cmg.cnsim.bitcoin.*;
+import cmg.cnsim.bitcoin.BitcoinNode;
+import cmg.cnsim.bitcoin.BitcoinNodeFactory;
+import cmg.cnsim.bitcoin.Block;
+import cmg.cnsim.bitcoin.MaliciousNodeBehavior;
 import cmg.cnsim.engine.*;
 import cmg.cnsim.engine.network.AbstractNetwork;
 import cmg.cnsim.engine.network.RandomEndToEndNetwork;
 import cmg.cnsim.engine.node.AbstractNodeFactory;
 import cmg.cnsim.engine.node.INode;
 import cmg.cnsim.engine.node.NodeSet;
+import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionGroup;
 import cmg.cnsim.engine.transaction.TransactionWorkload;
 import org.junit.jupiter.api.AfterEach;
@@ -174,9 +178,6 @@ class BitcoinNodeTest {
 		assertEquals("{2,3}", pl.printIDs(","));
 		assertEquals("{2,3}", node.getMiningPool().printIDs(","));
 		assertTrue(node.getNextValidationEvent().ignoreEvt());
-		//TODO test if it detects the tip correctly. Also the structure.
-		//TODO test recieving invalid block
-		//TODO test Blockchain Object
 
 
 		//Rebuilding
@@ -352,6 +353,122 @@ class BitcoinNodeTest {
 	}
 
 	//TODO test for malicious node
+	@Test
+	void testDoubleSpendingAttack() throws Exception{
+
+		Config.init("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/Case 1 - config.txt");
+		sampler = new FileBasedSampler("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/DoubleSpending - workload.csv", "/home/amir/Projects/CNSim/cnsim/CNSim/resources/nodes.csv");
+		Simulation s = new Simulation(sampler);
+		AbstractNodeFactory nf = new BitcoinNodeFactory("Honest", s);
+		NodeSet ns = new NodeSet(nf);
+		ns.addNodes(3);
+
+		//ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
+		AbstractNetwork n = new RandomEndToEndNetwork(ns, sampler);
+		s.setNetwork(n);
+
+		TransactionWorkload ts = new TransactionWorkload(sampler);
+		ts.appendTransactions(10);
+		s.schedule(ts);
+
+		// Assign a target transaction for malicious behavior
+		Transaction targetTransaction = ts.getTransaction(5);
+		for (INode node : ns.getNodes()) {
+			if (node instanceof BitcoinNode) {
+				BitcoinNode bNode = (BitcoinNode) node;
+				if (bNode.getBehaviorStrategy() instanceof MaliciousNodeBehavior) {
+					((MaliciousNodeBehavior) bNode.getBehaviorStrategy()).setTargetTransaction(targetTransaction);
+				}
+			}
+		}
+
+		s.run();
+		long realTime = (System.currentTimeMillis() - Profiling.simBeginningTime); // in Milli-Sec
+		System.out.printf("\n");
+		System.out.println("Real time(ms): " + realTime);
+		System.out.println("Simulation time(ms): " + Simulation.currTime);
+
+		s.getNodeSet().closeNodes();
+
+		//print the blockchain structure after simulation
+		ns.getNodes().forEach(node -> {
+			BitcoinNode bNode = (BitcoinNode) node;
+			bNode.blockchain.printLongestChain();
+		});
+
+
+		}
+
+	//TODO test if it detects the tip correctly. Also the structure.
+	@Test
+	void testBlockchainTipWithCompetingChains() {
+		// Setup environment and transactions are assumed to be done
+
+		// Create blocks with a simple linking mechanism (using a mock hash for simplicity)
+		Block genesisBlock = new Block(); // Starting point of the blockchain
+
+		// Chain 1
+		Block block1A = new Block();
+		block1A.setParent(genesisBlock);
+		Block block2A = new Block();
+		block2A.setParent(block1A);
+		Block block3A = new Block();
+		block3A.setParent(block2A);
+
+		// Chain 2 (Competing chain)
+		Block block1B = new Block();
+		block1B.setParent(genesisBlock);
+		Block block2B = new Block();
+		block2B.setParent(block1B);
+		Block block3B = new Block();
+		block3B.setParent(block2B);
+		Block block4B = new Block(); // This chain will be longer
+		block4B.setParent(block3B);
+
+		// Get a node from the simulation
+		BitcoinNode node = (BitcoinNode) ns.getNodes().get(0);
+
+		// Simulate receiving blocks out of order and from competing chains
+		node.event_NodeReceivesPropagatedContainer(block1A);
+		assertEquals(block1A, node.blockchain.getLongestTip(), "Block 1A should be the current tip");
+
+		node.event_NodeReceivesPropagatedContainer(block1B);
+		// Still, block 1A is the tip since we're on that chain
+		assertEquals(block1A, node.blockchain.getLongestTip(), "Block 1A should still be the current tip");
+
+		node.event_NodeReceivesPropagatedContainer(block2A);
+		assertEquals(block2A, node.blockchain.getLongestTip(), "Block 2A should be the current tip");
+
+		node.event_NodeReceivesPropagatedContainer(block3A);
+		assertEquals(block3A, node.blockchain.getLongestTip(), "Block 3A should be the current tip");
+
+		// Now introduce the competing longer chain
+		node.event_NodeReceivesPropagatedContainer(block2B);
+		node.event_NodeReceivesPropagatedContainer(block3B);
+		// Tip doesn't change until the competing chain becomes longer
+		assertEquals(block3A, node.blockchain.getLongestTip());
+
+		node.event_NodeReceivesPropagatedContainer(block4B);
+		// The competing chain (B) becomes longer, so it becomes the new tip
+		assertEquals(block4B, node.blockchain.getLongestTip(), "Block 4B should now be the current tip due to longer chain");
+
+		// Further extend chain A to see if the node correctly switches back
+		Block block4A = new Block();
+		block4A.setParent(block3A);
+		Block block5A = new Block(); // This will make chain A longer again
+		block5A.setParent(block4A);
+		node.event_NodeReceivesPropagatedContainer(block4A);
+		node.event_NodeReceivesPropagatedContainer(block5A);
+		// Verify the tip is now the end of chain A, which is longer than chain B
+		assertEquals(block5A, node.blockchain.getLongestTip(), "Block 5A should now be the current tip due to longer chain A");
+
+		// This test scenario simulates a more dynamic and realistic blockchain environment,
+		// where the node must continuously evaluate the longest chain amidst receiving blocks out of order and from competing chains.
+	}
+
+	//TODO test recieving invalid block
+	//TODO test Blockchain Object
+
 
 
 }

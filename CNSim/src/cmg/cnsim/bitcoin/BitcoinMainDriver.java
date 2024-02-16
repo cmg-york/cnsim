@@ -27,6 +27,7 @@
             AbstractSampler sampler;
             if (Config.getPropertyBoolean("sampler.useFileBasedSampler")) {
                 sampler = new FileBasedSampler("/home/amir/Projects/CNSim/cnsim/CNSim/resources/transactions.csv", "/home/amir/Projects/CNSim/cnsim/CNSim/resources/nodes.csv");
+                sampler.LoadConfig();
             } else {
                 sampler = new StandardSampler();
                 sampler.LoadConfig();
@@ -36,10 +37,13 @@
             NodeSet ns = new NodeSet(nf);
 
             // Adding nodes
+
             ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
             AbstractNetwork n = new RandomEndToEndNetwork(ns, sampler);
             //TODO handel file based throughput matrix
             s.setNetwork(n);
+
+
 
             // Transaction workload
             TransactionWorkload ts = new TransactionWorkload(sampler);
@@ -74,6 +78,12 @@
             BitcoinReporter.flushNodeReport();
             BitcoinReporter.flushInputReport();
             BitcoinReporter.flushConfig();
+            // each node should log its own blockchain in the end
+            for (INode node : ns.getNodes()) {
+                if (node instanceof BitcoinNode) {
+                    ((BitcoinNode) node).logLongestChain();
+                }
+            }
 
 
         }

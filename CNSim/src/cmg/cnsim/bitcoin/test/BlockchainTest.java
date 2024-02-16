@@ -676,8 +676,81 @@ class BlockchainTest {
 
 	//TODO write more tests for orphans
 
+	@Test
+	void testOrphanBlockHandlingAndIntegration() {
+		// Initial setup: Create a genesis block and add it to the blockchain
+		Block genesisBlock = new Block();
+		genesisBlock.addTransaction(new Transaction(0, System.currentTimeMillis(), 1.0f, 0.1f)); // Genesis transaction
+		blockchain.addToStructure(genesisBlock);
+
+		// Create a block that should be an orphan initially (its parent is not yet in the blockchain)
+		Block orphanBlock = new Block();
+		orphanBlock.addTransaction(new Transaction(2, System.currentTimeMillis(), 3.0f, 0.3f));
+		// This parent ID points to a block that has not been added yet, simulating an orphan
+		Block missingParentBlock = new Block();
+		missingParentBlock.addTransaction(new Transaction(1, System.currentTimeMillis(), 2.0f, 0.2f));
+		orphanBlock.setParent(missingParentBlock);
+
+		// Attempt to add the orphan block to the blockchain
+		blockchain.addToStructure(orphanBlock);
+
+		// Verify that the blockchain recognizes the block as an orphan
+		assertEquals(1, blockchain.printOrphans().length - 1, "There should be one orphan block waiting for its parent");
+
+		// Now add the missing parent block to the blockchain
+		blockchain.addToStructure(missingParentBlock);
+
+		// Verify that the orphan block is no longer an orphan and is integrated into the blockchain
+		assertEquals(0, blockchain.printOrphans().length - 1, "There should be no orphans after adding the missing parent");
+
+		// Verify the blockchain structure to ensure both the previously orphan block and its parent are correctly integrated
+		String[] expectedStructure = {
+				"BlockID,ParentID,BlockHeight,Transactions",
+				String.format("%d,0,2,{2}", missingParentBlock.getID()), // Assuming ID is assigned sequentially by the blockchain
+				String.format("%d,%d,3,{2}", orphanBlock.getID(), missingParentBlock.getID()),
+				"0,-1,1,{0}" // Genesis block
+		};
+		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should include the orphan block and its parent correctly after integration");
+	}
+
+
 	//TODO while a block comes that the longest chain has one transaction of it already
 
-	//TODO double spending scenario
+	@Test
+	void testBlockWithDuplicateTransactionIsRejected() {
+		// Initial setup: Create a genesis block and add it to the blockchain
+		Block genesisBlock = new Block();
+		genesisBlock.addTransaction(new Transaction(0, System.currentTimeMillis(), 1.0f, 0.1f)); // Simplified genesis transaction
+		blockchain.addToStructure(genesisBlock);
+
+		// Create and add a valid block extending the genesis block
+		Block validBlock = new Block();
+		validBlock.setParent(genesisBlock); // Linking to genesis block
+		Transaction uniqueTransaction = new Transaction(1, System.currentTimeMillis(), 2.0f, 0.2f);
+		validBlock.addTransaction(uniqueTransaction);
+		blockchain.addToStructure(validBlock);
+
+		// Attempt to add a new block containing a duplicate of the existing transaction
+		Block blockWithDuplicateTransaction = new Block();
+		blockWithDuplicateTransaction.setParent(genesisBlock); // Also linking to genesis block
+		blockWithDuplicateTransaction.addTransaction(uniqueTransaction); // Adding the same transaction again
+		blockchain.addToStructure(blockWithDuplicateTransaction);
+
+		// Verify that the blockchain does not accept the block with a duplicate transaction
+		String expectedTips = String.format("{%d}", validBlock.getID());
+		assertEquals(expectedTips, blockchain.printTips(","), "Blockchain should only have one tip, excluding the block with the duplicate transaction");
+
+		// Verify that the blockchain structure does not include the invalid block
+		String[] expectedStructure = {
+				"BlockID,ParentID,BlockHeight,Transactions",
+				String.format("%d,0,2,{1}", validBlock.getID()),
+				"0,-1,1,{0}" // Genesis block
+		};
+		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should not include the block with the duplicate transaction");
+
+		// Additionally, check if the rejected block is considered an orphan or simply discarded
+		assertTrue(blockchain.printOrphans().length - 1 == 0, "There should be no orphans from rejected blocks with duplicate transactions");
+	}
+	
 
 }

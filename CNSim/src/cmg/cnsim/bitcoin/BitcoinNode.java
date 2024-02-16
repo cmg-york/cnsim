@@ -18,7 +18,7 @@ public class BitcoinNode extends Node {
 	private NodeBehaviorStrategy behaviorStrategy;
 
 	protected TransactionGroup miningPool;
-	protected Blockchain blockchain;
+	public Blockchain blockchain;
 	protected Double operatingDifficulty;
 	protected long minValueToMine;
 	protected long minSizeToMine;
@@ -206,5 +206,9 @@ public class BitcoinNode extends Node {
 
 	public NodeBehaviorStrategy getBehaviorStrategy() {
 		return behaviorStrategy;
+	}
+
+	public void logLongestChain() {
+		blockchain.printLongestChain();
 	}
 }

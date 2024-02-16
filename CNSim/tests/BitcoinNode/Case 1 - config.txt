@@ -26,7 +26,7 @@ net.throughputSD = 500
 # Antminer S9: https://www.asicminervalue.com/miners/bitmain/antminer-s9-14th
 node.electricPowerMean = 1375f
 node.electricPowerSD = 20f
-node.createMaliciousNode = false
+node.createMaliciousNode = true
 node.maliciousHashPower = 50000f
 # US dollars per KWh
 node.electricCostMean = 0.1f

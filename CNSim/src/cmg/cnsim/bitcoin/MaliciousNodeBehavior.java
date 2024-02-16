@@ -49,7 +49,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
     private void startAttack() {
         isAttackInProgress = true;
-        configureNodeForAttack(740000f, 13750f);
+        configureNodeForAttack(7400000f, 137500f);
         calculateBlockchainSizeAtAttackStart();
         logStartAttack();
     }

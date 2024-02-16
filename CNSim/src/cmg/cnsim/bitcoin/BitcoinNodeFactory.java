@@ -29,7 +29,13 @@ public class BitcoinNodeFactory extends AbstractNodeFactory {
 		this.sim = sim;
 		this.sampler = sim.getSampler();
 		this.createMaliciousNode = Config.getPropertyBoolean("node.createMaliciousNode");
-		this.maliciousHashPower = Config.getPropertyDouble("node.maliciousHashPower");
+		//check if node.maliciousHashPower is set in the config file
+		if (Config.hasProperty("node.maliciousHashPower")) {
+			this.maliciousHashPower = Config.getPropertyDouble("node.maliciousHashPower");
+		} else {
+			this.maliciousHashPower = 0.0;
+		}
+
 	}
 
 	/**
@@ -50,7 +56,7 @@ public class BitcoinNodeFactory extends AbstractNodeFactory {
 		NodeBehaviorStrategy strategy;
 		if (this.createMaliciousNode && !this.maliciousNodeCreated) {
 			strategy = new MaliciousNodeBehavior(node);
-			node.setHashPower((float) this.maliciousHashPower); // Set high hash power for the malicious node
+			if (this.maliciousHashPower != 0.0) {node.setHashPower((float) this.maliciousHashPower);}
 			this.maliciousNodeCreated = true; // Mark that the malicious node has been created
 		} else {
 			strategy = new HonestNodeBehavior(node);

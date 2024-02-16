@@ -23,10 +23,13 @@ public class FileBasedSampler extends AbstractSampler {
     private int requiredTransactionLines = Config.getPropertyInt("workload.numTransactions");
     private int requiredNodeLines = Config.getPropertyInt("net.numOfNodes");
 
+    private StandardSampler standardSampler;
+
 
     public FileBasedSampler(String transactionsFilePath, String nodesFilePath) {
         this.transactionsFilePath = transactionsFilePath;
         this.nodesFilePath = nodesFilePath;
+        this.standardSampler = new StandardSampler();
         LoadConfig();
     }
     private Random random = new Random();
@@ -121,77 +124,45 @@ public class FileBasedSampler extends AbstractSampler {
     // Override the methods to return values from the queues
     @Override
     public float getNextTransactionArrivalInterval() {
-        if (transactionArrivalIntervals.isEmpty()) {
-            System.out.println("Transaction arrival intervals queue is empty");
-            return (float) getPoissonInterval(txArrivalIntervalRate)*1000;
-            //TODO: Handle this case
-        }
-        return transactionArrivalIntervals.poll();
-    }
-
-
-    public double getPoissonInterval(float lambda) {
-        if(lambda < 0)
-            throw new ArithmeticException("lambda < 0");
-        double p = random.nextDouble();
-        while (p == 0.0){
-            p = random.nextDouble();
-        }
-        return (double) (Math.log(1-p)/(-lambda));
+        return transactionArrivalIntervals.isEmpty() ? standardSampler.getNextTransactionArrivalInterval() : transactionArrivalIntervals.poll();
     }
 
 
     @Override
     public long getNextMiningInterval(double hashPower) {
-        return miningIntervals.poll();
+        //TODO modification in transaction generator so it will work fine with mining interval
+        //return standardSampler.getNextMiningInterval(hashPower);
+        return miningIntervals.isEmpty() ? standardSampler.getNextMiningInterval(hashPower) : miningIntervals.poll();
     }
 
     @Override
     public float getNextTransactionFeeValue() {
-        if (transactionFeeValues.isEmpty()) {
-            return 0;
-        }
-        return transactionFeeValues.poll();
+        return transactionFeeValues.isEmpty() ? standardSampler.getNextTransactionFeeValue() : transactionFeeValues.poll();
     }
 
     @Override
     public long getNextTransactionSize() {
-        if (transactionSizes.isEmpty()) {
-            return 0;
-        }
-        return transactionSizes.poll();
+        return transactionSizes.isEmpty() ? standardSampler.getNextTransactionSize() : transactionSizes.poll();
     }
 
     @Override
     public float getNextNodeElectricPower() {
-        if (nodeElectricPowers.isEmpty()) {
-            return 0;
-        }
-        return nodeElectricPowers.poll();
+        return nodeElectricPowers.isEmpty() ? standardSampler.getNextNodeElectricPower() : nodeElectricPowers.poll();
     }
 
     @Override
     public float getNextNodeHashPower() {
-        if (nodeHashPowers.isEmpty()) {
-            return 0;
-        }
-        return nodeHashPowers.poll();
+        return nodeHashPowers.isEmpty() ? standardSampler.getNextNodeHashPower() : nodeHashPowers.poll();
     }
 
     @Override
     public float getNextNodeElectricityCost() {
-        if (nodeElectricityCosts.isEmpty()) {
-            return 0;
-        }
-        return nodeElectricityCosts.poll();
+        return nodeElectricityCosts.isEmpty() ? standardSampler.getNextNodeElectricityCost() : nodeElectricityCosts.poll();
     }
 
     @Override
     public int getNextRandomNode(int nNodes) {
-        if (randomNodeIndices.isEmpty()) {
-            return 0;
-        }
-        return randomNodeIndices.poll();
+        return(random.nextInt(nNodes));
     }
 
     private float getGaussian(float mean, float deviation) {
@@ -205,23 +176,31 @@ public class FileBasedSampler extends AbstractSampler {
     }
     @Override
     public float getNextConnectionThroughput() {
-        return (getGaussian(5000, 500));
+        return (getGaussian(netThroughputMean, netThroughputSD));
     }
 
     @Override
     public int getRandomNum(int min, int max) {
-        // Implement if needed, possibly by reading from the file or generating randomly
-        return 0;
+        return random.nextInt(max - min + 1) + min;
     }
 
     @Override
     public void LoadConfig() {
         LoadTransactionConfig();
         LoadNodeConfig();
+        LoadStandardSamplerConfig();
+        this.setNetThroughputMean(5000);
+        this.setNetThroughputSD(500);
+    }
+
+    private void LoadStandardSamplerConfig() {
+        standardSampler.LoadConfig();
     }
 
     @Override
     public void setSeed(long seed) {
         // Implement if needed
+        super.randomSeed = seed;
+        random.setSeed(seed);
     }
 }

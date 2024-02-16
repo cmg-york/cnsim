@@ -7,8 +7,8 @@ def generate_transactions(num_transactions):
     transactions = []
 
     for _ in range(num_transactions):
-        transaction_arrival_interval = round(random.uniform(1.0, 500.0), 2)  # Random float between 1.0 and 3.0
-        mining_interval = random.randint(900, 1100)  # Random integer between 900 and 1100
+        transaction_arrival_interval = round(random.uniform(1.0, 1000.0), 2)  # Random float between 1.0 and 3.0
+        mining_interval = random.randint(700, 1300)  # Random integer between 900 and 1100
         transaction_fee_value = round(random.uniform(50.0, 60.0), 2)  # Random float between 0.01 and 0.05
         transaction_size = random.randint(200, 500)  # Random integer between 200 and 500
         transactions.append([transaction_arrival_interval, mining_interval, transaction_fee_value, transaction_size])

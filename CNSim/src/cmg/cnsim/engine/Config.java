@@ -127,4 +127,8 @@ public class Config {
 		}
 		return b;
 	}
+
+	public static boolean hasProperty(String s) {
+		return prop.containsKey(s);
+	}
 }
