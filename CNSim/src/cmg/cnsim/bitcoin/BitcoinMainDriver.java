@@ -21,12 +21,12 @@
         }
 
         private void run() {
-            Config.init("/home/amir/Projects/CNSim/cnsim/CNSim/resources/config.txt");
+            Config.init("./CNSim/resources/config.txt");
 
             // Initialize components
             AbstractSampler sampler;
             if (Config.getPropertyBoolean("sampler.useFileBasedSampler")) {
-                sampler = new FileBasedSampler("/home/amir/Projects/CNSim/cnsim/CNSim/resources/transactions.csv", "/home/amir/Projects/CNSim/cnsim/CNSim/resources/nodes.csv");
+                sampler = new FileBasedSampler("./CNSim/resources/transactions.csv", "./CNSim/resources/nodes.csv");
                 sampler.LoadConfig();
             } else {
                 sampler = new StandardSampler();
@@ -80,6 +80,8 @@
             BitcoinReporter.flushConfig();
             // each node should log its own blockchain in the end
             for (INode node : ns.getNodes()) {
+                System.out.println(ns.getNodes());
+                System.out.println("Node " + node.getID() + " blockchain:");
                 if (node instanceof BitcoinNode) {
                     ((BitcoinNode) node).logLongestChain();
                 }

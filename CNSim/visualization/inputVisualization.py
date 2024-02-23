@@ -4,7 +4,6 @@ import os
 
 
 # Path to the CSV file
-#csv_file_path = '/home/amir/Projects/CNSim/cnsim/log/2024.01.05 14.04.52/Input - 2024.01.05 14.04.52.csv'
 current_directory = os.getcwd()
 # Navigate to two directories above the current directory
 two_levels_up = os.path.abspath(os.path.join(current_directory, '..', '..'))

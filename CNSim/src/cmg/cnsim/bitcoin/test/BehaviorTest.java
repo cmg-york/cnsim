@@ -28,8 +28,8 @@ public class BehaviorTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        Config.init("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/Case 1 - config.txt");
-        sampler = new FileBasedSampler("/home/amir/Projects/CNSim/cnsim/CNSim/resources/transactions.csv", "/home/amir/Projects/CNSim/cnsim/CNSim/resources/nodes.csv");
+        Config.init("./CNSim/tests/BitcoinNode/Case 1 - config.txt");
+        sampler = new FileBasedSampler("./CNSim/resources/transactions.csv", "./CNSim/resources/nodes.csv");
 
 
     }

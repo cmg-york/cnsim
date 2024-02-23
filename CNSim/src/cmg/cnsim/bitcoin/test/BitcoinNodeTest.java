@@ -30,7 +30,7 @@ class BitcoinNodeTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		Config.init("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/Case 1 - config.txt");
+		Config.init("./CNSim/tests/BitcoinNode/Case 1 - config.txt");
 
 		//Creating sampler
 		sampler = new StandardSampler();
@@ -68,7 +68,7 @@ class BitcoinNodeTest {
 
 		try {
 			//TODO: move this to the test folder!
-			tg = new TransactionWorkload("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/Case 1 - workload.csv",true);
+			tg = new TransactionWorkload("./CNSim/tests/BitcoinNode/Case 1 - workload.csv",true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -249,7 +249,7 @@ class BitcoinNodeTest {
 
 		try {
 			//TODO: move this to the test folder!
-			tg = new TransactionWorkload("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/SuddenTransactionVolumeIncrease - workload.csv", true);
+			tg = new TransactionWorkload("./CNSim/tests/BitcoinNode/SuddenTransactionVolumeIncrease - workload.csv", true);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -298,7 +298,7 @@ class BitcoinNodeTest {
 		TransactionWorkload tg = null;
 
 		try {
-			tg = new TransactionWorkload("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/LargeTransactionsMixedValues - workload.csv", true);
+			tg = new TransactionWorkload("./CNSim/tests/BitcoinNode/LargeTransactionsMixedValues - workload.csv", true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -330,7 +330,7 @@ class BitcoinNodeTest {
 		TransactionWorkload tg = null;
 
 		try {
-			tg = new TransactionWorkload("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/RapidHighValueTransactions - workload.csv", true);
+			tg = new TransactionWorkload("./CNSim/tests/BitcoinNode/RapidHighValueTransactions - workload.csv", true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -356,8 +356,8 @@ class BitcoinNodeTest {
 	@Test
 	void testDoubleSpendingAttack() throws Exception{
 
-		Config.init("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/Case 1 - config.txt");
-		sampler = new FileBasedSampler("/home/amir/Projects/CNSim/cnsim/CNSim/tests/BitcoinNode/DoubleSpending - workload.csv", "/home/amir/Projects/CNSim/cnsim/CNSim/resources/nodes.csv");
+		Config.init("./CNSim/tests/BitcoinNode/Case 1 - config.txt");
+		sampler = new FileBasedSampler("./CNSim/tests/BitcoinNode/DoubleSpending - workload.csv", "./CNSim/resources/nodes.csv");
 		Simulation s = new Simulation(sampler);
 		AbstractNodeFactory nf = new BitcoinNodeFactory("Honest", s);
 		NodeSet ns = new NodeSet(nf);

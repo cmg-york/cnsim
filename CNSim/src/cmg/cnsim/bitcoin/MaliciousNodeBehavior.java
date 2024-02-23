@@ -57,8 +57,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
     @Override
     public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
-        System.out.println(t.printIDs(";") + "this is propagated container in malicious node");
-        System.out.println("Malicious node receives propagated container");
 
         Block b = (Block) t;
 
@@ -67,15 +65,13 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
         if (!isAttackInProgress && t.contains(targetTransaction)) {
             lastBlock = (Block) b.parent;
-            System.out.println("Malicious Node Attack started by receiving the target transaction");
-
-            //TODO start the attack only if the block is valid - Done by moving under if condition
+            //System.out.println("Malicious Node Attack started by receiving the target transaction");
 
             if (!node.blockchain.contains(b)) {
                 handleNewBlockReceptionInAttack(b);
                 startAttack();
             } else {
-                System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in recieves propagated container");
+                //System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in recieves propagated container");
                 //Discard the block and report the event.
                 reportBlockEvent(b, "Propagated Block Discarded");
             }
@@ -83,24 +79,22 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
         else if (isAttackInProgress) {
             if (!node.blockchain.contains(b)) {
-                System.out.println("chaghaaaal"+node.getID() + " does not contain " + b.getID() + " in its blockchain in recieves propagated container");
                 handleNewBlockReceptionInAttack(b);
 
             } else {
-                System.out.println("chaghaaaaaaal"+node.getID()+ " contains " + b.getID() + " in its blockchain in recieves propagated container");
                 //Discard the block and report the event.
                 reportBlockEvent(b, "Propagated Block Discarded");
             }
             checkAndRevealHiddenChain();
         }
         else {
-            System.out.println("Malicious node is acting event NodeRecievesPropogatedContainer while attack is not started and target transaction has not been seen");
+            //System.out.println("Malicious node is acting event NodeRecievesPropogatedContainer while attack is not started and target transaction has not been seen");
             if (!node.blockchain.contains(b)) {
-                System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain");
+                //System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain");
                 //Add block to blockchain
                 honestBehavior.handleNewBlockReception(b);
             } else {
-                System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain");
+                //System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain");
                 //Discard the block and report the event.
                 reportBlockEvent(b, "Propagated Block Discarded");
             }
@@ -113,7 +107,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     @Override
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
         logBlockValidation(t);
-        System.out.println("____" + node.miningPool.printIDs(";") + "this is mining pool in completes validation");
 
         if (isAttackInProgress) {
             Block newBlock = (Block) t;
@@ -122,12 +115,11 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             reportBlockEvent(newBlock, newBlock.getContext().blockEvt);
 
             if (!node.blockchain.contains(newBlock)) {
-                System.out.println(node.getID() + " does not contain " + newBlock.getID() + " in its blockchain in completes validation");
                 hiddenChain.add(newBlock);
                 hiddenChainTimes.add(time);
                 //TODO you can remove the HiddenChainTimes
             } else {
-                System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
+                //System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
                 reportBlockEvent(newBlock, "Discarding own Block (ERROR)");
             }
 
@@ -149,11 +141,11 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 startAttack();
                 logStartAttackByValidation(t);
 
-                System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in completes validation");
+                //System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in completes validation");
                 node.blockchain.addToStructure(b);
                 node.propagateContainer(b, time);
             } else {
-                System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in completes validation");
+                //System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in completes validation");
                 reportBlockEvent(b, "Discarding own Block (ERROR)");
             }
             lastBlock = (Block) b.parent;
@@ -173,8 +165,8 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             Block b = hiddenChain.get(i);
             b.parent = i==0 ? lastBlock : hiddenChain.get(i-1);
             node.blockchain.addToStructure(b);
-            if (b.getParent()!=null){
-                System.out.println("goooda" + b.getParent().getID());}
+            //if (b.getParent()!=null){
+            //    System.out.println("goooda" + b.getParent().getID());}
             node.propagateContainer(b, hiddenChainTimes.get(i));
             if (b.getParent() == null) {
                 System.out.println("hidden chain is revealing. Its parent is: " + "null" + " and its height is: " + b.getHeight() + " and its ID is: " + b.getID());
