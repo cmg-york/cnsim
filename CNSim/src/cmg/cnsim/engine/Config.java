@@ -114,5 +114,21 @@ public class Config {
         }
         return(s);
     }
-    
+
+	public static boolean getPropertyBoolean(String s) {
+		boolean b = false;
+		check(s);
+		try {
+			b = Boolean.parseBoolean(prop.getProperty(s));
+		} catch (Exception e) {
+			System.err.println("Error reading configuration key: '" + s + "' as boolean");
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		return b;
+	}
+
+	public static boolean hasProperty(String s) {
+		return prop.containsKey(s);
+	}
 }

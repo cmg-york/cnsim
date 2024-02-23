@@ -11,9 +11,9 @@ import cmg.cnsim.engine.transaction.Transaction;
 public interface INode {
 	
     /**
-     * Enumeration for the behavior type of a node.
+     * Enumeration for the behavior type of node.
      */
-	public enum BehaviorType {HONEST, MALICIOUS}
+	public enum BehaviorType {HONEST, MALICIOUS, SELFISH}
 
 	// N O D E     P R O P E R T I E S    A N D     D A T A
 	//

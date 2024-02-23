@@ -1,8 +1,8 @@
 package cmg.cnsim.engine.transaction;
 
-import java.util.ArrayList;
-
 import cmg.cnsim.engine.AbstractSampler;
+
+import java.util.ArrayList;
 
 public class TransactionWorkload extends TransactionGroup {
 
@@ -87,6 +87,11 @@ public class TransactionWorkload extends TransactionGroup {
 		}
 		return rtx;
 	}
+
+    public ArrayList<Transaction> getAllTransactions() {
+    	return getGroup();
+    }
+    //TODO Why did not used get group directly
 	   
 
     //Workload generation from File
@@ -102,6 +107,7 @@ public class TransactionWorkload extends TransactionGroup {
     public TransactionWorkload(String fileName, boolean hasHeader) throws Exception {
     	super(fileName, hasHeader);
     }
+
           
 }
     

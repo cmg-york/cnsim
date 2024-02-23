@@ -1,5 +1,4 @@
 package cmg.cnsim.engine;
-import java.util.PriorityQueue;
 
 import cmg.cnsim.engine.event.Event;
 import cmg.cnsim.engine.event.EventTimeComparator;
@@ -8,6 +7,8 @@ import cmg.cnsim.engine.network.AbstractNetwork;
 import cmg.cnsim.engine.node.NodeSet;
 import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionWorkload;
+
+import java.util.PriorityQueue;
 
 /**
  * The central class of any simulation
@@ -45,6 +46,15 @@ public class Simulation {
 	 */
 	public AbstractNetwork getNetwork() {
 	    return net;
+	}
+
+	public void printNetwork() {
+		for (int i = 0; i < net.Net.length; i++) {
+			for (int j = 0; j < net.Net[i].length; j++) {
+				System.out.print(net.Net[i][j] + " ");
+			}
+			System.out.println();
+		}
 	}
 
 	

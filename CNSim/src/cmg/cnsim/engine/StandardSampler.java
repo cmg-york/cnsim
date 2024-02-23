@@ -165,24 +165,24 @@ public class StandardSampler extends AbstractSampler {
     	if(difficulty < 0)
     		throw new ArithmeticException("difficulty < 0");
         return ((double) (Math.log(1-Math.random())/Math.log1p(- 1.0/difficulty)));
+
     }
 
     /**
      * As {@linkplain StandardSampler#getNextMiningIntervalMiliSeconds(double, double) but in seconds}
-     * 
-     * @param hashPower The hashpower for which the interval to be sampled. 
+     *
+     * @param hashPower The hashpower for which the interval to be sampled.
      * @param difficulty The difficulty for which the interval to be sampled.
      * @return The interval in milliseconds (msec)
      * @author Sotirios Liaskos
      */
     private double getNextMiningIntervalSeconds(double hashPower, double difficulty) {
-     	if (hashPower < 0)
-    		throw new ArithmeticException("hashPower < 0");
-     	double tris = getNextMiningIntervalTrials(difficulty);
-     	//System.out.print("Trials: " + tris + ", ");
-    	return((double) tris / (hashPower*1e9));
+        if (hashPower < 0)
+            throw new ArithmeticException("hashPower < 0");
+        double tris = getNextMiningIntervalTrials(difficulty);
+        //System.out.print("Trials: " + tris + ", ");
+        return((double) tris / (hashPower*1e9));
     }
-
     /**
      * Get a random sample of the number of seconds needed to successfull validate given specific hash power and difficulty.
      * Works by first calling {@linkplain StandardSampler#getNextMiningInterval(double)} to get the needed trials and then 
