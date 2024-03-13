@@ -64,6 +64,7 @@ public class BitcoinNodeFactory extends AbstractNodeFactory {
 
 		// Set the behavior strategy on the node
 		node.setBehaviorStrategy(strategy);
+		//node.setHashPower(Config.getPropertyFloat("node.maliciousHashPower"));
 
 		// Return the fully initialized node
 		return node;

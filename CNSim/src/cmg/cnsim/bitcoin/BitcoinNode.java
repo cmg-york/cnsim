@@ -176,6 +176,8 @@ public class BitcoinNode extends Node {
 
 	@Override
 	public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
+		System.out.println("Node " + this.getID() + " Recieved propogtetd offff in Bitcoin node " + t.getID() + "which contains " + t.printIDs(";"));
+
 		behaviorStrategy.event_NodeReceivesPropagatedContainer(t);
 	}
 
@@ -186,6 +188,7 @@ public class BitcoinNode extends Node {
 
 	@Override
 	public void event_NodeCompletesValidation(ITxContainer t, long time) {
+		System.out.println("Node " + this.getID() + " completes validation offff in Bitcoin node " + t.getID() + "which contains " + t.printIDs(";") + " in time: " + time);
 		behaviorStrategy.event_NodeCompletesValidation(t, time);
 	}
 
@@ -209,6 +212,6 @@ public class BitcoinNode extends Node {
 	}
 
 	public void logLongestChain() {
-		blockchain.printLongestChain();
+		this.blockchain.printLongestChain();
 	}
 }

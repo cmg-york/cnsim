@@ -56,6 +56,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
         Block b = (Block) t;
         System.out.println("Node " + node.getID() + " completes validation of " + t.getID());
+        System.out.println("it contains" + t.printIDs(";") );
 
         //Add validation information to the block.
         //System.out.println(b.printIDs("-") + " validated in honest node");
@@ -114,7 +115,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         node.reconstructMiningPool();
         //Consider starting or stopping mining.
         node.considerMining(Simulation.currTime);
-        node.blockchain.printLongestChain();
+        //node.blockchain.printLongestChain();
     }
 
     private void reportBlockEvent(Block b, String blockEvt) {
@@ -129,9 +130,11 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
     private void logReceptionDetails(Block b, ITxContainer t) {
         if (b.getParent() != null) {
             System.out.println("Block " + t.getID() + " got propagated to node " + node.getID() + " which contains" + t.printIDs(";") + " and parent " + ((Block) t).parent.getID());
+            System.out.println("Source of it is: " + ((Block) t).getContext().nodeID);
         }
         else{
             System.out.println("Block " + t.getID() + " got propagated to node " + node.getID() + " which contains" + t.printIDs(";") + " and parent " + "null");
+            System.out.println("Source of it is: " + ((Block) t).getContext().nodeID);
         }
     }
 

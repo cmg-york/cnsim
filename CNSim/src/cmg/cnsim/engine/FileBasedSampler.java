@@ -93,34 +93,6 @@ public class FileBasedSampler extends AbstractSampler {
         }
     }
 
-
-    private void LoadNodeConfi2g() {
-        try (BufferedReader br = new BufferedReader(new FileReader(nodesFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(",");
-                if (values.length != 4) {
-                    continue; // Skip lines that don't have exactly 4 values
-                }
-                try {
-                    nodeElectricPowers.add(Float.parseFloat(values[0].trim()));
-                    nodeHashPowers.add(Float.parseFloat(values[1].trim()));
-                    nodeElectricityCosts.add(Float.parseFloat(values[2].trim()));
-                    connectionThroughputs.add(Float.parseFloat(values[3].trim()));
-
-                } catch (NumberFormatException e) {
-                    System.err.println("Error parsing node line: " + line);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-
     // Override the methods to return values from the queues
     @Override
     public float getNextTransactionArrivalInterval() {
@@ -131,8 +103,8 @@ public class FileBasedSampler extends AbstractSampler {
     @Override
     public long getNextMiningInterval(double hashPower) {
         //TODO modification in transaction generator so it will work fine with mining interval
-        //return standardSampler.getNextMiningInterval(hashPower);
-        return miningIntervals.isEmpty() ? standardSampler.getNextMiningInterval(hashPower) : miningIntervals.poll();
+        return standardSampler.getNextMiningInterval(hashPower);
+        //return miningIntervals.isEmpty() ? standardSampler.getNextMiningInterval(hashPower) : miningIntervals.poll();
     }
 
     @Override

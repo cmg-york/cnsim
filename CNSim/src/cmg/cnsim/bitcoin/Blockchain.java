@@ -506,7 +506,7 @@ public class Blockchain implements IStructure {
 			return;
 		}
 		Block current = longestTip;
-		System.out.println("Longest chain for node " + longestTip.getContext().nodeID + " with tip " + longestTip.getID() + " and height " + longestTip.getHeight() + ":");
+		System.out.println("Longest chain " + " with tip " + longestTip.getID() + " and height " + longestTip.getHeight() + ":");
 		while (current != null) {
 			System.out.println("Block " + current.getID() + " with height " + current.getHeight() + " and transactions " + current.printIDs(","));
 			current = (Block) current.getParent();

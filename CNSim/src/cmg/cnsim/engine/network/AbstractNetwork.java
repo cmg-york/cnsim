@@ -94,14 +94,14 @@ public abstract class AbstractNetwork {
 		return Net[Origin][Destination];
 	}
 
-	public float setThroughput(int Origin, int Destination, float throughput) {
+	public void setThroughput(int Origin, int Destination, float throughput) {
 		if(Origin < 0)
 			throw new ArithmeticException("Origin < 0");
 		if(Destination < 0)
 			throw new ArithmeticException("Destination < 0");
 		if(throughput < 0)
 			throw new ArithmeticException("Throughput < 0");
-		return Net[Origin][Destination] = throughput;
+		Net[Origin][Destination] = throughput;
 	}
 
 	

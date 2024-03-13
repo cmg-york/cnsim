@@ -1,95 +1,164 @@
 import csv
-from collections import defaultdict
+import os
+import csv
 
-class BlockChainTracker:
-    def __init__(self):
-        self.node_chains = defaultdict(list)  # Stores the chains of blocks for each node
-        self.block_details = {}  # Stores block details for backtracking
-
-    def add_block(self, node_id, block_id, parent_id, height, sim_time, evt_type, block_content):
-        # Only add the block if it was appended to the chain
-        if evt_type in ['Appended On Chain (parentless)', 'Appended On Chain (w/ parent)'] or parent_id == -1:
-            # Store block details
-            self.block_details[block_id] = {'parent_id': parent_id, 'height': height, 'sim_time': sim_time, 'block_content': block_content}
-            # Append block to the node's chain, assuming linear progression for simplicity
-            self.node_chains[node_id].append(block_id)
-
-    def get_longest_chain(self, node_id, upto_sim_time):
-        # Find the block with the maximum height up to the given sim_time
-        max_height = -1
-        max_height_block_id = None
-        for block_id in self.node_chains[node_id]:
-            block = self.block_details[block_id]
-            if block['sim_time'] <= upto_sim_time and block['height'] > max_height:
-                max_height = block['height']
-                max_height_block_id = block_id
-
-        # Backtrack from the block with the maximum height to reconstruct the chain
-        longest_chain = []
-        current_block_id = max_height_block_id
-        while current_block_id is not None and current_block_id in self.block_details:
-            block = self.block_details[current_block_id]
-            if block['sim_time'] > upto_sim_time:
-                break  # Ensure we don't include blocks beyond the specified sim_time
-            longest_chain.insert(0, (current_block_id, block['parent_id'], block['height'], block['sim_time'], block['block_content']))
-            current_block_id = block['parent_id'] if block['parent_id'] != -1 else None
-
-        return longest_chain
-
-def process_csv_and_display_longest_chain(csv_filename):
-    tracker = BlockChainTracker()
-
-    with open(csv_filename, mode='r') as csv_file:
-        csv_reader = csv.DictReader(csv_file)
-        sorted_rows = sorted(csv_reader, key=lambda row: int(row['SimTime']))
-
-        # Initialize variables to find the start and end times
-        start_time = float('inf')
-        end_time = 0
-
-        for row in sorted_rows:
-            sim_time = int(row['SimTime'])
-            tracker.add_block(
-                node_id=int(row[' NodeID']),
-                block_id=int(row[' BlockID']),
-                parent_id=int(row[' ParentID']),
-                height=int(row[' Height']),
-                sim_time=sim_time,
-                evt_type=row[' EvtType'],
-                block_content=row[' BlockContent']
-            )
-            # Update the end time to the latest sim_time
-            end_time = max(end_time, sim_time)
-
-        item_to_check = int(input("Please enter the integer to check in the block content: "))
-    n_slices = int(input("Please enter the number of slices (N): "))
+def read_and_filter_csv(input_csv_file_path):
+    with open(input_csv_file_path, mode='r') as infile:
+        reader = csv.DictReader(infile)
+        filtered_sorted_rows = sorted(
+            [row for row in reader if "Appended" in row[" EvtType"]],
+            key=lambda x: int(x["SimTime"])
+        )
+    return filtered_sorted_rows
     
-    # Loop to find the start time when the target transaction was first added
-    for block_id, details in tracker.block_details.items():
-        if str(item_to_check) in details['block_content'].strip('{}').split(';'):
-            start_time = min(start_time, details['sim_time'])
+def find_first_append_time_for_transaction(rows, transaction_id):
+    # Iterate through each row to find the transaction ID in the block's content
+    for row in rows:
+        # Remove curly braces and split the string into a list of transaction IDs
+        transactions = row[" BlockContent"].strip('{}').split(';')
+        if transaction_id in transactions:
+            return row["SimTime"]  # Return the SimTime when the transaction was first appended
+    return "Transaction ID not found in the blockchain."
 
-    # Handle case where the item is not found in any block
-    if start_time == float('inf'):
-        print(f"The item {item_to_check} was not found in any block.")
-        return
+def get_longest_chains_by_time(rows, sim_time):
+    # Filter blocks up to the specified SimTime
+    time_filtered_rows = [row for row in rows if int(row["SimTime"]) <= sim_time]
+    
+    # Track blocks for each node
+    nodes_blocks = {}
+    for row in time_filtered_rows:
+        node_id = row[" NodeID"]
+        block = {" BlockID": row[" BlockID"], " ParentID": row[" ParentID"], " BlockContent": row[" BlockContent"]}
+        if node_id not in nodes_blocks:
+            nodes_blocks[node_id] = []
+        nodes_blocks[node_id].append(block)
 
-    # Calculate slice duration
-    slice_duration = (end_time - start_time) / n_slices
+    def find_longest_chain(node_id, blocks):
+        chains = []
+        for block in blocks:
+            chain = [block]
+            while block[" ParentID"] != "-1":
+                parent_block = next((b for b in blocks if b[" BlockID"] == block[" ParentID"]), None)
+                if parent_block:
+                    chain.append(parent_block)
+                    block = parent_block
+                else:
+                    break
+            chains.append(chain)
+        return max(chains, key=len, default=[])
 
-    for i in range(n_slices):
-        slice_end_time = start_time + slice_duration * (i + 1)
-        print(f"Checking for presence of item {item_to_check} up to SimTime {slice_end_time}:")
+    # Find the longest chain for each node with the time constraint
+    longest_chains = {node_id: find_longest_chain(node_id, blocks) for node_id, blocks in nodes_blocks.items()}
 
-        for node_id in tracker.node_chains:
-            longest_chain = tracker.get_longest_chain(node_id, slice_end_time)
-            # Update the check to properly access block content in the tuple
-            item_found = any(str(item_to_check) in block[4].strip('{}').split(';') for block in longest_chain)
-            if item_found:
-                print(f" - Node {node_id}: Item is in the longest chain.")
-            else:
-                print(f" - Node {node_id}: Item is not in the longest chain.")
+    return longest_chains
 
-# Example usage
-csv_filename = 'BlockLog - 2024.02.12 17.32.26.csv'  # Replace with the path to your actual CSV file
-process_csv_and_display_longest_chain(csv_filename)
+def is_transaction_in_longest_chain_by_time(rows, transaction_id, sim_time):
+    # Filter blocks up to the specified SimTime
+    time_filtered_rows = [row for row in rows if int(row["SimTime"]) <= sim_time]
+    
+    # Get the longest chains for each node at the specified SimTime
+    longest_chains_by_time = get_longest_chains_by_time(time_filtered_rows, sim_time)
+    
+    # Check if the transaction is in the longest chain of each node
+    transaction_availability = {}
+    for node_id, chain in longest_chains_by_time.items():
+        # Split block contents and check for transaction ID
+        transaction_found = any(transaction_id in block[" BlockContent"].strip("{}").split(";") for block in chain)
+        transaction_availability[node_id] = transaction_found
+    
+    return transaction_availability
+    
+def find_first_and_last_sim_times_for_transaction(rows, transaction_id):
+    first_sim_time = None
+    last_sim_time = rows[-1]["SimTime"]  # Assume the last row has the latest SimTime
+    for row in rows:
+        transactions = row[" BlockContent"].strip('{}').split(';')
+        if transaction_id in transactions:
+            first_sim_time = row["SimTime"]
+            break
+    return first_sim_time, last_sim_time
+
+def divide_time_range_into_parts(first_time, last_time, parts=20):
+    first_time = int(first_time)
+    last_time = int(last_time)
+    step = (last_time - first_time) // parts
+    return [first_time + step * i for i in range(parts + 1)]
+
+def print_longest_chains_and_check_transaction_for_time_segments(rows, transaction_id, time_segments):
+    for i in range(len(time_segments)-1):
+        start_time = time_segments[i]
+        end_time = time_segments[i+1]
+        print(f"Time Segment {i+1}: {start_time} to {end_time}")
+        longest_chains = get_longest_chains_by_time(rows, end_time)
+        
+        for node_id, chain in longest_chains.items():
+            print(f"  Node {node_id}: Longest chain length = {len(chain)}")
+            transaction_found = False
+            for block in chain:
+                block_id = block[" BlockID"]
+                parent_id = block[" ParentID"]
+                transactions = block[" BlockContent"].strip("{}").split(";")
+                if transaction_id in transactions:
+                    transaction_found = True
+                #print(f"    BlockID: {block_id}, ParentID: {parent_id}, Transactions: {transactions}")
+            print(f"    Transaction {transaction_id} is {'present' if transaction_found else 'not present'} in the longest chain.")
+            print()  # Newline for better readability between nodes' chains
+        print("\n" + "-"*50 + "\n")  # Separator between time segments
+        
+        
+def write_beliefs_to_csv(output_csv_file_path, belief_data, is_header=False):
+    # Use 'a' mode for appending, 'w' for the first write to include headers
+    mode = 'w' if is_header else 'a'
+    with open(output_csv_file_path, mode=mode, newline='') as file:
+        writer = csv.writer(file)
+        if is_header:
+            writer.writerow(["Name of the File", "SimTime (ms)", "Node ID", "Believes"])
+        writer.writerows(belief_data)
+
+def collect_and_write_beliefs(rows, transaction_id, time_segments, output_csv_file_path, file_name):
+    belief_data = []
+    for i in range(len(time_segments)-1):
+        start_time = time_segments[i]
+        end_time = time_segments[i+1]
+        longest_chains = get_longest_chains_by_time(rows, end_time)
+        
+        for node_id, chain in longest_chains.items():
+            transaction_found = any(transaction_id in block[" BlockContent"].strip("{}").split(";") for block in chain)
+            belief_data.append([file_name, end_time, node_id, int(transaction_found)])
+    
+    write_beliefs_to_csv(output_csv_file_path, belief_data)
+    print(f"Beliefs have been written to {output_csv_file_path}.")
+    
+    
+# Function to process each BlockLog file
+def process_blocklog_file(file_path, output_file_path, transaction_id, file_name):
+    filtered_sorted_rows = read_and_filter_csv(file_path)
+    first_sim_time, last_sim_time = find_first_and_last_sim_times_for_transaction(filtered_sorted_rows, transaction_id)
+
+    if first_sim_time:
+        print(f"Transaction {transaction_id} first appeared at SimTime {first_sim_time} in file {file_path}.")
+        time_segments = divide_time_range_into_parts(first_sim_time, last_sim_time)
+        # Pass file_name to collect_and_write_beliefs
+        collect_and_write_beliefs(filtered_sorted_rows, transaction_id, time_segments, output_file_path, file_name)
+    else:
+        print(f"Transaction ID not found in the blockchain for file {file_path}.")
+
+# Main script
+directory_path = "/home/amir/Projects/CNSim/cnsim/log"
+output_file_path = 'output.csv'  # Specify your desired output file path
+
+transaction_id = input("Enter trx ID: ")
+
+
+# Initialize output file with headers
+write_beliefs_to_csv(output_file_path, [], is_header=True)
+
+for root, dirs, files in os.walk(directory_path):
+    for file in files:
+        if "BlockLog -" in file:
+            print(f"Processing {file}...")
+            file_path = os.path.join(root, file)
+            # Pass file as an additional parameter to process_blocklog_file
+            process_blocklog_file(file_path, output_file_path, transaction_id, file)
+
+print("Processing completed. Outputs have been written to the output file.")
