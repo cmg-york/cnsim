@@ -56,7 +56,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
         Block b = (Block) t;
         System.out.println("Node " + node.getID() + " completes validation of " + t.getID());
-        System.out.println("it contains" + t.printIDs(";") );
+        //System.out.println("it contains" + t.printIDs(";") );
 
         //Add validation information to the block.
         //System.out.println(b.printIDs("-") + " validated in honest node");
@@ -68,13 +68,17 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
                 node.getOperatingDifficulty(),
                 node.getProspectiveCycles());
 
+
         //System.out.println(b.printIDs("-")+ " validated in honest node after validation");
         node.completeValidation(node.miningPool, time);
+        System.out.println("Node " + node.getID() + " completes validationnnnnnn2 of " + t.getID() + " at " + Simulation.currTime + "containing: " + t.printIDs(";"));
+
 
         //System.out.println(b.printIDs("-")+ " validated in honest node after completion of validation");
-
         //Report validation
         reportBlockEvent(b, b.getContext().blockEvt);
+
+        System.out.println("Node " + node.getID() + " completessss2 validation of " + t.getID() + " at " + Simulation.currTime + "containing: " + t.printIDs(";") );
 
 
         //TODO IT is not a good idea to set the parent here. We need to change the structure of the code.

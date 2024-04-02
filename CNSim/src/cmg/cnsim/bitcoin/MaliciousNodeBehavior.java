@@ -53,7 +53,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     private void startAttack() {
         isAttackInProgress = true;
         System.out.println("Hash power before: " + node.getHashPower());
-        //configureNodeForAttack(node.getHashPower()*3, node.getElectricPower()*3);
+        configureNodeForAttack(node.getHashPower()*3, node.getElectricPower()*3);
         calculateBlockchainSizeAtAttackStart();
         logStartAttack();
     }
@@ -65,13 +65,14 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         Block b = (Block) t;
 
         updateBlockContext(b);
-        reportBlockEvent(b, b.getContext().blockEvt);
 
         if (!isAttackInProgress && t.contains(targetTransaction)) {
             lastBlock = (Block) b.parent;
+            System.out.println("Last Block changed to: " + lastBlock.getID());
             //System.out.println("Malicious Node Attack started by receiving the target transaction");
 
             if (!node.blockchain.contains(b)) {
+                reportBlockEvent(b, b.getContext().blockEvt);
                 handleNewBlockReceptionInAttack(b);
                 startAttack();
             } else {
@@ -83,6 +84,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
         else if (isAttackInProgress) {
             if (!node.blockchain.contains(b)) {
+                reportBlockEvent(b, b.getContext().blockEvt);
                 handleNewBlockReceptionInAttack(b);
 
             } else {
@@ -96,6 +98,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             if (!node.blockchain.contains(b)) {
                 //System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain");
                 //Add block to blockchain
+                reportBlockEvent(b, b.getContext().blockEvt);
                 honestBehavior.handleNewBlockReception(b);
             } else {
                 //System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain");
@@ -110,21 +113,19 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
     @Override
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
-        System.out.println("Malicious node Completes Validation offfff Block " + t.getID() + " that contains: " + t.printIDs(";"));
-        System.out.println("target transaction is: " + targetTransaction.getID());
-        logBlockValidation(t);
-
         if (isAttackInProgress) {
             Block newBlock = (Block) t;
             newBlock.validateBlock(node.miningPool.getGroup(), Simulation.currTime, System.currentTimeMillis(), node.getID(), "Node Completes Validation", node.getOperatingDifficulty(), node.getProspectiveCycles());
             node.completeValidation(node.miningPool, time);
-            reportBlockEvent(newBlock, newBlock.getContext().blockEvt);
+
 
             if (!node.blockchain.contains(newBlock)) {
+                reportBlockEvent(newBlock, newBlock.getContext().blockEvt);
                 hiddenChain.add(newBlock);
                 hiddenChainTimes.add(time);
                 //TODO you can remove the HiddenChainTimes
             } else {
+                //System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
                 //System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
                 reportBlockEvent(newBlock, "Discarding own Block (ERROR)");
             }
@@ -133,44 +134,66 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             checkAndRevealHiddenChain();
 
         }
-        else if (t.contains(targetTransaction) && !isAttackInProgress) {
+        else{
             Block b = (Block) t;
-
             //TODO start attack only if our blockchain does not contain it - Done by moving it under if condition
-
             //TODO we have problem here. the block context will disappear after b.validate block*******
             b.validateBlock(node.miningPool.getGroup(), Simulation.currTime, System.currentTimeMillis(), node.getID(), "Node Completes Validation", node.getOperatingDifficulty(), node.getProspectiveCycles());node.completeValidation(node.miningPool, time);
-            //Report validation
-            reportBlockEvent(b, b.getContext().blockEvt);
+            node.completeValidation(node.miningPool, time);
 
-            if (!node.blockchain.contains(b)) {
-                startAttack();
-                logStartAttackByValidation(t);
 
-                //System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in completes validation");
-                node.blockchain.addToStructure(b);
-                node.propagateContainer(b, time);
-                lastBlock = (Block) b.parent;
-                manageMiningPostValidation();
-            } else {
-                System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in completes validation");
-                reportBlockEvent(b, "Discarding own Block (ERROR)");
+            if(b.contains(targetTransaction)){
+                if (!node.blockchain.contains(b)) {
+                    //Report validation
+                    reportBlockEvent(b, b.getContext().blockEvt);
+                    startAttack();
+                    logStartAttackByValidation(t);
+
+                    //System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in completes validation");
+                    node.blockchain.addToStructure(b);
+                    node.propagateContainer(b, time);
+                    lastBlock = (Block) b.parent;
+                    System.out.println("Last Block changed to: " + lastBlock.getID());
+                    node.stopMining();
+                    //Reset the next validation event. TODO: why do you do this?
+                    node.resetNextValidationEvent();
+                    //Reconstruct mining pool, with whatever other transactions are there.
+                    //node.removeFromPool(targetTransaction); //TODO change with only target transaction
+                    node.reconstructMiningPool();
+                    node.miningPool.removeTxFromContainer(targetTransaction);
+                    //Consider if it is worth mining.
+                    node.considerMining(Simulation.currTime);
+                } else {
+                    System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in completes validation");
+                    reportBlockEvent(b, "Discarding own Block (ERROR)");
+                }
+                //TODO I moved lastBlock = (Block) b.parent; and manageMiningPostValidation(); from here to up
+                node.stopMining();
+                //Reset the next validation event. TODO: why do you do this?
+                node.resetNextValidationEvent();
+                //Remove the block's transactions from the mining pool.
+                node.reconstructMiningPool();
+                node.miningPool.removeTxFromContainer(targetTransaction);
+                //Consider if it is worth mining.
+                node.considerMining(Simulation.currTime);
             }
-            //TODO I moved lastBlock = (Block) b.parent; and manageMiningPostValidation(); from here to up
-            node.stopMining();
-            //Reset the next validation event. TODO: why do you do this?
-            node.resetNextValidationEvent();
-            //Remove the block's transactions from the mining pool.
-            node.reconstructMiningPool();
-            //Consider if it is worth mining.
-            node.considerMining(Simulation.currTime);
+            else {
+                b.setParent(node.blockchain.getLongestTip());
+                if (!node.blockchain.contains(b)){
+                    reportBlockEvent(b, b.getContext().blockEvt);
+                    b.setParent(null);
+                    node.blockchain.addToStructure(b);
+                    node.propagateContainer(b, time);
+                }
+                else{
+                    reportBlockEvent(b, "Discarding own Block (ERROR)");
+                }
+                honestBehavior.processPostValidationActivities(time);
+            }
         }
-        else {
-            System.out.println("Honest Behavior is doing this");
-            System.out.println("container contains: " + t.printIDs(","));
-            honestBehavior.event_NodeCompletesValidation(t, time);
-        }
-
+        logBlockValidation(t);
+        System.out.println("Malicious node Completes Validation offfff Block " + t.getID() + " that contains: " + t.printIDs(";"));
+        System.out.println("target transaction is: " + targetTransaction.getID());
     }
 
 
@@ -180,10 +203,14 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         for (int i = hiddenChain.size()-1; i >= 0; i--) {
             Block b = hiddenChain.get(i);
             b.parent = i==0 ? lastBlock : hiddenChain.get(i-1);
+            System.out.println(b.hasParent() + "joooon");
             node.blockchain.addToStructure(b);
             //if (b.getParent()!=null){
             //    System.out.println("goooda" + b.getParent().getID());}
-            node.propagateContainer(b, hiddenChainTimes.get(i));
+            //TODO Check how should propogate these blocks(in case of time)
+            //node.propagateContainer(b, hiddenChainTimes.get(i));
+            //here I want to put the current sim time instead of hidden chain times
+            node.propagateContainer(b, Simulation.currTime);
             if (b.getParent() == null) {
                 System.out.println("hidden chain is revealing. Its parent is: " + "null" + " and its height is: " + b.getHeight() + " and its ID is: " + b.getID());
             }
@@ -199,7 +226,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         hiddenChain = new ArrayList<Block>();
         hiddenChainTimes = new ArrayList<Long>();
         node.removeFromPool(targetTransaction);
-        configureNodeForAttack(node.getHashPower()/10, node.getElectricPower()/10);
+        //configureNodeForAttack(node.getHashPower()/10, node.getElectricPower()/10);
 
     }
 

@@ -63,12 +63,17 @@ public class Blockchain implements IStructure {
 
 
 	/**
-	 * The {@linkplain Block} has parent, i.e. is the result of propagation. If the parent does not exist in the blockchain, add the {@linkplain Block} to the orphans. If it is found, first check for overlaps with the chain (checking transaction IDs).  If those are not found, then just add the {@linkplain Block} to the blockchain with that parent. Replace the parent in the tips list and update the height of the {@linkplain Block}. If overlaps are found, then the {@linkplain Block} is corrupt and must be discarded. 
+	 * The {@linkplain Block} has parent, i.e. is the result of propagation. If the parent does not exist in the blockchain,
+	 * add the {@linkplain Block} to the orphans. If it is found, first check for overlaps with the chain (checking transaction IDs).
+	 * If those are not found, then just add the {@linkplain Block} to the blockchain with that parent.
+	 * Replace the parent in the tips list and update the height of the {@linkplain Block}.
+	 * If overlaps are found, then the {@linkplain Block} is corrupt and must be discarded.
 	 * @param b The {@linkplain Block} to be added to the blockchain.
 	 */
 	private void placeBlockInChain(Block b) {
 		//Find the parent
 		Block parent = (Block) findParentOf(b);
+		//TODO for the condition add (&& b.parent not equal null) -> means I could not find parent of this
 		if (parent == null) {
 			addToOrphans(b);
 		} else {
@@ -499,18 +504,19 @@ public class Blockchain implements IStructure {
 		return longestTip;
 	}
 
-	public void printLongestChain() {
+	public String printLongestChain() {
+		StringBuilder result = new StringBuilder();
 		Block longestTip = getLongestTip();
 		if (longestTip == null) {
-			System.out.println("No longest tip found");
-			return;
+			return "No longest tip found";
 		}
 		Block current = longestTip;
-		System.out.println("Longest chain " + " with tip " + longestTip.getID() + " and height " + longestTip.getHeight() + ":");
+		result.append("Longest chain " + " with tip ").append(longestTip.getID()).append(" and height ").append(longestTip.getHeight()).append(":\n");
 		while (current != null) {
-			System.out.println("Block " + current.getID() + " with height " + current.getHeight() + " and transactions " + current.printIDs(","));
+			result.append("Block ").append(current.getID()).append(" with height ").append(current.getHeight()).append(" and transactions ").append(current.printIDs(",")).append("\n");
 			current = (Block) current.getParent();
 		}
+		return result.toString();
 	}
 
 	public Block getBlockByID(int id) {

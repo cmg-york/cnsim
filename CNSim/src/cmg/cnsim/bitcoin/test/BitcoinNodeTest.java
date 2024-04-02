@@ -393,7 +393,7 @@ class BitcoinNodeTest {
 		//print the blockchain structure after simulation
 		ns.getNodes().forEach(node -> {
 			BitcoinNode bNode = (BitcoinNode) node;
-			bNode.blockchain.printLongestChain();
+			System.out.println(bNode.blockchain.printLongestChain());
 		});
 
 
