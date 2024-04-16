@@ -24,9 +24,9 @@ public class BitcoinReporter extends Reporter {
 
 	
 	static {
-		blockLog.add("SimTime, SysTime, NodeID, "
-				+ "BlockID, ParentID, Height, BlockContent, "
-				+ "EvtType, Difficulty, Cycles");
+		blockLog.add("SimTime,SysTime,NodeID,"
+				+ "BlockID,ParentID,Height,BlockContent,"
+				+ "EvtType,Difficulty,Cycles");
 		structureLog.add("SimTime, SysTime, NodeID, BlockID, ParentBlockID, Height, Concent, Place");
 		beliefLog.add("SimTime, NodeID, Believes");
 	}

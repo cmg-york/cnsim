@@ -24,12 +24,15 @@
         }
 
         private void run() {
-            Config.init("/home/amir/Projects/CNSim/cnsim/CNSim/resources/config.txt");
+            //print current directory
+            System.out.println("Current directory: " + System.getProperty("user.dir"));
+            Config.init("./resources/config.txt");
+
 
             // Initialize components
             AbstractSampler sampler;
             if (Config.getPropertyBoolean("sampler.useFileBasedSampler")) {
-                sampler = new FileBasedSampler("./CNSim/resources/transactions.csv", "./CNSim/resources/nodes.csv");
+                sampler = new FileBasedSampler("./resources/transactions.csv", "./resources/nodes.csv");
                 sampler.LoadConfig();
             } else {
                 sampler = new StandardSampler();

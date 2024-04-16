@@ -53,7 +53,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     private void startAttack() {
         isAttackInProgress = true;
         System.out.println("Hash power before: " + node.getHashPower());
-        configureNodeForAttack(node.getHashPower()*3, node.getElectricPower()*3);
+        //configureNodeForAttack(node.getHashPower()*3, node.getElectricPower()*3);
         calculateBlockchainSizeAtAttackStart();
         logStartAttack();
     }
