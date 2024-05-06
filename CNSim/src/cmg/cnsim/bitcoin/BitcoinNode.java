@@ -162,7 +162,6 @@ public class BitcoinNode extends Node {
 
 	@Override
 	public void close(INode n) {
-		//System.out.println("Node " + this.getID() + " closing.");
 		BitcoinReporter.reportBlockChainState(//Simulation.currTime, System.currentTimeMillis(), this.getID(),
 				this.blockchain.printStructureReport(this.getID()), this.blockchain.printOrphansReport(this.getID()));
 	}
@@ -176,12 +175,7 @@ public class BitcoinNode extends Node {
 
 	@Override
 	public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
-		synchronized (BitcoinNode.class) {
-			System.out.println("Node " + this.getID() + " is about to process container: " + t.getID());
 			behaviorStrategy.event_NodeReceivesPropagatedContainer(t);
-			//System.out.println("Node " + this.getID() + " Recieved propogtetd offff in Bitcoin node " + t.getID() + "which contains " + t.printIDs(";"));
-			System.out.println("Node " + this.getID() + " finished processing container: " + t.getID());
-		}
 	}
 
 
@@ -191,10 +185,7 @@ public class BitcoinNode extends Node {
 
 	@Override
 	public void event_NodeCompletesValidation(ITxContainer t, long time) {
-		synchronized (BitcoinNode.class) {
 		behaviorStrategy.event_NodeCompletesValidation(t, time);
-		//System.out.println("Node " + this.getID() + " completes validation offff in Bitcoin node " + t.getID() + "which contains " + t.printIDs(";") + " in time: " + time);
-}
 	}
 
 
@@ -216,7 +207,5 @@ public class BitcoinNode extends Node {
 		return behaviorStrategy;
 	}
 
-	public void logLongestChain() {
-		System.out.println(this.blockchain.printLongestChain());
-	}
+
 }

@@ -55,8 +55,7 @@
             }
             //TODO handel file based throughput matrix
             s.setNetwork(n);
-            System.out.println("Network matrix:");
-            n.printNetwork();
+            //n.printNetwork();
 
 
 

@@ -490,11 +490,9 @@ public class Blockchain implements IStructure {
 		if (tips.isEmpty()) {
 			return null;
 		}
-		//TODO delete the following line
-		System.out.println("Tips: "+printTips(","));
-		for (Block tip : tips) {
-			System.out.println("Tip " + tip.getID() +" size: "+tip.getHeight());
-		}
+		//for (Block tip : tips)
+		//	System.out.println("Tip " + tip.getID() +" size: "+tip.getHeight());
+
 		Block longestTip = tips.get(0);
 		for (Block tip : tips) {
 			if (tip.getHeight() > longestTip.getHeight()) {

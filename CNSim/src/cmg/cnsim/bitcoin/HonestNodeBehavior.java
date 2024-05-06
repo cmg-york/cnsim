@@ -10,8 +10,6 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
 
     public HonestNodeBehavior(BitcoinNode node) {
         this.node = node;
-        //node properties
-        System.out.println("Node ID: "+ node.getID() +" Hash Power: " + node.getHashPower());
     }
 
     @Override
@@ -33,15 +31,11 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
 
     @Override
     public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
-        System.out.println("Node " + node.getID() + " receives propagated block " + t.getID() + " at " + Simulation.currTime);
         Block b = (Block) t;
-        logReceptionDetails(b, t);
         updateBlockContext(b);
         // Report a block event
         reportBlockEvent(b, b.getContext().blockEvt);
-
         if (!node.blockchain.contains(b)){
-            System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain");
             handleNewBlockReception(b);
         } else {
             //Discard the block and report the event.
@@ -55,11 +49,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
     @Override
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
         Block b = (Block) t;
-        System.out.println("Node " + node.getID() + " completes validation of " + t.getID());
-        //System.out.println("it contains" + t.printIDs(";") );
-
         //Add validation information to the block.
-        //System.out.println(b.printIDs("-") + " validated in honest node");
         b.validateBlock(node.miningPool.getGroup(),
                 Simulation.currTime,
                 System.currentTimeMillis(),
@@ -69,19 +59,12 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
                 node.getProspectiveCycles());
 
 
-        //System.out.println(b.printIDs("-")+ " validated in honest node after validation");
         node.completeValidation(node.miningPool, time);
-        System.out.println("Node " + node.getID() + " completes validationnnnnnn2 of " + t.getID() + " at " + Simulation.currTime + "containing: " + t.printIDs(";"));
 
 
-        //System.out.println(b.printIDs("-")+ " validated in honest node after completion of validation");
         //Report validation
         reportBlockEvent(b, b.getContext().blockEvt);
 
-        System.out.println("Node " + node.getID() + " completessss2 validation of " + t.getID() + " at " + Simulation.currTime + "containing: " + t.printIDs(";") );
-
-
-        //TODO IT is not a good idea to set the parent here. We need to change the structure of the code.
         b.setParent(node.blockchain.getLongestTip());
         if (!node.blockchain.contains(b)) {
             b.setParent(null);
@@ -131,16 +114,6 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
 
 
 
-    private void logReceptionDetails(Block b, ITxContainer t) {
-        if (b.getParent() != null) {
-            System.out.println("Block " + t.getID() + " got propagated to node " + node.getID() + " which contains" + t.printIDs(";") + " and parent " + ((Block) t).parent.getID());
-            System.out.println("Source of it is: " + ((Block) t).getContext().nodeID);
-        }
-        else{
-            System.out.println("Block " + t.getID() + " got propagated to node " + node.getID() + " which contains" + t.printIDs(";") + " and parent " + "null");
-            System.out.println("Source of it is: " + ((Block) t).getContext().nodeID);
-        }
-    }
 
     protected void processPostValidationActivities(long time) {
         //Stop mining for now. TODO: why do you do this?
