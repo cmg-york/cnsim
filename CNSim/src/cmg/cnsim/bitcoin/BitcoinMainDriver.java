@@ -97,13 +97,6 @@
             BitcoinReporter.flushInputReport();
             BitcoinReporter.flushConfig();
             // each node should log its own blockchain in the end
-            for (INode node : ns.getNodes()) {
-                System.out.println(ns.getNodes());
-                System.out.println("Node " + node.getID() + " blockchain:");
-                ((BitcoinNode) node).logLongestChain();
-                //System.out.println(Arrays.toString(((BitcoinNode) node).blockchain.printStructure()));
-            }
-
         }
 
 
