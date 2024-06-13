@@ -1,8 +1,5 @@
 package cmg.cnsim.engine.node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.event.Event;
 import cmg.cnsim.engine.event.Event_ContainerArrival;
@@ -11,6 +8,9 @@ import cmg.cnsim.engine.event.Event_TransactionPropagation;
 import cmg.cnsim.engine.transaction.ITxContainer;
 import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionGroup;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Abstract class representing a node in a blockchain network.
@@ -263,8 +263,13 @@ public abstract class Node implements INode {
 	 * @author Sotirios Liaskos
 	 */
 	public void removeFromPool(ITxContainer removeThese) {
-		if ( (pool.getGroup().size()>0) && (removeThese.getContent().length > 0) )
+		if ( (!pool.getGroup().isEmpty()) && (removeThese.getContent().length > 0) )
 			pool.getGroup().removeAll(Arrays.asList(removeThese.getContent()));
+	}
+
+	public void removeFromPool(Transaction removeThis) {
+		if ( (!pool.getGroup().isEmpty()) && (removeThis != null) )
+			pool.getGroup().remove(removeThis);
 	}
 	
 	/**

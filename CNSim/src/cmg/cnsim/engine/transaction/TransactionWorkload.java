@@ -1,9 +1,8 @@
 package cmg.cnsim.engine.transaction;
 
-import java.util.ArrayList;
-
 import cmg.cnsim.engine.AbstractSampler;
 
+import java.util.ArrayList;
 public class TransactionWorkload extends TransactionGroup {
 
     private AbstractSampler sampler;
@@ -36,7 +35,7 @@ public class TransactionWorkload extends TransactionGroup {
         long currTime = startTime;
 
         for (long i = 1; i <= num; i++){
-            currTime += sampler.getNextTransactionArrivalInterval();
+            currTime += (long) sampler.getNextTransactionArrivalInterval();
             addTransaction(currTime);
         }
         timeEnd = currTime;
@@ -87,6 +86,11 @@ public class TransactionWorkload extends TransactionGroup {
 		}
 		return rtx;
 	}
+
+    public ArrayList<Transaction> getAllTransactions() {
+    	return getGroup();
+    }
+    //TODO Why did not used get group directly
 	   
 
     //Workload generation from File
@@ -102,6 +106,7 @@ public class TransactionWorkload extends TransactionGroup {
     public TransactionWorkload(String fileName, boolean hasHeader) throws Exception {
     	super(fileName, hasHeader);
     }
+
           
 }
     

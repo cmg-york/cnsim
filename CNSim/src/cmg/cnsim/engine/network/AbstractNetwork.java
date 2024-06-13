@@ -13,7 +13,7 @@ public abstract class AbstractNetwork {
 	
 	protected NodeSet ns;
 
-	protected float[][] Net;
+	public float[][] Net;
 
 	/**
 	 * Constructor. 
@@ -92,6 +92,16 @@ public abstract class AbstractNetwork {
 		if(Destination < 0)
 			throw new ArithmeticException("Destination < 0");
 		return Net[Origin][Destination];
+	}
+
+	public void setThroughput(int Origin, int Destination, float throughput) {
+		if(Origin < 0)
+			throw new ArithmeticException("Origin < 0");
+		if(Destination < 0)
+			throw new ArithmeticException("Destination < 0");
+		if(throughput < 0)
+			throw new ArithmeticException("Throughput < 0");
+		Net[Origin][Destination] = throughput;
 	}
 
 	
