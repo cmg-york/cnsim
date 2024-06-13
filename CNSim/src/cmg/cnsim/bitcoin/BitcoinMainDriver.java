@@ -1,84 +1,116 @@
-package cmg.cnsim.bitcoin;
+    package cmg.cnsim.bitcoin;
 
-import cmg.cnsim.engine.AbstractSampler;
-import cmg.cnsim.engine.Config;
-import cmg.cnsim.engine.Profiling;
-import cmg.cnsim.engine.Simulation;
-import cmg.cnsim.engine.StandardSampler;
-import cmg.cnsim.engine.network.AbstractNetwork;
-import cmg.cnsim.engine.network.RandomEndToEndNetwork;
-import cmg.cnsim.engine.node.AbstractNodeFactory;
-import cmg.cnsim.engine.node.NodeSet;
-import cmg.cnsim.engine.transaction.TransactionWorkload;
+    import cmg.cnsim.engine.*;
+    import cmg.cnsim.engine.network.AbstractNetwork;
+    import cmg.cnsim.engine.network.FileBasedEndToEndNetwork;
+    import cmg.cnsim.engine.network.RandomEndToEndNetwork;
+    import cmg.cnsim.engine.node.AbstractNodeFactory;
+    import cmg.cnsim.engine.node.INode;
+    import cmg.cnsim.engine.node.NodeSet;
+    import cmg.cnsim.engine.transaction.Transaction;
+    import cmg.cnsim.engine.transaction.TransactionWorkload;
+
+    import java.util.Arrays;
+    import java.util.List;
+    import java.util.Scanner;
 
 
-public class BitcoinMainDriver {
+    public class BitcoinMainDriver {
 
-	public static void main(String[] args) {
-        BitcoinMainDriver b = new BitcoinMainDriver();
-        b.run();
-	}
+        public static void main(String[] args) {
+            //run simulation with the given configuration for n times
+            BitcoinMainDriver b = new BitcoinMainDriver();
+            b.run();
+        }
 
-	private void run() {
-        AbstractSampler sampler;
-    	AbstractNetwork n;
-        Simulation s;
-        NodeSet ns;
-        TransactionWorkload ts;
-        AbstractNodeFactory nf;
-        
-        Config.init("./resources/config.txt");
+        private void run() {
+            //print current directory
+            System.out.println("Current directory: " + System.getProperty("user.dir"));
+            Config.init("./resources/config.txt");
 
-        //Creating sampler
-        sampler = new StandardSampler();
-        sampler.LoadConfig();
 
-        
-        //Create first the simulator
-        s = new Simulation(sampler);
-        
-        //
-        // Network Construction
-        //
-        
-        //Create the a node factory
-        nf = new BitcoinNodeFactory("Honest",s);
-        //Create and populate a NodeSet.
-        ns = new NodeSet(nf);
-        //ns.addNodes(Parameters.NumofNodes); //a network where all nodes are honest
-        ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
-        //Create a network based on the NodeSet and the sampler
-        n = new RandomEndToEndNetwork(ns,sampler);
-        //Set this network to the simulator
-        s.setNetwork(n);
-        
-        //
-        // Workload Construction
-        //
-        
-        ts = new TransactionWorkload(sampler);
-        //ts.appendTransactions(Parameters.numTransactions);
-        ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
-        s.schedule(ts);
+            // Initialize components
+            AbstractSampler sampler;
+            if (Config.getPropertyBoolean("sampler.useFileBasedSampler")) {
+                sampler = new FileBasedSampler("./resources/transactions.csv", "./resources/nodes.csv");
+                sampler.LoadConfig();
+            } else {
+                sampler = new StandardSampler();
+                sampler.LoadConfig();
+            }
+            Simulation s = new Simulation(sampler);
+            AbstractNodeFactory nf = new BitcoinNodeFactory("Honest", s);
+            NodeSet ns = new NodeSet(nf);
 
-        Profiling.simBeginningTime = System.currentTimeMillis();
-        
-       
-        s.run();
-        long realTime = (System.currentTimeMillis() - Profiling.simBeginningTime); // in Milli-Sec
-        System.out.printf("\n");
-        System.out.println("Real time(ms): " + realTime);
-        System.out.println("Simulation time(ms): " + Simulation.currTime);
-        
-        s.getNodeSet().closeNodes();
-        
-        BitcoinReporter.flushBlockReport();
-        BitcoinReporter.flushStructReport();
-        BitcoinReporter.flushEvtReport();
-        BitcoinReporter.flushNodeReport();
-        BitcoinReporter.flushInputReport();
-        BitcoinReporter.flushConfig();
-	}
-	
-	
-}
+            // Adding nodes
+
+            ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
+
+            AbstractNetwork n = new RandomEndToEndNetwork(ns, sampler);
+            //check for using random or file based network
+            if (Config.getPropertyBoolean("net.useFileBasedNetwork")) {
+                n = new FileBasedEndToEndNetwork(ns, sampler, "./CNSim/resources/network.csv");
+            } else {
+                n = new RandomEndToEndNetwork(ns, sampler);
+            }
+            //TODO handel file based throughput matrix
+            s.setNetwork(n);
+            //n.printNetwork();
+
+
+
+            // Transaction workload
+            TransactionWorkload ts = new TransactionWorkload(sampler);
+            ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
+            s.schedule(ts);
+
+            // Assign a target transaction for malicious behavior
+            Transaction targetTransaction = null;
+            if (Config.getPropertyBoolean("node.createMaliciousNode")) {
+                targetTransaction = getTargetTransactionFromUser(ts.getAllTransactions());
+            }
+            for (INode node : ns.getNodes()) {
+                if (node instanceof BitcoinNode) {
+                    BitcoinNode bNode = (BitcoinNode) node;
+                    if (bNode.getBehaviorStrategy() instanceof MaliciousNodeBehavior) {
+                        ((MaliciousNodeBehavior) bNode.getBehaviorStrategy()).setTargetTransaction(targetTransaction);
+                    }
+                }
+            }
+
+            Profiling.simBeginningTime = System.currentTimeMillis();
+
+
+            s.run();
+            long realTime = (System.currentTimeMillis() - Profiling.simBeginningTime); // in Milli-Sec
+            System.out.print("\n");
+            System.out.println("Real time(ms): " + realTime);
+            System.out.println("Simulation time(ms): " + Simulation.currTime);
+
+            s.getNodeSet().closeNodes();
+
+            BitcoinReporter.flushBlockReport();
+            BitcoinReporter.flushStructReport();
+            BitcoinReporter.flushEvtReport();
+            BitcoinReporter.flushNodeReport();
+            BitcoinReporter.flushInputReport();
+            BitcoinReporter.flushConfig();
+            // each node should log its own blockchain in the end
+        }
+
+
+        private Transaction getTargetTransactionFromUser(List<Transaction> transactions) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Select a transaction ID to target for the attack:");
+            String chosenId = scanner.nextLine();
+            //TODO Add the target transaction to the config file instead of taking it from user in the begining.
+            for (Transaction t : transactions) {
+                if (t.getID() == Integer.parseInt(chosenId)) {
+                    return t;
+                }
+            }
+            return null; // Or handle invalid selection appropriately
+        }
+
+
+    }

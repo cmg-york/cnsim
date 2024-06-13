@@ -185,13 +185,14 @@ public class TransactionGroup implements ITxContainer {
 			if (r.getID() == txID) {found = true;}
 		}
 		return found;
-	}  
-     
-	/**
-	 * Check if the group overlaps with another transaction group
-	 * @param p The <tt>TransactionGroup</tt> in question.
-	 * @return <tt>true</tt> of there is at least one transaction in <tt>p</tt> that is contained in the group, <tt>false</tt>, otherwise.
-	 */
+	}
+
+
+		/**
+         * Check if the group overlaps with another transaction group
+         * @param p The <tt>TransactionGroup</tt> in question.
+         * @return <tt>true</tt> of there is at least one transaction in <tt>p</tt> that is contained in the group, <tt>false</tt>, otherwise.
+         */
 	public boolean overlapsWithbyObj(TransactionGroup p) {
 		boolean result = false;
 		for (Transaction t : p.getGroup()) {
