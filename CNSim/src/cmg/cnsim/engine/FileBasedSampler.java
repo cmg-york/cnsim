@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class FileBasedSampler extends AbstractSampler {
 
-    private Queue<Float> transactionArrivalIntervals = new LinkedList<>();
+    private final Queue<Float> transactionArrivalIntervals = new LinkedList<>();
     private Queue<Long> miningIntervals = new LinkedList<>();
     private Queue<Float> transactionFeeValues = new LinkedList<>();
     private Queue<Long> transactionSizes = new LinkedList<>();

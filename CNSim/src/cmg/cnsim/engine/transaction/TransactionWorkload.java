@@ -3,7 +3,6 @@ package cmg.cnsim.engine.transaction;
 import cmg.cnsim.engine.AbstractSampler;
 
 import java.util.ArrayList;
-
 public class TransactionWorkload extends TransactionGroup {
 
     private AbstractSampler sampler;
@@ -36,7 +35,7 @@ public class TransactionWorkload extends TransactionGroup {
         long currTime = startTime;
 
         for (long i = 1; i <= num; i++){
-            currTime += sampler.getNextTransactionArrivalInterval();
+            currTime += (long) sampler.getNextTransactionArrivalInterval();
             addTransaction(currTime);
         }
         timeEnd = currTime;

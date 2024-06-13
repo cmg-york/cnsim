@@ -16,7 +16,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     private HonestNodeBehavior honestBehavior;
     private int blockchainSizeAtAttackStart;
     private Block lastBlock;
-
     private int publicChainGrowthSinceAttack;
 
     public MaliciousNodeBehavior(BitcoinNode node) {
@@ -112,14 +111,10 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                     //Report validation
                     reportBlockEvent(b, b.getContext().blockEvt);
                     startAttack();
-
-                    //System.out.println(node.getID() + " does not contain " + b.getID() + " in its blockchain in completes validation");
                     node.blockchain.addToStructure(b);
                     node.propagateContainer(b, time);
                     lastBlock = (Block) b.parent;
-                    System.out.println("Last Block changed to: " + lastBlock.getID());
                     node.stopMining();
-                    //Reset the next validation event. TODO: why do you do this?
                     node.resetNextValidationEvent();
                     node.reconstructMiningPool();
                     node.miningPool.removeTxFromContainer(targetTransaction);
@@ -129,12 +124,9 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                     reportBlockEvent(b, "Discarding own Block (ERROR)");
                 }
                 node.stopMining();
-                //Reset the next validation event. TODO: why do you do this?
                 node.resetNextValidationEvent();
-                //Remove the block's transactions from the mining pool.
                 node.reconstructMiningPool();
                 node.miningPool.removeTxFromContainer(targetTransaction);
-                //Consider if it is worth mining.
                 node.considerMining(Simulation.currTime);
             }
             else {
@@ -151,8 +143,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 honestBehavior.processPostValidationActivities(time);
             }
         }
-        System.out.println("Malicious node Completes Validation offfff Block " + t.getID() + " that contains: " + t.printIDs(";"));
-        System.out.println("target transaction is: " + targetTransaction.getID());
     }
 
     private void revealHiddenChain() {
@@ -161,14 +151,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             b.parent = i==0 ? lastBlock : hiddenChain.get(i-1);
             node.blockchain.addToStructure(b);
             node.propagateContainer(b, Simulation.currTime);
-            if (b.getParent() == null) {
-                System.out.println("hidden chain is revealing. Its parent is: " + "null" + " and its height is: " + b.getHeight() + " and its ID is: " + b.getID());
-            }
-            else {
-                System.out.println("hidden chain is revealing. Its parent is: " + b.getParent().getID() + " and its height is: " + b.getHeight() + " and its ID is: " + b.getID());
-            }
-            System.out.println(b.printIDs(";"));
-
         }
         isAttackInProgress = false;
         hiddenChain = new ArrayList<Block>();
@@ -176,7 +158,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     }
 
     private void reportBlockEvent(Block b, String blockEvt) {
-        // Report a block event
         BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
                 b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
                 blockEvt, b.getContext().difficulty,b.getContext().cycles);
@@ -197,24 +178,14 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         this.targetTransaction = targetTransaction;
     }
 
-    private void configureNodeForAttack(float HashPower, float ElectricPower) {
-        node.setElectricPower(HashPower);
-        node.setHashPower(ElectricPower);
-    }
 
     private void manageMiningPostValidation() {
         node.stopMining();
-        //Reset the next validation event. TODO: why do you do this?
         node.resetNextValidationEvent();
-        //Remove the block's transactions from the mining pool.
         node.removeFromPool(node.miningPool);
-        //Reconstruct mining pool, with whatever other transactions are there.
         node.reconstructMiningPool();
         node.miningPool.removeTxFromContainer(targetTransaction);
-        //Consider if it is worth mining.
         node.considerMining(Simulation.currTime);
-        //TODO check how modify consider mining to make sure it always mining
-
     }
 
     private void calculateBlockchainSizeAtAttackStart() {
@@ -224,19 +195,13 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         }
         Block tip = node.blockchain.getLongestTip();
         blockchainSizeAtAttackStart = tip.contains(targetTransaction) ? tip.getHeight() - 1 : tip.getHeight();
-        //Block tip = node.blockchain.getLongestTip().getHeight();
     }
 
     private void
     handleNewBlockReceptionInAttack(Block b) {
-        //Add block to blockchain
         node.blockchain.addToStructure(b);
-        // Reconstruct mining pool based on the new information.
-        //TODO we should store them so if the attack was not successful we can remove them from the mining pool later.
         node.reconstructMiningPool();
-        //remove target transaction from pool
         node.miningPool.removeTxFromContainer(targetTransaction);
-        //Consider starting or stopping mining.
         node.considerMining(Simulation.currTime);
     }
 
@@ -251,9 +216,6 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             revealHiddenChain();
         }
     }
-
-
-    //Logging
 }
 
 

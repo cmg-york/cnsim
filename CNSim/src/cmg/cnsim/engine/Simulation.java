@@ -9,7 +9,6 @@ import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionWorkload;
 
 import java.util.PriorityQueue;
-
 /**
  * The central class of any simulation
  *  

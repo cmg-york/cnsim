@@ -263,12 +263,12 @@ public abstract class Node implements INode {
 	 * @author Sotirios Liaskos
 	 */
 	public void removeFromPool(ITxContainer removeThese) {
-		if ( (pool.getGroup().size()>0) && (removeThese.getContent().length > 0) )
+		if ( (!pool.getGroup().isEmpty()) && (removeThese.getContent().length > 0) )
 			pool.getGroup().removeAll(Arrays.asList(removeThese.getContent()));
 	}
 
 	public void removeFromPool(Transaction removeThis) {
-		if ( (pool.getGroup().size()>0) && (removeThis != null) )
+		if ( (!pool.getGroup().isEmpty()) && (removeThis != null) )
 			pool.getGroup().remove(removeThis);
 	}
 	
