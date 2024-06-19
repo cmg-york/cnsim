@@ -44,7 +44,13 @@ public class Event_TransactionPropagation extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesPropagatedTransaction(trans, getTime());
-        Reporter.addEvent(getNextEventID(), getTime(), System.currentTimeMillis(), this.getClass().getSimpleName(), node.getID(), trans.getID());
+        Reporter.addEvent(
+        		getEvtID(), 
+        		getTime(), 
+        		System.currentTimeMillis(), 
+        		this.getClass().getSimpleName(), 
+        		node.getID(), 
+        		trans.getID());
     }
 
 }

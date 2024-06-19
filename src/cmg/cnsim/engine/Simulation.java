@@ -47,15 +47,6 @@ public class Simulation {
 	    return net;
 	}
 
-	public void printNetwork() {
-		for (int i = 0; i < net.Net.length; i++) {
-			for (int j = 0; j < net.Net[i].length; j++) {
-				System.out.print(net.Net[i][j] + " ");
-			}
-			System.out.println();
-		}
-	}
-
 	
 	/**
 	 * Sets the network associated with this Simulation object.

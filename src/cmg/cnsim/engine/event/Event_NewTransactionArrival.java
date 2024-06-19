@@ -40,7 +40,17 @@ public class Event_NewTransactionArrival extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesClientTransaction(transaction, getTime());
-        Reporter.addEvent(getNextEventID(), getTime(), System.currentTimeMillis(), this.getClass().getSimpleName(), node.getID(), transaction.getID());
-        Reporter.addTx(transaction.getID(), transaction.getSize(), transaction.getValue(),getTime());
+        Reporter.addEvent(
+        		getEvtID(), 
+        		getTime(), 
+        		System.currentTimeMillis(), 
+        		this.getClass().getSimpleName(), 
+        		node.getID(), 
+        		transaction.getID());
+        Reporter.addTx(
+        		transaction.getID(), 
+        		transaction.getSize(), 
+        		transaction.getValue(),
+        		getTime());
     }
 }

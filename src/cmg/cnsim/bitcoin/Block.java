@@ -10,13 +10,13 @@ import java.util.ArrayList;
  * 
  * The Block class represents a block in a blockchain. It extends the TransactionGroup class.
  *
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  *
  */
 public class Block extends TransactionGroup {
 	
 	// Generation of next unique ID for new blocks.
-	public static int currID = 0;
+	public static int currID = 1;
 	public static int getNextID() {
 		return(currID++);
 	}
@@ -26,7 +26,7 @@ public class Block extends TransactionGroup {
 	
 	//The parent in blockchain (if any)
 	protected TransactionGroup parent = null;
-	//The height in blochain (if in one)
+	//The height in blockchain (if in one)
 	protected int height = 0;
 
 	
@@ -45,9 +45,9 @@ public class Block extends TransactionGroup {
 	
 
     /**
-     * Returns the context of the block.
+     * Returns the information context of the block.
      *
-     * @return The context of the block.
+     * @return The information context of the block.
      */
 	public Context getContext(){
 		return(this.contx);
@@ -68,7 +68,8 @@ public class Block extends TransactionGroup {
 	}
 	
     /**
-     * Constructs a new {@link Block} object with the next available ID and an initial list of {@link Transaction} objects and an empty context. 
+     * Constructs a new {@link Block} object with the next available ID and an initial list 
+     * of {@link Transaction} objects and an empty context. 
      * @param initial The initial list of {@link Transaction} objects.
      */
     public Block(ArrayList<Transaction> initial) {
@@ -79,14 +80,17 @@ public class Block extends TransactionGroup {
 	
     
     /**
-     * Updates {@linkplain Block} with information pertaining to its validation. Used in response to a validation event. 
+     * Updates {@linkplain Block} with information pertaining to its validation.
+     * Used in response to a validation event. 
      * @param newTransList The list of {@link Transaction} objects that are validated. 
-     * @param simTime Simulation time of the simulation event.
-     * @param sysTime Real compute time of the simulation event.
+     * @param simTime Simulation time at which the validation event occurred.
+     * @param sysTime Real time at which the validation event occurred.
      * @param nodeID ID of the {@link Node} in which validation took place.
      * @param eventType Textual description of the type of event (for logging).
-     * @param difficulty Difficulty under which validation took place. TODO: link to difficulty explanation.
-     * @param cycles The number of cycles (hashes) expended for the validation. TODO: check if this is correct.
+     * TODO: link to difficulty explanation.
+     * @param difficulty Difficulty under which validation took place. 
+     * TODO: check if this is correct.
+     * @param cycles The number of cycles (hashes) expended for the validation. 
      */
     public void validateBlock(ArrayList<Transaction> newTransList,
     		long simTime,
@@ -97,7 +101,7 @@ public class Block extends TransactionGroup {
     		double cycles
     		) {
     	super.updateTransactionGroup(newTransList);
-    	groupID = getNextID();
+//    	groupID = getID();
     	contx = new Context();
 		contx.simTime = simTime;
 		contx.sysTime = sysTime;
@@ -171,8 +175,8 @@ public class Block extends TransactionGroup {
 	}
 
 
-	public void addTransaction(Transaction transaction) {
-		super.addTransaction(transaction);
-	}
+//	public void addTransaction(Transaction transaction) {
+//		super.addTransaction(transaction);
+//	}
 
 }

@@ -8,12 +8,15 @@ import cmg.cnsim.engine.transaction.ITxContainer;
 /**
  * Event that signifies the arrival of a container (e.g. block) that has been validated by someone else.
  * 
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  * 
  *  
  */
 public class Event_ContainerArrival extends Event {
+	//A pointer to the container
     private ITxContainer container;
+    
+    //A pointer to the node at which the container arrives
     private INode node;
 
     
@@ -33,7 +36,7 @@ public class Event_ContainerArrival extends Event {
     
 
     /**
-     * Executes the event in the simulation.
+     * Executes the event in the simulation, by calling the {@linkplain INode::event_NodeReceivesPropagatedContainer}
      *
      * @param sim The simulation instance.
      */
@@ -41,7 +44,13 @@ public class Event_ContainerArrival extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesPropagatedContainer(container);
-        Reporter.addEvent(getNextEventID(), getTime(), System.currentTimeMillis(), this.getClass().getSimpleName(), node.getID(), container.getID());
+        Reporter.addEvent(
+        		this.getEvtID(), 
+        		this.getTime(), 
+        		System.currentTimeMillis(), 
+        		this.getClass().getSimpleName(), 
+        		node.getID(), 
+        		container.getID());
     }
 
 }

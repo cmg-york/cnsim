@@ -19,10 +19,11 @@ import cmg.cnsim.engine.transaction.Transaction;
  * 3. Nodes: adds a new line for every node known to the simulator. This happens at the end of the simulator.
  * Additional measurements and files can be produced by other classes (e.g., Nodes, Structures).
  * 
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University`
+ * @author Sotirios Liaskos for the Enterprise Systems Group @ York University`
  * 
  */
 public class Reporter {
+	// Each of the arraylists below contain a line in the output
 	protected static ArrayList<String> inputTxLog = new ArrayList<String>();
 	protected static ArrayList<String> eventLog = new ArrayList<String>();
 	protected static ArrayList<String> nodeLog = new ArrayList<String>();
@@ -63,16 +64,16 @@ public class Reporter {
 	 * @param sysTime Real time in which the event is happening.
 	 * @param evtType The Type of the event.
 	 * @param nodeInvolved The {@linkplain Node} involved in the event.
-	 * @param txInvolved The {@linkplain Transaction} involved in the event.
+	 * @param objInvolved The object ID involved in the event (transaction, block, etc).
 	 * @author Sotirios Liaskos
 	 */
-	public static void addEvent(long evtID, long simTime, long sysTime, String evtType, int nodeInvolved, int txInvolved) {
+	public static void addEvent(long evtID, long simTime, long sysTime, String evtType, int nodeInvolved, int objInvolved) {
 		eventLog.add(evtID + "," + 
 					simTime + "," + 
 					sysTime + "," +
 					evtType + "," +
 					nodeInvolved + "," +
-					txInvolved);
+					objInvolved);
 	}
 
 	/**
@@ -81,7 +82,7 @@ public class Reporter {
 	 * @param txID Transaction ID
 	 * @param size Transaction size in bytes
 	 * @param value Transaction value in local tokens.
-	 * @param simTime Simulation time
+	 * @param simTime Time transaction arrived in system
 	 * @author Sotirios Liaskos
 	 */
 	public static void addTx(int txID, float size, float value, long simTime) {
@@ -97,7 +98,7 @@ public class Reporter {
 	 * @param hashPower Hashpower of the node (hashes/second)
 	 * @param electricPower The power consumed by the node (Watts)
 	 * @param electricityCost The electricity cost per kWh of the node
-	 * @param totalCycles The total hashes the node performe d
+	 * @param totalCycles The total hashes the node performed
 	 * @author Sotirios Liaskos
 	 */
 	public static void addNode(int nodeID, float hashPower, float electricPower, 

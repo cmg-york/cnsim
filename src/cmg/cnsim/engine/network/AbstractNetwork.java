@@ -133,13 +133,24 @@ public abstract class AbstractNetwork {
 	 * Each element of the matrix represents the throughput between two nodes.
 	 */
 	public void printNetwork() {
-		for (float[] x : Net)
-		{
-		   for (float y : x)
-		   {
+		for (float[] x : Net) {
+		   for (float y : x) {
 		        System.out.printf("%3.1f ", y);
 		   }
 		   System.out.println();
+		}
+	}
+	
+	
+	/**
+	 * TODO: Alternate implementation of network printing. Pick the one that is better. 
+	 */
+	public void printNetwork2() {
+		for (int i = 0; i < Net.length; i++) {
+			for (int j = 0; j < Net[i].length; j++) {
+				System.out.print(Net[i][j] + " ");
+			}
+			System.out.println();
 		}
 	}
 	

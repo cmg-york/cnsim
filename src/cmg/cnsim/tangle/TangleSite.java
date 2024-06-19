@@ -111,7 +111,7 @@ public class TangleSite implements ITxContainer {
 
 	
 	@Override
-	public void removeTxFromContainer(Transaction t) {
+	public void removeTransaction(Transaction t) {
 		// TODO Auto-generated method stub
 	}
 

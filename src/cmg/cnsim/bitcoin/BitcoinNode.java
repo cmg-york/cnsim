@@ -162,8 +162,10 @@ public class BitcoinNode extends Node {
 
 	@Override
 	public void close(INode n) {
-		BitcoinReporter.reportBlockChainState(//Simulation.currTime, System.currentTimeMillis(), this.getID(),
-				this.blockchain.printStructureReport(this.getID()), this.blockchain.printOrphansReport(this.getID()));
+		BitcoinReporter.reportBlockChainState(
+				//Simulation.currTime, System.currentTimeMillis(), this.getID(),
+				this.blockchain.printStructureReport(this.getID()), 
+				this.blockchain.printOrphansReport(this.getID()));
 	}
 
 

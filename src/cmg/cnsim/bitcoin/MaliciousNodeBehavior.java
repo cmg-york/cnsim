@@ -117,7 +117,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                     node.stopMining();
                     node.resetNextValidationEvent();
                     node.reconstructMiningPool();
-                    node.miningPool.removeTxFromContainer(targetTransaction);
+                    node.miningPool.removeTransaction(targetTransaction);
                     node.considerMining(Simulation.currTime);
                 } else {
                     System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in completes validation");
@@ -126,7 +126,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 node.stopMining();
                 node.resetNextValidationEvent();
                 node.reconstructMiningPool();
-                node.miningPool.removeTxFromContainer(targetTransaction);
+                node.miningPool.removeTransaction(targetTransaction);
                 node.considerMining(Simulation.currTime);
             }
             else {
@@ -184,7 +184,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         node.resetNextValidationEvent();
         node.removeFromPool(node.miningPool);
         node.reconstructMiningPool();
-        node.miningPool.removeTxFromContainer(targetTransaction);
+        node.miningPool.removeTransaction(targetTransaction);
         node.considerMining(Simulation.currTime);
     }
 
@@ -201,7 +201,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     handleNewBlockReceptionInAttack(Block b) {
         node.blockchain.addToStructure(b);
         node.reconstructMiningPool();
-        node.miningPool.removeTxFromContainer(targetTransaction);
+        node.miningPool.removeTransaction(targetTransaction);
         node.considerMining(Simulation.currTime);
     }
 

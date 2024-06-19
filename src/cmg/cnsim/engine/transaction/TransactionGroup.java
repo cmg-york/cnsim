@@ -9,7 +9,7 @@ import java.util.Comparator;
 
 /** 
  * A list containing various transactions. Can be used as a block or other needed grouping (e.g. pool).
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  */
 public class TransactionGroup implements ITxContainer {
 
@@ -48,8 +48,15 @@ public class TransactionGroup implements ITxContainer {
     }
 
     /**
-     * Loads a transaction group from a text file. Each line in the file is a separate transaction. Each transaction is a comma separated string containing the following information: Transaction ID, Time Created, Total Value, Total Size, First Arrival NodeID. Transaction ID must run from <tt>1</tt> to <tt>n</tt> strictly increasing by 1 at each step (error otherwise). Time must not decrease as transactions IDs increase.
-     *  
+     * Loads a transaction group from a text file. Each line in the file is a separate transaction. 
+     * Each transaction is a comma separated string containing the following information: 
+     * Transaction ID, Time Created, Total Value, Total Size, First Arrival NodeID. 
+     * Transaction ID must run from <tt>1</tt> to <tt>n</tt> strictly increasing by 1 at each step  (error otherwise). Time must not decrease as transactions IDs increase.
+     * Time Created: a long integer representing the number of milliseconds (ms) from a fixed time 0. 
+     * Total Value: in user defined tokens depending on network.
+     * TODO: Is this bytes?
+     * Total Size: in bytes
+     * First Arrival NodeID: the node at which the transaction first arrives
      * @param fileName A name to the text file containing the transactions.
      * @param hasHeader Whether the file has a header. 
      * @throws Exception Formatting error.
@@ -124,10 +131,10 @@ public class TransactionGroup implements ITxContainer {
 	}
 	
 	/**
-	 * See {@linkplain ITxContainer#removeTxFromContainer(Transaction)}.
+	 * See {@linkplain ITxContainer#removeTransaction(Transaction)}.
 	 */
 	@Override
-    public void removeTxFromContainer(Transaction t) {
+    public void removeTransaction(Transaction t) {
         group.remove(t);
 		totalSize -= t.getSize();
 		totalValue -= t.getValue();
@@ -151,7 +158,7 @@ public class TransactionGroup implements ITxContainer {
     @Override
     public void extractGroup(TransactionGroup g) {
     	for (Transaction t: g.getGroup()) {
-    		this.removeTxFromContainer(t);
+    		this.removeTransaction(t);
     	}
     }
     
@@ -188,11 +195,12 @@ public class TransactionGroup implements ITxContainer {
 	}
 
 
-		/**
-         * Check if the group overlaps with another transaction group
-         * @param p The <tt>TransactionGroup</tt> in question.
-         * @return <tt>true</tt> of there is at least one transaction in <tt>p</tt> that is contained in the group, <tt>false</tt>, otherwise.
-         */
+	/**
+     * Check if the group overlaps with another transaction group, i.e., 
+     * there is a transaction in {@code p} that also exists in the current group.
+     * @param p The <tt>TransactionGroup</tt> in question.
+     * @return <tt>true</tt> of there is at least one transaction in <tt>p</tt> that is contained in the group, <tt>false</tt>, otherwise.
+     */
 	public boolean overlapsWithbyObj(TransactionGroup p) {
 		boolean result = false;
 		for (Transaction t : p.getGroup()) {
@@ -205,7 +213,8 @@ public class TransactionGroup implements ITxContainer {
 	}
 	
 	/**
-	 * As {@link TransactionGroup#overlapsWithbyObj(TransactionGroup)} but criterion that is used is transaction ID.
+	 * As {@link TransactionGroup#overlapsWithbyObj(TransactionGroup)} but criterion that is used is 
+	 * transaction ID.
 	 * @param g The {@link TransactionGroup} object in question.
 	 * @return <tt>true</tt> of there is at least one transaction in <tt>g</tt> that is contained in the group, <tt>false</tt>, otherwise.
 	 */
@@ -220,11 +229,13 @@ public class TransactionGroup implements ITxContainer {
 	}
 	
 	/**
-	 * Retrieves a TransactionGroup containing the top N transactions based on a given size limit and comparator.
+	 * Retrieves a TransactionGroup containing the top N transactions based on 
+	 * a given size limit and comparator.
 	 *
-	 * @param sizeLimit The maximum cumulative size in bytes of transactions allowed in the the result.
+	 * @param sizeLimit The maximum cumulative size (in bytes) of transactions allowed in the the result.
 	 * @param comp The comparator used to sort the transactions.
-	 * @return A {@link TransactionGroup} object containing the top N transactions that do not exceed sizeLimit based on given comparator.
+	 * @return A {@link TransactionGroup} object containing the top N transactions that do not 
+	 * exceed sizeLimit based on given comparator.
 	 */
 	public TransactionGroup getTopN(float sizeLimit, Comparator<Transaction> comp) {
 		
@@ -256,7 +267,7 @@ public class TransactionGroup implements ITxContainer {
   	
 
     //
-    // Getting Information about the Pool
+    // Getting Information about the TransactionGroup
     //
     
 

@@ -30,7 +30,8 @@ public class Event_ContainerValidation extends Event {
     }
 
     /**
-     * Executes the event in the simulation. If the event is marked to be ignored an entry is added to the logs. 
+     * Executes the event in the simulation. If the event is marked to be ignored an entry 
+     * is added to the logs. 
      *
      * @param sim The simulation instance.
      */
@@ -43,7 +44,13 @@ public class Event_ContainerValidation extends Event {
         } else {
         	status = "_Abandonded";
         }
-        Reporter.addEvent(getNextEventID(), getTime(), System.currentTimeMillis(), this.getClass().getSimpleName() + status, node.getID(), container.getID());
+        Reporter.addEvent(
+        		getEvtID(), 
+        		getTime(), 
+        		System.currentTimeMillis(), 
+        		this.getClass().getSimpleName() + status, 
+        		node.getID(), 
+        		container.getID());
     }
 
 }

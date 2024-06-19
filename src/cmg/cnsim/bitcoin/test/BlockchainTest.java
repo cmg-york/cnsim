@@ -35,8 +35,7 @@ class BlockchainTest {
 	 * @throws java.lang.Exception Throws an exception.
 	 */
 	@BeforeEach
-	void setUp() throws Exception {
-		
+	void setUp() throws Exception {	
 	}
 
 	@Test

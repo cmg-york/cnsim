@@ -22,24 +22,25 @@ public interface ITxContainer {
 	/**
 	 * Total size in bytes contained in the container.
 	 * TODO: Are these bytes?
-	 * @return The number of bytes in teh container.
+	 * @return The number of bytes in the container.
 	 */
 	public float getSize();
 	
 	/**
 	 * Total transaction value contained in the container.
-	 * @return The total value of all transctions in the container.
+	 * @return The total value of all transactions in the container.
 	 */
 	public float getValue();
 
 	/**
 	 * Return the contents of the container
-	 * @return An array of <tt>Transaction</tt> objects.
+	 * @return An array of {@linkplain Transaction} objects.
 	 */
 	public Transaction[] getContent();
 		
 	/**
 	 * Returns <tt>true</tt> if <tt>Transaction t</tt> is contained in the container.
+	 * Matching is based on ID.
 	 * @param t The Transaction object in question
 	 * @return <tt>true</tt> if <tt>t</tt> is in the container, <tt>false</tt> otherwise.
 	 */
@@ -60,19 +61,22 @@ public interface ITxContainer {
     public void extractGroup(TransactionGroup g);
     
 	/**
-	 * Adds a transaction to the container
+	 * Adds a transaction to the container.
+	 * Total size and value is updated.
 	 * @param t The <tt>Transaction</tt> object to be added.
 	 */
 	public void addTransaction(Transaction t);
 	
 	/**
-	 * Removes transaction from the container
+	 * Removes transaction from the container.
+	 * Total size and value is updated.
 	 * @param t The <tt>Transaction</tt> object to be removed.
 	 */
-	public void removeTxFromContainer(Transaction t);
+	public void removeTransaction(Transaction t);
 	
 	/**
-	 * Remove the first transaction from the container and return a reference to the transaction just removed. Total size and value is updated.
+	 * Remove the first transaction from the container and return a reference to the transaction just removed. 
+	 * Total size and value is updated.
 	 * @return A reference to the transaction removed.
 	 */
 	public Transaction removeNextTx();

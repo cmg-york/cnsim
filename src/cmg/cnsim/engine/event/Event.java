@@ -12,18 +12,26 @@ import cmg.cnsim.engine.transaction.Transaction;
  * 
  */
 public class Event {
-	public static long currID = 1;
-    public static long lastTransaction;
-	public static long currEvt; 
 	
+	// The ID of the current event
+	public static long currID = 1;
+	public long evtID = 1;
+	
+	//TODO: erase eventually
+	//public static long lastTransaction;
+	//public static long currEvt; 
+
+	//static {
+	//	currEvt = 0;
+	//}	
+	
+	//Whether the event should be ignored.
 	protected boolean ignore = false;
 	
+	// The simulation time of occurrence of the event.
     private long time;
+
     
-	
-	static {
-		currEvt = 0;
-	}
 	
 	/**
 	 * Retrieves the next unique event ID.
@@ -59,7 +67,7 @@ public class Event {
     }
     
     /**
-     * Checks if the event should be ignored. Useful for when cancelling future events.
+     * Checks if the event should be ignored. Useful for when canceling future events.
      *
      * @return {@code true} if the event should be ignored, {@code false} otherwise.
      */
@@ -77,6 +85,14 @@ public class Event {
     	ignore = ignoreEvt;
     }
     
+	/**
+	 * The ID of the current event object. IDs are created at the time of processing the event.
+	 * @return The ID of the current event object
+	 */
+	public long getEvtID() {
+		return evtID;
+	}
+    
     
     /**
      * Executes the event in the simulation. Call node's periodic and time advancement reports. 
@@ -84,36 +100,43 @@ public class Event {
      * @param sim The simulation instance.
      */
     public void happen(Simulation sim){
+    	evtID = getNextEventID();
+ 
     	// Every little while ask node if it wants to print any period reports.
+    	// TODO: the periodic printing should (also) be based on simulation time.
     	if ((currID % Config.getPropertyLong("sim.reporting.window")) == 0) {
     		for (INode n : sim.getNodeSet().getNodes()) {
     			n.periodicReport();
     		}
     	}
 
-    	// Ask node if it wants to print Node report.    	
+    	// Ask node if it wants to print Node report.
+    	// TODO: difference between time advancement report and periodic report.
 		for (INode n : sim.getNodeSet().getNodes()) {
 			n.timeAdvancementReport();
 		}
     	
-    	//long elapsed = (System.currentTimeMillis() - Profiling.simBeginningTime);
-    	//long estimated = (Math.round(((float) elapsed/currEvt)*Parameters.numTransactions*(Parameters.NumofNodes + 1))) - elapsed;
-    	//long estimated = (Math.round(((float) elapsed/currEvt)*Config.getPropertyLong("workload.numTransactions")*(Config.getPropertyInt("net.numOfNodes") + 1))) - elapsed;
-    	
-       }
-
+    }
+   
+        
     
-    
-    
-    
-	public void debugPrint(String msg, Transaction tx, INode n, long tim) {
+	/**
+	 * For debug purposes. Call this to print the even occurrence in the standard output.
+	 * TODO: remove the parameters and make it specific on the event data.
+	 * @param msg A message to be printed.
+	 * @param tx The relevant transaction.
+	 * @param n The relevant node.
+	 * @param tim The simulation time.
+	 * @param delay The time to delay before continuing.
+	 */
+	public void debugPrint(String msg, Transaction tx, INode n, long tim, long delay) {
 		System.out.println(msg + tx.getID() + " node " + n.getID() + " time " + tim);
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(delay);
 		} catch (InterruptedException e) {e.printStackTrace();}
 	}
 
-	public void debugPrint(String msg, ITxContainer txc, INode n, long tim) {
+	public void debugPrint(String msg, ITxContainer txc, INode n, long tim, long delay) {
 		System.out.println(msg + txc.printIDs(",") + " node " + n.getID() + " time " + tim);
 		try {
 			Thread.sleep(500);
