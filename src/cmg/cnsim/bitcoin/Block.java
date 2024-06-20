@@ -13,10 +13,23 @@ import java.util.ArrayList;
  * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  *
  */
-public class Block extends TransactionGroup {
+public class Block extends TransactionGroup implements Cloneable {
 	
 	// Generation of next unique ID for new blocks.
 	public static int currID = 1;
+	
+
+
+	public static int getCurrID() {
+		return currID;
+	}
+
+
+	public static void setCurrID(int currID) {
+		Block.currID = currID;
+	}
+
+
 	public static int getNextID() {
 		return(currID++);
 	}
@@ -30,7 +43,29 @@ public class Block extends TransactionGroup {
 	protected int height = 0;
 
 	
+	//The times the block was validated 
+	private long simTime_validation = -1;
+	private long sysTime_validation = -1;
 	
+	//The id of the node that validated the block
+	private int validationNodeID = -1;
+	
+	//The node currently in possession of the block
+	private int currentNodeID = -1;
+	
+	//The difficulty under which validation took place
+	private double validationDifficulty = -1;
+	
+	//The cycles dedicated for the validation of the block
+	private double validationCycles = -1;
+	
+	//The last event that happened to the block
+	private String lastBlockEvent = "-1";
+	
+	
+
+
+
 	/**
 	 * Information about the lifecycle of the block.
 	 */
@@ -102,6 +137,16 @@ public class Block extends TransactionGroup {
     		) {
     	super.updateTransactionGroup(newTransList);
 //    	groupID = getID();
+    	
+    	simTime_validation = simTime;
+    	sysTime_validation = sysTime;
+    	validationNodeID = nodeID;
+    	currentNodeID = nodeID;
+    	
+    	validationDifficulty = difficulty;
+    	validationCycles = cycles;
+    	
+    	//Deprecated
     	contx = new Context();
 		contx.simTime = simTime;
 		contx.sysTime = sysTime;
@@ -179,4 +224,85 @@ public class Block extends TransactionGroup {
 //		super.addTransaction(transaction);
 //	}
 
+	
+	
+	//
+	//
+	//
+	// GETTERS AND SETTERS for Block information.
+	//
+	//
+	
+	
+	
+	
+
+	public int getCurrentNodeID() {
+		return currentNodeID;
+	}
+
+
+	public void setCurrentNodeID(int currentNodeID) {
+		this.currentNodeID = currentNodeID;
+	}
+
+
+	public long getSimTime_validation() {
+		return simTime_validation;
+	}
+
+
+	public long getSysTime_validation() {
+		return sysTime_validation;
+	}
+
+
+	public int getValidationNodeID() {
+		return validationNodeID;
+	}
+
+
+	public double getValidationDifficulty() {
+		return validationDifficulty;
+	}
+
+
+	public double getValidationCycles() {
+		return validationCycles;
+	}
+	
+	
+	public void setSimTime_validation(long simTime_validation) {
+		this.simTime_validation = simTime_validation;
+	}
+
+
+	public void setSysTime_validation(long sysTime_validation) {
+		this.sysTime_validation = sysTime_validation;
+	}
+
+
+	public void setValidationDifficulty(double validationDifficulty) {
+		this.validationDifficulty = validationDifficulty;
+	}
+
+
+	public void setValidationCycles(double validationCycles) {
+		this.validationCycles = validationCycles;
+	}
+
+	
+	public String getLastBlockEvent() {
+		return lastBlockEvent;
+	}
+
+	public void setLastBlockEvent(String lastBlockEvent) {
+		this.lastBlockEvent = lastBlockEvent;
+	}
+	
+	// clone() method overriding using @Overirde
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
 }

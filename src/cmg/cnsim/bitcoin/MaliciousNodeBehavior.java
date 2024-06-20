@@ -18,6 +18,11 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     private Block lastBlock;
     private int publicChainGrowthSinceAttack;
 
+    
+    /**
+     * Constructor. Creates also a shadow honest behavior object.
+     * @param node The node which has the behavior.
+     */
     public MaliciousNodeBehavior(BitcoinNode node) {
         this.isAttackInProgress = false;
         this.node = node;
@@ -36,7 +41,18 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         honestBehavior.event_NodeReceivesPropagatedTransaction(t, time);
     }
 
-    private void startAttack() {
+    private void startAttack(Block b) {
+        BitcoinReporter.reportBlockEvent(
+        		Simulation.currTime,
+        		System.currentTimeMillis() - Simulation.sysStartTime,
+        		b.getCurrentNodeID(),
+                b.getID(),
+                ((b.getParent() == null) ? -1 : b.getParent().getID()),
+                b.getHeight(),
+                b.printIDs(";"),
+                "Target Transaction Appeared - Attack Starts", 
+                b.getValidationDifficulty(),
+                b.getValidationCycles());
         isAttackInProgress = true;
         calculateBlockchainSizeAtAttackStart();
     }
@@ -45,34 +61,82 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     @Override
     public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
         Block b = (Block) t;
-        updateBlockContext(b);
+        
+        //updateBlockContext(b);
+        
+        b.setCurrentNodeID(node.getID());
+        b.setLastBlockEvent("Node Receives Propagated Block");
+        b.setValidationCycles(-1.0);
+        b.setValidationDifficulty(-1.0);
+     
+        BitcoinReporter.reportBlockEvent(
+        		Simulation.currTime,
+        		System.currentTimeMillis() - Simulation.sysStartTime,
+        		b.getCurrentNodeID(),
+                b.getID(),
+                ((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),
+                b.printIDs(";"),
+                b.getLastBlockEvent(), 
+                b.getValidationDifficulty(),
+                b.getValidationCycles());
+        
+        
         if (!isAttackInProgress && t.contains(targetTransaction)) {
             lastBlock = (Block) b.parent;
             if (!node.blockchain.contains(b)) {
-                reportBlockEvent(b, b.getContext().blockEvt);
+                //reportBlockEvent(b, b.getContext().blockEvt);
                 handleNewBlockReceptionInAttack(b);
-                startAttack();
+                startAttack(b);
             } else {
-                reportBlockEvent(b, "Propagated Block Discarded");
+                BitcoinReporter.reportBlockEvent(
+                		Simulation.currTime,
+                		System.currentTimeMillis() - Simulation.sysStartTime,
+                		b.getCurrentNodeID(),
+                        b.getID(),
+                        ((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),
+                        b.printIDs(";"),
+                        "Propagated Block Discarded (already exists)", 
+                        b.getValidationDifficulty(),
+                        b.getValidationCycles());
+                //reportBlockEvent(b, "Propagated Block Discarded");
             }
         }
         else if (isAttackInProgress) {
             if (!node.blockchain.contains(b)) {
-                reportBlockEvent(b, b.getContext().blockEvt);
+                //reportBlockEvent(b, b.getContext().blockEvt);
                 handleNewBlockReceptionInAttack(b);
-
             } else {
                 //Discard the block and report the event.
-                reportBlockEvent(b, "Propagated Block Discarded");
+                BitcoinReporter.reportBlockEvent(
+                		Simulation.currTime,
+                		System.currentTimeMillis() - Simulation.sysStartTime,
+                		b.getCurrentNodeID(),
+                        b.getID(),
+                        ((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),
+                        b.printIDs(";"),
+                        "Propagated Block Discarded (already exists)", 
+                        b.getValidationDifficulty(),
+                        b.getValidationCycles());
+                //reportBlockEvent(b, "Propagated Block Discarded");
             }
-            checkAndRevealHiddenChain();
+            checkAndRevealHiddenChain(b);
         }
         else {
             if (!node.blockchain.contains(b)) {
-                reportBlockEvent(b, b.getContext().blockEvt);
+                //reportBlockEvent(b, b.getContext().blockEvt);
                 honestBehavior.handleNewBlockReception(b);
             } else {
-                reportBlockEvent(b, "Propagated Block Discarded");
+            	//reportBlockEvent(b, "Propagated Block Discarded");
+                BitcoinReporter.reportBlockEvent(
+                		Simulation.currTime,
+                		System.currentTimeMillis() - Simulation.sysStartTime,
+                		b.getCurrentNodeID(),
+                        b.getID(),
+                        ((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),
+                        b.printIDs(";"),
+                        "Propagated Block Discarded (already exists)", 
+                        b.getValidationDifficulty(),
+                        b.getValidationCycles());
             }
 
         }
@@ -84,33 +148,88 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
         if (isAttackInProgress) {
             Block newBlock = (Block) t;
-            newBlock.validateBlock(node.miningPool.getGroup(), Simulation.currTime, System.currentTimeMillis(), node.getID(), "Node Completes Validation", node.getOperatingDifficulty(), node.getProspectiveCycles());
+            newBlock.validateBlock(node.miningPool.getGroup(), 
+            		Simulation.currTime, 
+            		System.currentTimeMillis(), 
+            		node.getID(), 
+            		"Node Completes Validation", 
+            		node.getOperatingDifficulty(), 
+            		node.getProspectiveCycles());
+            
             node.completeValidation(node.miningPool, time);
 
-
+            BitcoinReporter.reportBlockEvent(
+            		newBlock.getSimTime_validation(),
+            		newBlock.getSysTime_validation() - Simulation.sysStartTime,
+            		newBlock.getValidationNodeID(),
+            		newBlock.getID(),((newBlock.getParent() == null) ? -1 : newBlock.getParent().getID()),
+            		newBlock.getHeight(),
+            		newBlock.printIDs(";"),
+                    "Node Completes Validation",
+                    newBlock.getValidationDifficulty(),
+                    newBlock.getValidationCycles());
+            
+            
             if (!node.blockchain.contains(newBlock)) {
-                reportBlockEvent(newBlock, newBlock.getContext().blockEvt);
+                //reportBlockEvent(newBlock, newBlock.getContext().blockEvt);
+                BitcoinReporter.reportBlockEvent(
+                		newBlock.getSimTime_validation(),
+                		newBlock.getSysTime_validation() - Simulation.sysStartTime,
+                		newBlock.getValidationNodeID(),
+                		newBlock.getID(),((newBlock.getParent() == null) ? -1 : newBlock.getParent().getID()),
+                		newBlock.getHeight(),
+                		newBlock.printIDs(";"),
+                        "Adding block to hidden chain",
+                        newBlock.getValidationDifficulty(),
+                        newBlock.getValidationCycles());
                 hiddenChain.add(newBlock);
             } else {
                 //System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
                 //System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
-                reportBlockEvent(newBlock, "Discarding own Block (ERROR)");
+                //reportBlockEvent(newBlock, "Discarding own Block (ERROR)");
+                BitcoinReporter.reportBlockEvent(
+                		newBlock.getSimTime_validation(),
+                		newBlock.getSysTime_validation() - Simulation.sysStartTime,
+                		newBlock.getValidationNodeID(),
+                		newBlock.getID(),((newBlock.getParent() == null) ? -1 : newBlock.getParent().getID()),
+                		newBlock.getHeight(),
+                		newBlock.printIDs(";"),
+                        "ERROR: Discarding own Block",
+                        newBlock.getValidationDifficulty(),
+                        newBlock.getValidationCycles());
             }
-
             manageMiningPostValidation();
-            checkAndRevealHiddenChain();
-
-        }
-        else{
+            checkAndRevealHiddenChain(newBlock);
+        } else { //Attack not in progress
             Block b = (Block) t;
-            b.validateBlock(node.miningPool.getGroup(), Simulation.currTime, System.currentTimeMillis(), node.getID(), "Node Completes Validation", node.getOperatingDifficulty(), node.getProspectiveCycles());node.completeValidation(node.miningPool, time);
+            b.validateBlock(node.miningPool.getGroup(), 
+            		Simulation.currTime, 
+            		System.currentTimeMillis(), 
+            		node.getID(), 
+            		"Node Completes Validation", 
+            		node.getOperatingDifficulty(), 
+            		node.getProspectiveCycles());
+            //node.completeValidation(node.miningPool, time);
             node.completeValidation(node.miningPool, time);
 
+
+            
             if(b.contains(targetTransaction)){
                 if (!node.blockchain.contains(b)) {
                     //Report validation
-                    reportBlockEvent(b, b.getContext().blockEvt);
-                    startAttack();
+                    //reportBlockEvent(b, b.getContext().blockEvt);
+                    BitcoinReporter.reportBlockEvent(
+                    		b.getSimTime_validation(),
+                    		b.getSysTime_validation() - Simulation.sysStartTime,
+                    		b.getValidationNodeID(),
+                    		b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),
+                    		b.getHeight(),
+                    		b.printIDs(";"),
+                            "Node Completes Validation",
+                            b.getValidationDifficulty(),
+                            b.getValidationCycles());
+                    
+                    startAttack(b);
                     node.blockchain.addToStructure(b);
                     node.propagateContainer(b, time);
                     lastBlock = (Block) b.parent;
@@ -120,25 +239,60 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                     node.miningPool.removeTransaction(targetTransaction);
                     node.considerMining(Simulation.currTime);
                 } else {
+                    BitcoinReporter.reportBlockEvent(
+                    		b.getSimTime_validation(),
+                    		b.getSysTime_validation() - Simulation.sysStartTime,
+                    		b.getValidationNodeID(),
+                    		b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),
+                    		b.getHeight(),
+                    		b.printIDs(";"),
+                            "Error: Discarding own Block",
+                            b.getValidationDifficulty(),
+                            b.getValidationCycles());
                     System.out.println(node.getID()+ " contains " + b.getID() + " in its blockchain in completes validation");
-                    reportBlockEvent(b, "Discarding own Block (ERROR)");
+                    //reportBlockEvent(b, "Discarding own Block (ERROR)");
                 }
                 node.stopMining();
                 node.resetNextValidationEvent();
                 node.reconstructMiningPool();
                 node.miningPool.removeTransaction(targetTransaction);
                 node.considerMining(Simulation.currTime);
-            }
-            else {
+            } else {
                 b.setParent(node.blockchain.getLongestTip());
                 if (!node.blockchain.contains(b)){
-                    reportBlockEvent(b, b.getContext().blockEvt);
+                    //reportBlockEvent(b, b.getContext().blockEvt);
+                    BitcoinReporter.reportBlockEvent(
+                    		b.getSimTime_validation(),
+                    		b.getSysTime_validation() - Simulation.sysStartTime,
+                    		b.getValidationNodeID(),
+                    		b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),
+                    		b.getHeight(),
+                    		b.printIDs(";"),
+                            "Node Completes Validation",
+                            b.getValidationDifficulty(),
+                            b.getValidationCycles());
+                	
                     b.setParent(null);
                     node.blockchain.addToStructure(b);
-                    node.propagateContainer(b, time);
-                }
-                else{
-                    reportBlockEvent(b, "Discarding own Block (ERROR)");
+                    try {
+                    	//Propagate a clone of the block to the rest of the network
+						node.propagateContainer((ITxContainer) b.clone(), time);
+					} catch (CloneNotSupportedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                } else {
+                    //reportBlockEvent(b, "Discarding own Block (ERROR)");
+                    BitcoinReporter.reportBlockEvent(
+                    		b.getSimTime_validation(),
+                    		b.getSysTime_validation() - Simulation.sysStartTime,
+                    		b.getValidationNodeID(),
+                    		b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),
+                    		b.getHeight(),
+                    		b.printIDs(";"),
+                            "Error: Discarding own Block",
+                            b.getValidationDifficulty(),
+                            b.getValidationCycles());
                 }
                 honestBehavior.processPostValidationActivities(time);
             }
@@ -197,8 +351,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         blockchainSizeAtAttackStart = tip.contains(targetTransaction) ? tip.getHeight() - 1 : tip.getHeight();
     }
 
-    private void
-    handleNewBlockReceptionInAttack(Block b) {
+    private void handleNewBlockReceptionInAttack(Block b) {
         node.blockchain.addToStructure(b);
         node.reconstructMiningPool();
         node.miningPool.removeTransaction(targetTransaction);
@@ -210,9 +363,19 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 || publicChainGrowthSinceAttack > MAX_CHAIN_LENGTH;
     }
 
-    private void checkAndRevealHiddenChain() {
+    private void checkAndRevealHiddenChain(Block b) {
         publicChainGrowthSinceAttack = node.blockchain.getLongestTip().height - blockchainSizeAtAttackStart;
         if (shouldRevealHiddenChain()) {
+            BitcoinReporter.reportBlockEvent(
+            		Simulation.currTime,
+            		System.currentTimeMillis() - Simulation.sysStartTime,
+            		b.getCurrentNodeID(),
+                    b.getID(),
+                    ((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),
+                    b.printIDs(";"),
+                    "Reveal of hidden chain starts here.", 
+                    b.getValidationDifficulty(),
+                    b.getValidationCycles());
             revealHiddenChain();
         }
     }

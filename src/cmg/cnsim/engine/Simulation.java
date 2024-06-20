@@ -18,6 +18,7 @@ import java.util.PriorityQueue;
 public class Simulation {
 
 	public static long currTime;
+	public static long sysStartTime;
 	
 	private final EventTimeComparator comp = new EventTimeComparator();
 	protected PriorityQueue<Event> queue = new PriorityQueue<>(comp);
@@ -141,6 +142,7 @@ public class Simulation {
 	
 	public void run() {
 	    //MainLoop
+		sysStartTime = System.currentTimeMillis();
 	    Event e;
 	    while (!queue.isEmpty()){
 	        e = queue.poll(); //it removes the last element of the queue

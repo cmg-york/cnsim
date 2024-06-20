@@ -19,11 +19,7 @@ import java.util.Arrays;
  * 
  */
 /**
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
- * 
- */
-/**
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  * 
  */
 public abstract class Node implements INode {

@@ -32,14 +32,45 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
     @Override
     public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
         Block b = (Block) t;
-        updateBlockContext(b);
+        
+        //updateBlockContext(b);
         // Report a block event
-        reportBlockEvent(b, b.getContext().blockEvt);
+
+        //reportBlockEvent(b, b.getContext().blockEvt);
+
+        b.setCurrentNodeID(node.getID());
+        b.setLastBlockEvent("Node Receives Propagated Block");
+        b.setValidationCycles(-1.0);
+        b.setValidationDifficulty(-1.0);
+     
+        BitcoinReporter.reportBlockEvent(
+        		Simulation.currTime,
+        		System.currentTimeMillis()- Simulation.sysStartTime,
+        		b.getCurrentNodeID(),
+                b.getID(),
+                ((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),
+                b.printIDs(";"),
+                b.getLastBlockEvent(), 
+                b.getValidationDifficulty(),
+                b.getValidationCycles());
+                
         if (!node.blockchain.contains(b)){
             handleNewBlockReception(b);
         } else {
             //Discard the block and report the event.
-            reportBlockEvent(b, "Propagated Block Discarded");
+            //reportBlockEvent(b, "Propagated Block Discarded");
+            b.setLastBlockEvent("ERROR: propagated Block already exists");
+        	BitcoinReporter.reportBlockEvent(
+            		Simulation.currTime,
+            		System.currentTimeMillis() - Simulation.sysStartTime,
+            		b.getCurrentNodeID(),
+                    b.getID(),
+                    ((b.getParent() == null) ? -1 : b.getParent().getID()),
+                    b.getHeight(),
+                    b.printIDs(";"),
+                    b.getLastBlockEvent(), 
+                    b.getValidationDifficulty(),
+                    b.getValidationCycles());
         }
     }
 
@@ -63,17 +94,46 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
 
 
         //Report validation
-        reportBlockEvent(b, b.getContext().blockEvt);
+        //reportBlockEvent(b, b.getContext().blockEvt);
 
+        //Report the validation event
+        BitcoinReporter.reportBlockEvent(
+        		b.getSimTime_validation(),
+        		b.getSysTime_validation() - Simulation.sysStartTime,
+        		b.getValidationNodeID(),
+                b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),
+                b.getHeight(),
+                b.printIDs(";"),
+                "Node Completes Validation",
+                b.getValidationDifficulty(),
+                b.getValidationCycles());
+        
+        
         b.setParent(node.blockchain.getLongestTip());
         if (!node.blockchain.contains(b)) {
             b.setParent(null);
             //Add block to blockchain
             node.blockchain.addToStructure(b);
-            //Propagate block to the rest of the network
-            node.propagateContainer(b, time);
+            
+            //Propagate a clone of the block to the rest of the network
+            try {
+				node.propagateContainer((ITxContainer) b.clone(), time);
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
         } else {
-            reportBlockEvent(b, "Discarding own Block (ERROR)");
+            //reportBlockEvent(b, "Discarding own Block (ERROR)");
+            BitcoinReporter.reportBlockEvent(
+            		b.getSimTime_validation(),
+            		b.getSysTime_validation()- Simulation.sysStartTime,
+            		b.getValidationNodeID(),
+                    b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),
+                    b.getHeight(),
+                    b.printIDs(";"),
+                    "Discarding own Block (ERROR)",
+                    b.getValidationDifficulty(),
+                    b.getValidationCycles());
+            
         }
 
         processPostValidationActivities(time);
@@ -81,16 +141,16 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
 
 
 
-    private void updateBlockContext(Block b) {
-        //TODO: updating of context here seems wrong!
-        //Update context information for reporting
-        b.getContext().simTime = Simulation.currTime;
-        b.getContext().sysTime = System.currentTimeMillis();
-        b.getContext().nodeID = node.getID();
-        b.getContext().blockEvt = "Node Receives Propagated Block";
-        b.getContext().cycles = -1;
-        b.getContext().difficulty = -1;
-    }
+//    private void updateBlockContext(Block b) {
+//        //TODO: updating of context here seems wrong!
+//        //Update context information for reporting
+//        b.getContext().simTime = Simulation.currTime;
+//        b.getContext().sysTime = System.currentTimeMillis();
+//        b.getContext().nodeID = node.getID();
+//        b.getContext().blockEvt = "Node Receives Propagated Block";
+//        b.getContext().cycles = -1;
+//        b.getContext().difficulty = -1;
+//    }
 
     protected void handleNewBlockReception(Block b) {
         //Add block to blockchain
@@ -105,12 +165,12 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         //node.blockchain.printLongestChain();
     }
 
-    private void reportBlockEvent(Block b, String blockEvt) {
-        // Report a block event
-        BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
-                b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
-                blockEvt, b.getContext().difficulty,b.getContext().cycles);
-    }
+//    private void reportBlockEvent(Block b, String blockEvt) {
+//        // Report a block event
+//        BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+//                b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
+//                blockEvt, b.getContext().difficulty,b.getContext().cycles);
+//    }
 
 
 

@@ -19,6 +19,7 @@ public class BitcoinNode extends Node {
 
 	protected TransactionGroup miningPool;
 	public Blockchain blockchain;
+
 	protected Double operatingDifficulty;
 	protected long minValueToMine;
 	protected long minSizeToMine;
@@ -208,6 +209,11 @@ public class BitcoinNode extends Node {
 	public NodeBehaviorStrategy getBehaviorStrategy() {
 		return behaviorStrategy;
 	}
+	
+	public Blockchain getBlockchain() {
+		return blockchain;
+	}
+
 
 
 }

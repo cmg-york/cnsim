@@ -53,6 +53,7 @@ public class Blockchain implements IStructure {
 	public void addToStructure(Block b) {
 		if (b.hasParent()) {
 			// Typically it has parent when it is coming from the orphans list or propagation.
+			assert(b.getParent() != null);
 			placeBlockInChain(b);
 		} else {
 			// Has no parent when it is coming from own validation.
@@ -71,8 +72,9 @@ public class Blockchain implements IStructure {
 	 * @param b The {@linkplain Block} to be added to the blockchain.
 	 */
 	private void placeBlockInChain(Block b) {
-		//Find the parent
-		Block parent = (Block) findParentOf(b);
+		//Find the parent. It is important that this happens by ID. 
+		//Initially the parent may point to a block residing in a different node!
+		Block parent = (Block) findParentOfbyID(b);
 		//TODO for the condition add (&& b.parent not equal null) -> means I could not find parent of this
 		if (parent == null) {
 			addToOrphans(b);
@@ -90,16 +92,51 @@ public class Blockchain implements IStructure {
 				tips.add(b);
 				
 				//Report event.
-				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
-						b.getID(),b.getParent().getID(),b.getHeight(),b.printIDs(";"),
-						"Appended On Chain (w/ parent)", b.getContext().difficulty,b.getContext().cycles);
+				//BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+				//		b.getID(),b.getParent().getID(),b.getHeight(),b.printIDs(";"),
+				//		"Appended On Chain (w/ parent)", b.getContext().difficulty,b.getContext().cycles);
+
+				
+				BitcoinReporter.reportBlockEvent(
+	            		Simulation.currTime,
+	            		System.currentTimeMillis() - Simulation.sysStartTime,
+	            		b.getCurrentNodeID(),
+						b.getID(),
+						b.getParent().getID(),
+						b.getHeight(),
+						b.printIDs(";"),
+						"Appended On Chain (w/ parent)", 
+	                    b.getValidationDifficulty(),
+	                    b.getValidationCycles());
+				
 				processOrphans();
 			} else {
 				Debug.p("discarding overlapping block");
-				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
-						b.getID(),b.getParent().getID(),b.getHeight(),b.printIDs(";"),
-						"Discarded due to overlap with parent's chain", b.getContext().difficulty,b.getContext().cycles);
+//				BitcoinReporter.reportBlockEvent(
+//						b.getContext().simTime, 
+//						b.getContext().sysTime, 
+//						b.getContext().nodeID,
+//						b.getID(),
+//						b.getParent().getID(),
+//						b.getHeight(),
+//						b.printIDs(";"),
+//						"Discarded due to overlap with parent's chain", 
+//						b.getContext().difficulty,
+//						b.getContext().cycles);
 
+				BitcoinReporter.reportBlockEvent(
+	            		Simulation.currTime,
+	            		System.currentTimeMillis() - Simulation.sysStartTime,
+	            		b.getCurrentNodeID(),
+						b.getID(),
+						b.getParent().getID(),
+						b.getHeight(),
+						b.printIDs(";"),
+						"Discarded due to overlap with parent's chain", 
+	                    b.getValidationDifficulty(),
+	                    b.getValidationCycles());
+
+				
 			}
 		}
 	}
@@ -109,11 +146,15 @@ public class Blockchain implements IStructure {
 
 	//For new parentless blocks. You need to find the tip
 	/**
-	 * Pushes a newly validated {@linkplain Block block} without parents (e.g., just validated by the node) to blockchain.
-	 *
-	 * It gets the tallest non-overlapping tip and appends the block there while replacing the block's parent with the block in the tips list.
-	 *
-	 * While a block always contains a parent while being validated, we assume here that the parent is selected after validation. This normally does not cause any violence to the consensus proceedings, given that such parents is guaranteed to exist (mining pool is always valid and non-overlapping). In case it does, an error is printed in the Log file.
+	 * Pushes a newly validated {@linkplain Block block} without parents 
+	 * (e.g., just validated by the node) to blockchain.
+	 * It gets the tallest non-overlapping tip and appends the block there 
+	 * while replacing the block's parent with the block in the tips list.
+	 * While a block always contains a parent while being validated, we assume
+	 * here that the parent is selected after validation. This normally does not 
+	 * cause any violence to the consensus proceedings, given that such parent is 
+	 * guaranteed to exist (mining pool is always valid and non-overlapping). 
+	 * In case it does, an error is printed in the Log file.
 	 *
 	 * If the chain is empty, make the block a genesis block with null as a parent.
 	 *
@@ -134,17 +175,40 @@ public class Blockchain implements IStructure {
 				blockchain.add(b);
 				tips.add(b);
 				tips.remove(b.getParent());
-				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
-						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
-						"Appended On Chain (parentless)", b.getContext().difficulty,b.getContext().cycles);
+				
+//				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+//						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
+//						"Appended On Chain (parentless)", b.getContext().difficulty,b.getContext().cycles);
 
+				BitcoinReporter.reportBlockEvent(
+	            		Simulation.currTime,
+	            		System.currentTimeMillis() - Simulation.sysStartTime,
+	            		b.getCurrentNodeID(),
+						b.getID(),
+						((b.getParent() == null) ? -1 : b.getParent().getID()),
+						b.getHeight(),
+						b.printIDs(";"),
+						"Appended On Chain (parentless)",
+	                    b.getValidationDifficulty(),
+	                    b.getValidationCycles());				
+				
 				processOrphans();
 
 			} else {
 				//Do nothing, block should be discarded.
-				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
-						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
-						"Discarding due to chain overlap", b.getContext().difficulty,b.getContext().cycles);
+//				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+//						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
+//						"Discarding due to chain overlap", b.getContext().difficulty,b.getContext().cycles);
+				BitcoinReporter.reportBlockEvent(
+	            		Simulation.currTime,
+	            		System.currentTimeMillis() - Simulation.sysStartTime,
+	            		b.getCurrentNodeID(),
+						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),
+						b.getHeight(),
+						b.printIDs(";"),
+						"Discarding due to chain overlap", 
+	                    b.getValidationDifficulty(),
+	                    b.getValidationCycles());				
 			}
 		} else {
 			//It is a genesis block
@@ -158,41 +222,41 @@ public class Blockchain implements IStructure {
 	}
 
 
-	private void pushBlockToChain2(Block b) {
-
-		//Nonempty blockchain - find the tallest non-conflicting tip
-		if (!blockchain.isEmpty()) {
-
-			Block par = this.getLongestTip();
-			if (par != null) {
-				//Prepare and block to structure
-				b.setParent(par);
-				b.setHeight(par.getHeight() + 1);
-				blockchain.add(b);
-				tips.add(b);
-				tips.remove(b.getParent());
-				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
-						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
-						"Appended On Chain (parentless)", b.getContext().difficulty,b.getContext().cycles);
-
-				processOrphans();
-
-			} else {
-				//Do nothing, block should be discarded.
-				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
-						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
-						"Discarding due to chain overlap", b.getContext().difficulty,b.getContext().cycles);
-			}
-		} else {
-			//It is a genesis block
-			b.setParent(null); // it was already but for clarity
-			b.setHeight(1);
-			blockchain.add(b);
-			tips.add(b);
-
-			processOrphans();
-		}
-	}
+//	private void pushBlockToChain2(Block b) {
+//
+//		//Nonempty blockchain - find the tallest non-conflicting tip
+//		if (!blockchain.isEmpty()) {
+//
+//			Block par = this.getLongestTip();
+//			if (par != null) {
+//				//Prepare and block to structure
+//				b.setParent(par);
+//				b.setHeight(par.getHeight() + 1);
+//				blockchain.add(b);
+//				tips.add(b);
+//				tips.remove(b.getParent());
+//				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+//						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
+//						"Appended On Chain (parentless)", b.getContext().difficulty,b.getContext().cycles);
+//
+//				processOrphans();
+//
+//			} else {
+//				//Do nothing, block should be discarded.
+//				BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+//						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
+//						"Discarding due to chain overlap", b.getContext().difficulty,b.getContext().cycles);
+//			}
+//		} else {
+//			//It is a genesis block
+//			b.setParent(null); // it was already but for clarity
+//			b.setHeight(1);
+//			blockchain.add(b);
+//			tips.add(b);
+//
+//			processOrphans();
+//		}
+//	}
 
 
 
@@ -227,9 +291,20 @@ public class Blockchain implements IStructure {
 	 */
 	private void addToOrphans(Block b) {
 		orphans.add(b);
-		BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
-				b.getID(),b.getParent().getID(),-1,b.printIDs(";"),
-				"Added to Orphans", b.getContext().difficulty,b.getContext().cycles);
+//		BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+//				b.getID(),b.getParent().getID(),-1,b.printIDs(";"),
+//				"Added to Orphans", b.getContext().difficulty,b.getContext().cycles);
+
+		BitcoinReporter.reportBlockEvent(
+        		Simulation.currTime,
+        		System.currentTimeMillis() - Simulation.sysStartTime,
+        		b.getCurrentNodeID(),
+				b.getID(),
+				b.getParent().getID(),-1,
+				b.printIDs(";"),
+				"Added to Orphans", 
+                b.getValidationDifficulty(),
+                b.getValidationCycles());	
 	}
 	
 	/**
@@ -305,17 +380,35 @@ public class Blockchain implements IStructure {
 	 * @param b The {@linkplain Block} whose parent is to be found. 
 	 * @return A pointer to an object implementing ITxContainer (e.g., a {@linkplain Block})
 	 */
-	private ITxContainer findParentOf(Block b) {
+//	private ITxContainer findParentOf(Block b) {
+//		Block parent = (Block) b.getParent();
+//		Block found = null;
+//		for (Block l : blockchain) {
+//			if (l == parent) {
+//				found = l;
+//				break;
+//			}
+//		}
+//		return(found);
+//	}
+	
+	/**
+	 * Finds the parent of a {@linkplain Block} b by ID.
+	 * @param b The {@linkplain Block} whose parent is to be found. 
+	 * @return A pointer to an object implementing ITxContainer (e.g., a {@linkplain Block})
+	 */
+	private ITxContainer findParentOfbyID(Block b) {
 		Block parent = (Block) b.getParent();
 		Block found = null;
 		for (Block l : blockchain) {
-			if (l == parent) {
+			if (l.getID() == parent.getID()) {
 				found = l;
 				break;
 			}
 		}
 		return(found);
 	}
+	
 
 	/**
 	 * Checks if a {@linkplain Transaction} is contained (anywhere) in the blockchain. Likely to be used in the gossip stage.
@@ -352,7 +445,7 @@ public class Blockchain implements IStructure {
 			boolean found1 = false, found2 = false;
 
 			// Check if any block in the blockchain overlaps with the current block
-
+			// TODO: this must be fixed
 			if (block.overlapsWith(current)) found1 = true;
 			if (block.overlapsWithbyObj(current)) found2 = true;
 
@@ -360,6 +453,7 @@ public class Blockchain implements IStructure {
 			assert(!(found1 ^ found2));
 
 			if (found1 || found2) {
+				//TODO: this is never happening. Is it normal?
 				System.out.println("Block " + block.getID() + " is contained in the blockchain at height " + counter);
 				return true; // Found the block in the parental structure
 				}
