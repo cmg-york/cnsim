@@ -24,10 +24,11 @@ public class Simulation {
 	protected PriorityQueue<Event> queue = new PriorityQueue<>(comp);
 	
 	private AbstractNetwork net;
-	protected AbstractSampler sampler;
+	//protected AbstractSampler sampler;
+	protected Sampler sampler;
 
-
-	public Simulation(AbstractSampler a) {
+//	public Simulation(AbstractSampler a) {
+	public Simulation(Sampler a) {
 		super();
 	    this.sampler = a;
 	}
@@ -62,9 +63,9 @@ public class Simulation {
 	/**
 	 * Retrieves the Sampler object associated with this Simulation object.
 	 *
-	 * @return The AbstractSampler object representing the sampler.
+	 * @return The Sampler object representing the sampler.
 	 */
-	public AbstractSampler getSampler() {
+	public Sampler getSampler() {
 	    return sampler;
 	}
 
@@ -72,9 +73,9 @@ public class Simulation {
 	/**
 	 * Sets the Sampler associated with this object.
 	 *
-	 * @param sampler The AbstractSampler object to be set as the sampler.
+	 * @param sampler The Sampler object to be set as the sampler.
 	 */
-	public void setSampler(AbstractSampler sampler) {
+	public void setSampler(Sampler sampler) {
 	    this.sampler = sampler;
 	}
 	

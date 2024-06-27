@@ -2,6 +2,7 @@ package cmg.cnsim.engine.node;
 
 import java.util.ArrayList;
 
+import cmg.cnsim.engine.Debug;
 import cmg.cnsim.engine.Reporter;
 
 /**
@@ -94,7 +95,7 @@ public class NodeSet {
 	 * @return a Node object
 	 */
 	public INode pickRandomNode() {
-	    return (nodes.get(nodeFactory.getSampler().getNextRandomNode(nodes.size())));
+	    return (nodes.get(nodeFactory.getSampler().getNodeSampler().getNextRandomNode(nodes.size())));
 	}
 
 	/**

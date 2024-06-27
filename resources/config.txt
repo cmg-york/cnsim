@@ -1,25 +1,73 @@
+# Simulation-wide parameters 
+#
 sim.maxNodes = 20
 sim.maxTransactions = 50000
-sim.randomSeed = 12345
 sim.reportingWindow = 100000
 sim.numofSim = 30
 sim.reporting.window = 100000
-net.numOfNodes = 3
-node.createMaliciousNode = false
-node.maliciousHashPower = 900000f
-net.useFileBasedNetwork = false
+
+#Network-specific parameters
+#
+net.sampler.file = ./resources/net.csv
+net.sampler.seed = 123
+net.numOfNodes = 5
 #net.throughputMean = 2500000f
 net.throughputMean = 25000f
 net.throughputSD = 20f
+
+
+# Workload Parameters
+#
+workload.sampler.file = ./resources/workload.csv
+#workload.sampler.seed = 321
+#workload.lambda = 7f
+workload.lambda = 70f
+#workload.numTransactions = 25200
+workload.numTransactions = 30
+workload.txSizeMean = 559.87f
+workload.txSizeSD = 93.21f
+workload.txFeeValueMean = 50f
+workload.txFeeValueSD = 12f
+
+# Attack Related
+worlkoad.targetTransaction = 3
+#transaction.source = random
+
+
+# Node Parameters
+#
+node.sampler.file = ./resources/nodelist.csv
+node.sampler.seed = 444
+node.createMaliciousNode = false
+node.maliciousHashPower = 900000f
 node.electricPowerMean = 1375f
 node.electricPowerSD = 20f
 node.electricCostMean = 0.1f
 node.electricCostSD = 0.05f
+
+# Hashpower Related
 # pow.difficulty = 3.88e18
 #pow.difficulty = 3.7104169697917E+23
 pow.difficulty = 86.39E12
 pow.hashPowerMean = 111000
 pow.hashPowerSD = 5
+
+#
+#
+# Protocol-Specific Parameters
+#
+#
+
+
+# bitcoin.maxBlockSize = 1000000 # Bitcoin
+bitcoin.maxBlockSize = 3000
+bitcoin.minSizeToMine = 1000
+bitcoin.minValueToMine = 1
+#sampler.useFileBasedSampler = false
+
+
+# Tangle Specific Parameters
+#
 tangle.alpha = 0.01f
 tangle.numOfFounders = 10
 tangle.numOfParticles = 4
@@ -27,18 +75,4 @@ tangle.startingCutset = 1000
 tangle.wMaxPercentile = 0.75f
 tangle.wMinPercentile = 0.5f
 tangle.randomSeed = 123
-# bitcoin.maxBlockSize = 1000000 # Bitcoin
-bitcoin.maxBlockSize = 3000
-bitcoin.minSizeToMine = 1000
-bitcoin.minValueToMine = 1
-sampler.useFileBasedSampler = false
-#workload.lambda = 7f
-workload.lambda = 70f
-#workload.numTransactions = 25200
-worlkoad.targetTransaction = 3
-workload.numTransactions = 30
-workload.txSizeMean = 559.87f
-workload.txSizeSD = 93.21f
-workload.txFeeValueMean = 50f
-workload.txFeeValueSD = 12f
-transaction.source = random
+

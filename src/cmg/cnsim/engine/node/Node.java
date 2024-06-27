@@ -389,7 +389,7 @@ public abstract class Node implements INode {
 	 * @author Sotirios Liaskos
 	 */
 	public long scheduleValidationEvent(ITxContainer txc, long time) {
-		long h = sim.getSampler().getNextMiningInterval(getHashPower());
+		long h = sim.getSampler().getNodeSampler().getNextMiningInterval(getHashPower());
 	    Event_ContainerValidation e = new Event_ContainerValidation(txc, this, time + h);
 	    this.nextValidationEvent = e;
 	    sim.schedule(e);

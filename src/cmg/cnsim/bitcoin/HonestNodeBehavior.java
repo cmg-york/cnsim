@@ -83,7 +83,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         //Add validation information to the block.
         b.validateBlock(node.miningPool.getGroup(),
                 Simulation.currTime,
-                System.currentTimeMillis(),
+                System.currentTimeMillis() - Simulation.sysStartTime,
                 node.getID(),
                 "Node Completes Validation",
                 node.getOperatingDifficulty(),
@@ -99,7 +99,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         //Report the validation event
         BitcoinReporter.reportBlockEvent(
         		b.getSimTime_validation(),
-        		b.getSysTime_validation() - Simulation.sysStartTime,
+        		b.getSysTime_validation(),
         		b.getValidationNodeID(),
                 b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),
                 b.getHeight(),

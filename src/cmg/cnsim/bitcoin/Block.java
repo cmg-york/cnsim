@@ -1,5 +1,6 @@
 package cmg.cnsim.bitcoin;
 
+import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.node.Node;
 import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionGroup;

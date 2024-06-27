@@ -150,7 +150,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             Block newBlock = (Block) t;
             newBlock.validateBlock(node.miningPool.getGroup(), 
             		Simulation.currTime, 
-            		System.currentTimeMillis(), 
+            		System.currentTimeMillis()- Simulation.sysStartTime, 
             		node.getID(), 
             		"Node Completes Validation", 
             		node.getOperatingDifficulty(), 
@@ -204,7 +204,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             Block b = (Block) t;
             b.validateBlock(node.miningPool.getGroup(), 
             		Simulation.currTime, 
-            		System.currentTimeMillis(), 
+            		System.currentTimeMillis() - Simulation.sysStartTime, 
             		node.getID(), 
             		"Node Completes Validation", 
             		node.getOperatingDifficulty(), 
@@ -312,7 +312,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     }
 
     private void reportBlockEvent(Block b, String blockEvt) {
-        BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime, b.getContext().nodeID,
+        BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime  - Simulation.sysStartTime, b.getContext().nodeID,
                 b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
                 blockEvt, b.getContext().difficulty,b.getContext().cycles);
     }
@@ -321,7 +321,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         //TODO: updating of context here seems wrong!
         //Update context information for reporting
         b.getContext().simTime = Simulation.currTime;
-        b.getContext().sysTime = System.currentTimeMillis();
+        b.getContext().sysTime = System.currentTimeMillis() - Simulation.sysStartTime;
         b.getContext().nodeID = node.getID();
         b.getContext().blockEvt = "Node Receives Propagated Block";
         b.getContext().cycles = -1;

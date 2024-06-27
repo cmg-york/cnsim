@@ -1,12 +1,13 @@
 package cmg.cnsim.engine.node;
 
 import cmg.cnsim.engine.AbstractSampler;
+import cmg.cnsim.engine.Sampler;
 import cmg.cnsim.engine.Simulation;
 
 public abstract class AbstractNodeFactory {
 	
 	protected Simulation sim;
-	protected AbstractSampler sampler;
+	protected Sampler sampler;
 	
 	public Simulation getSim() {
 		return sim;
@@ -16,11 +17,11 @@ public abstract class AbstractNodeFactory {
 		this.sim = sim;
 	}
 
-	public AbstractSampler getSampler() {
+	public Sampler getSampler() {
 		return sampler;
 	}
 
-	public void setSampler(AbstractSampler sampler) {
+	public void setSampler(Sampler sampler) {
 		this.sampler = sampler;
 	}
 	

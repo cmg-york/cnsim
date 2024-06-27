@@ -1,6 +1,8 @@
 package cmg.cnsim.engine.network;
 
 import cmg.cnsim.engine.Config;
+import cmg.cnsim.engine.Reporter;
+import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.node.NodeSet;
 
 /**
@@ -18,10 +20,14 @@ public abstract class AbstractNetwork {
 	/**
 	 * Constructor. 
 	 * @param ns A NodeSet object representing the nodes of the network.
+	 * @throws Exception 
 	 */
-	public AbstractNetwork(NodeSet ns) {
-        //Net = new float [Parameters.MAXNODES + 1][Parameters.MAXNODES + 1];
-		Net = new float [Config.getPropertyInt("sim.maxNodes") + 1][Config.getPropertyInt("sim.maxNodes") + 1];
+	public AbstractNetwork(NodeSet ns) throws Exception {
+        int maxNodes = Config.getPropertyInt("sim.maxNodes");
+		if (maxNodes < ns.getNodeSetCount()) {
+			throw new Exception("Node count exceed maximum allowed number of nodes.");
+		}
+		Net = new float [maxNodes + 1][maxNodes + 1];
         this.ns = ns;
 	}
 	
@@ -94,14 +100,15 @@ public abstract class AbstractNetwork {
 		return Net[Origin][Destination];
 	}
 
-	public void setThroughput(int Origin, int Destination, float throughput) {
-		if(Origin < 0)
+	public void setThroughput(int origin, int destination, float throughput) {
+		Reporter.addNetEvent(origin, destination, throughput, Simulation.currTime);
+		if(origin < 0)
 			throw new ArithmeticException("Origin < 0");
-		if(Destination < 0)
+		if(destination < 0)
 			throw new ArithmeticException("Destination < 0");
 		if(throughput < 0)
 			throw new ArithmeticException("Throughput < 0");
-		Net[Origin][Destination] = throughput;
+		Net[origin][destination] = throughput;
 	}
 
 	

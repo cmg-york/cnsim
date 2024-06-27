@@ -47,7 +47,7 @@ public class Event_ContainerValidation extends Event {
         Reporter.addEvent(
         		getEvtID(), 
         		getTime(), 
-        		System.currentTimeMillis(), 
+        		System.currentTimeMillis() - Simulation.sysStartTime, 
         		this.getClass().getSimpleName() + status, 
         		node.getID(), 
         		container.getID());

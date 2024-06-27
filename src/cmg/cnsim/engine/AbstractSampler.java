@@ -4,7 +4,7 @@ package cmg.cnsim.engine;
  * E.g. a Standard Sampler offers parameters sampled from a Gaussian distribution 
  * and a Deterministic sampler, samples based on predifined intervals or data.    
  * 
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  * 
  */
 

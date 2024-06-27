@@ -10,7 +10,6 @@
     import cmg.cnsim.engine.transaction.Transaction;
     import cmg.cnsim.engine.transaction.TransactionWorkload;
 
-    import java.util.Arrays;
     import java.util.List;
     import java.util.Scanner;
 
@@ -23,45 +22,161 @@
             b.run();
         }
 
-        private void run() {
+        
+         private void run() {
             //print current directory
             System.out.println("Current directory: " + System.getProperty("user.dir"));
             Config.init("./resources/config.txt");
 
+            
+            //
+            //
+            // Sampler Creation
+            //
+            //
+            Sampler sampler = new Sampler();
 
-            // Initialize components
-            AbstractSampler sampler;
-            if (Config.getPropertyBoolean("sampler.useFileBasedSampler")) {
-                sampler = new FileBasedSampler("./resources/transactions.csv", "./resources/nodes.csv");
-                sampler.LoadConfig();
-            } else {
-                sampler = new StandardSampler();
-                sampler.LoadConfig();
+            //Define node sampler. 
+            //If a file exists it will be file-based, otherwise, just create a standard sampler.
+            
+            long nodeSeed = -1;
+            boolean hasNodeSeed = false;
+            if (Config.hasProperty("node.sampler.seed")) {
+            	nodeSeed = Config.getPropertyLong("node.sampler.seed");
+            	hasNodeSeed = true;
+            	Debug.p("Seed found for node sampler: " + nodeSeed);
             }
+            
+            String nodeSamplerPath = Config.getPropertyString("node.sampler.file");
+            if (nodeSamplerPath!=null) {
+            	Debug.p("Creating a file-based node sampler");
+            	if (hasNodeSeed) {
+            		sampler.setNodeSampler(new FileBasedNodeSampler(nodeSamplerPath, new StandardNodeSampler(sampler,nodeSeed)));
+            	} else {
+            		sampler.setNodeSampler(new FileBasedNodeSampler(nodeSamplerPath, new StandardNodeSampler(sampler)));
+            	}
+            } else {
+            	Debug.p("Creating random node sampler");
+            	if (hasNodeSeed) {
+            		sampler.setNodeSampler(new StandardNodeSampler(sampler,nodeSeed));
+            	} else {
+            		sampler.setNodeSampler(new StandardNodeSampler(sampler));
+            	}
+            }
+            
+            
+            //Define network sampler. 
+            //Will be used only if a random network is required
+            Debug.p("Creating random network sampler");
+            sampler.setNetworkSampler(new StandardNetworkSampler(sampler));
+            
+            
+            if (Config.hasProperty("net.sampler.seed")) {
+            	Debug.p("Adding seed to network sampler: " + Config.getPropertyLong("net.sampler.seed"));
+            	sampler.getNetworkSampler().setSeed(Config.getPropertyLong("net.sampler.seed"));
+            }
+            
+            
+            //Define workload sampler. 
+            
+            long workloadSeed = -1;
+            boolean hasWorkloadSeed = false;
+            if (Config.hasProperty("workload.sampler.seed")) {
+            	workloadSeed = Config.getPropertyLong("workload.sampler.seed");
+            	hasWorkloadSeed = true;
+            	Debug.p("Seed found for workload sampler: " + workloadSeed);
+            }
+            
+            //If a file exists it will be file-based, otherwise, just create a standard sampler.
+            String workloadSamplerPath = Config.getPropertyString("workload.sampler.file");
+            if (workloadSamplerPath!=null) {
+            	Debug.p("Creating file-based workload sampler");
+            	if (hasWorkloadSeed) {
+            		sampler.setTransactionSampler(new FileBasedTransactionSampler(workloadSamplerPath, new StandardTransactionSampler(sampler,workloadSeed)));	
+            	} else {
+        			sampler.setTransactionSampler(new FileBasedTransactionSampler(workloadSamplerPath, new StandardTransactionSampler(sampler)));            		
+            	}
+            } else {
+                Debug.p("Creating random workload sampler");
+            	if (hasWorkloadSeed) {
+            		sampler.setTransactionSampler(new StandardTransactionSampler(sampler, workloadSeed));
+            	} else {
+            		sampler.setTransactionSampler(new StandardTransactionSampler(sampler));
+            	}
+            }
+            
+            
+            
+            //
+            //
+            // Creating the simulation object
+            //
+            //
+            
             Simulation s = new Simulation(sampler);
+            
+            
+            //
+            //
+            // Creating the nodes
+            //
+            //
+            
             AbstractNodeFactory nf = new BitcoinNodeFactory("Honest", s);
             NodeSet ns = new NodeSet(nf);
-
+            Debug.p("Nodeset created");
+            
             // Adding nodes
-
             ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
+            Debug.p("Nodes added");
 
-            AbstractNetwork n = new RandomEndToEndNetwork(ns, sampler);
-            //check for using random or file based network
-            if (Config.getPropertyBoolean("net.useFileBasedNetwork")) {
-                n = new FileBasedEndToEndNetwork(ns, sampler, "./CNSim/resources/network.csv");
-            } else {
-                n = new RandomEndToEndNetwork(ns, sampler);
-            }
-            //TODO handel file based throughput matrix
-            s.setNetwork(n);
+            //
+            //
+            // Creating the network
+            //
+            //
+            
+            //Define network. 
+            //If a file exists it will be file-based, otherwise, just create a standard network.
+            AbstractNetwork net = null;
+            String netFilePath = Config.getPropertyString("net.sampler.file");
+			if (netFilePath != null) {
+				try {
+					Debug.p("Creating file-based network.");
+					net = new FileBasedEndToEndNetwork(ns, netFilePath);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					net = new RandomEndToEndNetwork(ns, sampler);
+					Debug.p("Creating random network.");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+            
+
+
+			
+            s.setNetwork(net);
             //n.printNetwork();
 
 
 
+            //
+            //
+            // Creating the transaction workload
+            //
+            //
+            
             // Transaction workload
             TransactionWorkload ts = new TransactionWorkload(sampler);
-            ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
+            try {
+				ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
             s.schedule(ts);
 
             // Assign a target transaction for malicious behavior
@@ -78,15 +193,30 @@
                 }
             }
 
+            
+            //
+            //
+            // Running the simulator
+            //
+            //
+
+            
             Profiling.simBeginningTime = System.currentTimeMillis();
-
-
             s.run();
             long realTime = (System.currentTimeMillis() - Profiling.simBeginningTime); // in Milli-Sec
             System.out.print("\n");
             System.out.println("Real time(ms): " + realTime);
             System.out.println("Simulation time(ms): " + Simulation.currTime);
 
+            
+
+            //
+            //
+            // Clean-up and generate reports
+            //
+            //
+            
+            
             s.getNodeSet().closeNodes();
 
             BitcoinReporter.flushBlockReport();
@@ -94,6 +224,7 @@
             BitcoinReporter.flushEvtReport();
             BitcoinReporter.flushNodeReport();
             BitcoinReporter.flushInputReport();
+            BitcoinReporter.flushNetworkReport();
             BitcoinReporter.flushConfig();
             // each node should log its own blockchain in the end
         }

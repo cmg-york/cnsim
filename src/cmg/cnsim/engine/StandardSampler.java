@@ -4,7 +4,7 @@ import java.util.Random;
 
 /**
  * An implementation of the Abstract sampler based (mostly) on the Normal distribution. 
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  * 
  */
 public class StandardSampler extends AbstractSampler {

@@ -49,9 +49,15 @@ public class TangleMainDriver {
         //ns.addNodes(Parameters.NumofNodes); //a network where all nodes are honest
         ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
         //Create a network based on the NodeSet
-        n = new RandomEndToEndNetwork(ns,sampler);
+        try {
+			n = new RandomEndToEndNetwork(ns,sampler);
+			 s.setNetwork(n);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         //Set this network to the simulator
-        s.setNetwork(n);
+       
         
         //
         // Workload Construction

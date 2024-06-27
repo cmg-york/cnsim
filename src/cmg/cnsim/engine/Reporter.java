@@ -27,6 +27,7 @@ public class Reporter {
 	protected static ArrayList<String> inputTxLog = new ArrayList<String>();
 	protected static ArrayList<String> eventLog = new ArrayList<String>();
 	protected static ArrayList<String> nodeLog = new ArrayList<String>();
+	protected static ArrayList<String> netLog = new ArrayList<String>();
 
 	protected static String runId;
 	protected static String path;
@@ -50,6 +51,7 @@ public class Reporter {
 		eventLog.add("EventID, SimTime, SysTime, EventType, Node, Object");
 		inputTxLog.add("TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
 		nodeLog.add("NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
+		netLog.add("From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
 	}
 	
 	public static String getRunId() {
@@ -111,6 +113,26 @@ public class Reporter {
 	}
 	
 	
+	
+	/**
+	 * Adds an entry to the network log with information about an event that establishes 
+	 * or updates the bandwidth between two nodes. 
+	 * For static networks only initial network creation is reported here. 
+	 * For dynamic networks any change in the bandwidth between two nodes is reported.
+	 * Zero bandwidth means no link.  
+	 * @param from The node from which the link is established
+	 * @param to The node to which the link is established
+	 * @param bandwidth The speed of the link
+	 * @param simTime The time at which the event happened
+	 */
+	public static void addNetEvent(int from, int to, float bandwidth, long simTime) {
+		netLog.add(from + "," + 
+					to + "," +
+					bandwidth + "," +
+					simTime);
+	}
+	
+	
 	/**
 	 * Save reporter's event log to file. File name is "EventLog - [Simulation Date Time].csv"
 	 * @author Sotirios Liaskos
@@ -156,6 +178,24 @@ public class Reporter {
 		try {
 			writer = new FileWriter(path + "Nodes - " + runId + ".csv");
 			for(String str: nodeLog) {
+				  writer.write(str + System.lineSeparator());
+				}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	
+	/**
+	 * Save reporter's network log to file. File name is "NetLog - [Simulation Date Time].csv"
+	 * @author Sotirios Liaskos
+	 */
+	public static void flushNetworkReport() {
+		FileWriter writer;
+		try {
+			writer = new FileWriter(path + "NetLog - " + runId + ".csv");
+			for(String str: netLog) {
 				  writer.write(str + System.lineSeparator());
 				}
 			writer.close();

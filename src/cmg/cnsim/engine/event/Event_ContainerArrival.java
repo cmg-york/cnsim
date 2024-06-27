@@ -47,7 +47,7 @@ public class Event_ContainerArrival extends Event {
         Reporter.addEvent(
         		this.getEvtID(), 
         		this.getTime(), 
-        		System.currentTimeMillis(), 
+        		System.currentTimeMillis() - Simulation.sysStartTime, 
         		this.getClass().getSimpleName(), 
         		node.getID(), 
         		container.getID());

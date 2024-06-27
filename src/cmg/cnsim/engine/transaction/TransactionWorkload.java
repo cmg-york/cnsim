@@ -1,11 +1,12 @@
 package cmg.cnsim.engine.transaction;
 
 import cmg.cnsim.engine.AbstractSampler;
+import cmg.cnsim.engine.Sampler;
 
 import java.util.ArrayList;
 public class TransactionWorkload extends TransactionGroup {
 
-    private AbstractSampler sampler;
+    private Sampler sampler;
     private long timeEnd = 0;
     
     //Sampler based workload generation
@@ -14,10 +15,10 @@ public class TransactionWorkload extends TransactionGroup {
     
     /**
      * Constructs a TransactionWorkload with the given sampler.
-     * @param s The sampler used to generate transaction attributes.
+     * @param sampler The sampler used to generate transaction attributes.
      */
-    public TransactionWorkload(AbstractSampler s) {
-        this.sampler = s;
+    public TransactionWorkload(Sampler sampler) {
+        this.sampler = sampler;
     }
     
     /**
@@ -26,8 +27,9 @@ public class TransactionWorkload extends TransactionGroup {
      * @param startTime The start time of the first transaction.
      * @throws ArithmeticException If the start time or number of transactions is less than 0.
      * @author Sotirios Liaskos, Nahid Alimohammadi
+     * @throws Exception 
      */
-    private void addTransactions(long num, long startTime){
+    private void addTransactions(long num, long startTime) throws Exception{
     	if(startTime < 0)
     		throw new ArithmeticException("startTime < 0");
     	if(num < 0)
@@ -35,7 +37,11 @@ public class TransactionWorkload extends TransactionGroup {
         long currTime = startTime;
 
         for (long i = 1; i <= num; i++){
-            currTime += (long) sampler.getNextTransactionArrivalInterval();
+            try {
+				currTime += (long) sampler.getTransactionSampler().getNextTransactionArrivalInterval();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
             addTransaction(currTime);
         }
         timeEnd = currTime;
@@ -46,8 +52,9 @@ public class TransactionWorkload extends TransactionGroup {
      * @param num The number of transactions to append.
      * @throws ArithmeticException If the number of transactions is less than 0.
      * @author Sotirios Liaskos, Nahid Alimohammadi
+     * @throws Exception  
      */
-    public void appendTransactions(long num){
+    public void appendTransactions(long num) throws Exception {
     	if(num < 0)
     		throw new ArithmeticException("num < 0");
         addTransactions(num, timeEnd);
@@ -57,14 +64,15 @@ public class TransactionWorkload extends TransactionGroup {
      * Adds a transaction with the given current time.
      * @param currTime The current time of the transaction.
      * @author Sotirios Liaskos
+     * @throws Exception 
      */
-    public void addTransaction(long currTime){
+    public void addTransaction(long currTime) throws Exception{
         Transaction t;
 
         t = new Transaction(Transaction.getNextTxID(),
                 currTime,
-                sampler.getNextTransactionFeeValue(),
-                sampler.getNextTransactionSize());
+                sampler.getTransactionSampler().getNextTransactionFeeValue(),
+                sampler.getTransactionSampler().getNextTransactionSize());
         t.setType(Transaction.Type.HONEST);
         addTransaction(t);
     }
@@ -82,7 +90,7 @@ public class TransactionWorkload extends TransactionGroup {
 		ArrayList<Transaction> rtx = new ArrayList<Transaction>();
 		
 		for (int i=1;i<=transNo;i++) {
-			rtx.add(getTransaction(sampler.getRandomNum(0, Math.round((getCount()-1)*percentile))));
+			rtx.add(getTransaction(sampler.getTransactionSampler().getRandomNum(0, Math.round((getCount()-1)*percentile))));
 		}
 		return rtx;
 	}

@@ -1,6 +1,7 @@
 package cmg.cnsim.bitcoin;
 
 import cmg.cnsim.engine.Config;
+import cmg.cnsim.engine.Debug;
 import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.node.AbstractNodeFactory;
 import cmg.cnsim.engine.node.INode;
@@ -45,13 +46,13 @@ public class BitcoinNodeFactory extends AbstractNodeFactory {
 	public INode createNewNode() throws Exception {
 		// First, create a BitcoinNode instance without a behavior strategy
 		BitcoinNode node = new BitcoinNode(sim);
-
+        
 		// Set node properties from the sampler
-		node.setHashPower(sampler.getNextNodeHashPower());
-		node.setElectricPower(sampler.getNextNodeElectricPower());
-		node.setElectricityCost(sampler.getNextNodeElectricityCost());
+		node.setHashPower(sampler.getNodeSampler().getNextNodeHashPower());
+		node.setElectricPower(sampler.getNodeSampler().getNextNodeElectricPower());
+		node.setElectricityCost(sampler.getNodeSampler().getNextNodeElectricityCost());
 		node.setSimulation(sim);
-
+		
 		// Determine and set the appropriate behavior strategy
 		NodeBehaviorStrategy strategy;
 		if (this.createMaliciousNode && !this.maliciousNodeCreated) {

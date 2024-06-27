@@ -502,7 +502,7 @@ public class Blockchain implements IStructure {
 	public String[] printStructureReport(int nodeID) {
 		ArrayList<String> result = new ArrayList<String>();
 		String s,par;
-		Long realTime = System.currentTimeMillis();
+		Long realTime = System.currentTimeMillis() - Simulation.sysStartTime;
 		Collections.sort(blockchain, new BlockHeightComparator());
 		for (Block b: blockchain) {
 			if (b.hasParent()) {
@@ -540,7 +540,7 @@ public class Blockchain implements IStructure {
 	public String[] printOrphansReport(int nodeID) {
 		ArrayList<String> result = new ArrayList<String>();
 		String s;
-		Long realTime = System.currentTimeMillis();
+		Long realTime = System.currentTimeMillis() - Simulation.sysStartTime;
 		for (Block b: orphans) {
 			//SimTime, SysTime, NodeID, BlockID, ParentID, Height, Content, Place
 			s = Simulation.currTime + "," + realTime + "," + nodeID + "," +  b.getID() + "," + b.getParent().getID() + ",-1," + b.printIDs(";") + ", orphans";

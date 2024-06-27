@@ -43,7 +43,7 @@ public class Event_NewTransactionArrival extends Event {
         Reporter.addEvent(
         		getEvtID(), 
         		getTime(), 
-        		System.currentTimeMillis(), 
+        		System.currentTimeMillis() - Simulation.sysStartTime, 
         		this.getClass().getSimpleName(), 
         		node.getID(), 
         		transaction.getID());

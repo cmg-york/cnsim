@@ -2,6 +2,7 @@ package cmg.cnsim.engine.network;
 
 import cmg.cnsim.engine.AbstractSampler;
 import cmg.cnsim.engine.Config;
+import cmg.cnsim.engine.Sampler;
 import cmg.cnsim.engine.node.NodeSet;
 
 
@@ -16,16 +17,17 @@ import cmg.cnsim.engine.node.NodeSet;
  * 
  */
 public class RandomEndToEndNetwork extends AbstractNetwork {
-	private AbstractSampler sampler;
+	private Sampler sampler;
 	
     /**
      * Create a random network on the basis of Sampler s, using NodeSet ns. Will automatically create the Random network.
      * @param ns The NodeSet for the network
-     * @param s The sampler to use for random assignment of throughputs.
+     * @param sampler The sampler to use for random assignment of throughputs.
+     * @throws Exception 
      */
-    public RandomEndToEndNetwork(NodeSet ns, AbstractSampler s){
+    public RandomEndToEndNetwork(NodeSet ns, Sampler sampler) throws Exception{
         super(ns);
-        this.sampler = s;
+        this.sampler = sampler;
         CreateRandomNetwork();
     }
 
@@ -46,8 +48,12 @@ public class RandomEndToEndNetwork extends AbstractNetwork {
 			for (int j=1; j <= Config.getPropertyInt("net.numOfNodes"); j++) {
 	            if(i!=j && Net[i][j] == 0)
 	            {
-	                Net[i][j] = (float) sampler.getNextConnectionThroughput(); //network throughput refers to how much data can be transferred from source to destination within a given time frame
-	                Net[j][i] = Net[i][j];
+	            	//network throughput refers to how much data can be transferred from source to destination within a given time frame
+	            	float throughPut = (float) sampler.getNetworkSampler().getNextConnectionThroughput();
+	            	super.setThroughput(i, j, throughPut);
+	            	super.setThroughput(j, i, throughPut);
+	                //Net[i][j] =(float) sampler.getNetworkSampler().getNextConnectionThroughput();  
+	                //Net[j][i] = Net[i][j];
 	            }
 	        }
 	    }

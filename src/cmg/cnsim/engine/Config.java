@@ -43,7 +43,6 @@ public class Config {
     }
     
     
-    
     public static int getPropertyInt(String propertyKey) {
     	int l = -1; 
     	check(propertyKey);
@@ -101,6 +100,25 @@ public class Config {
         return l;
      }
     
+	public static boolean getPropertyBoolean(String propertyKey) {
+		boolean b = false;
+		check(propertyKey);
+		try {
+			b = Boolean.parseBoolean(prop.getProperty(propertyKey));
+		} catch (Exception e) {
+			System.err.println("Error reading configuration key: '" + propertyKey + "' as boolean");
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		return b;
+	}
+	
+	public static String getPropertyString(String propertyKey) {
+		return(prop.getProperty(propertyKey,null));
+	}
+
+	
+
     public static void printProperties() {
         for (Object key: prop.keySet()) {
             System.out.println(key + ": " + prop.getProperty(key.toString()));
@@ -114,19 +132,6 @@ public class Config {
         }
         return(s);
     }
-
-	public static boolean getPropertyBoolean(String s) {
-		boolean b = false;
-		check(s);
-		try {
-			b = Boolean.parseBoolean(prop.getProperty(s));
-		} catch (Exception e) {
-			System.err.println("Error reading configuration key: '" + s + "' as boolean");
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		return b;
-	}
 
 	public static boolean hasProperty(String s) {
 		return prop.containsKey(s);
