@@ -1,4 +1,4 @@
-package cmg.cnsim.engine;
+package cmg.cnsim.engine.commandline;
 
 public final class CommandLineParser {
     private final String configFile;
