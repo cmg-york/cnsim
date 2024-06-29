@@ -33,65 +33,45 @@ public final class CommandLineParser {
             switch (key) {
                 case "-c":
                 case "--config":
-                    if (++i < args.length) {
-                        configFile = args[i];
-                    } else {
-                        System.out.println("Error: Missing value for argument " + key);
-                        printUsage();
-                        return null;
-                    }
+                    configFile = getArgumentValue(args, i, key);
+                    i++;
                     break;
                 case "--wl":
-                    if (++i < args.length) {
-                        workloadFile = args[i];
-                    } else {
-                        System.out.println("Error: Missing value for argument " + key);
-                        printUsage();
-                        return null;
-                    }
+                    workloadFile = getArgumentValue(args, i, key);
+                    i++;
                     break;
                 case "--net":
-                    if (++i < args.length) {
-                        networkFile = args[i];
-                    } else {
-                        System.out.println("Error: Missing value for argument " + key);
-                        printUsage();
-                        return null;
-                    }
+                    networkFile = getArgumentValue(args, i, key);
+                    i++;
                     break;
                 case "--node":
-                    if (++i < args.length) {
-                        nodeFile = args[i];
-                    } else {
-                        System.out.println("Error: Missing value for argument " + key);
-                        printUsage();
-                        return null;
-                    }
+                    nodeFile = getArgumentValue(args, i, key);
+                    i++;
                     break;
                 case "--out":
-                    if (++i < args.length) {
-                        outputDirectory = args[i];
-                    } else {
-                        System.out.println("Error: Missing value for argument " + key);
-                        printUsage();
-                        return null;
-                    }
+                    outputDirectory = getArgumentValue(args, i, key);
+                    i++;
                     break;
                 default:
-                    System.out.println("Unknown option: " + key);
-                    printUsage();
-                    return null;
+                    throw new IllegalArgumentException("Unknown option: " + key);
             }
         }
 
         if (configFile == null) {
-            System.out.println("Error: Config file is required");
-            printUsage();
-            return null;
+            throw new IllegalArgumentException("Config file is required");
         }
 
         return new CommandLineParser(configFile, workloadFile, networkFile, nodeFile, outputDirectory);
     }
+
+    private static String getArgumentValue(String[] args, int index, String key) {
+        if (index + 1 < args.length) {
+            return args[index + 1];
+        } else {
+            throw new IllegalArgumentException("Missing value for argument " + key);
+        }
+    }
+
     public static void printUsage() {
         System.out.println("Usage: cnsim -c <config_file> [options]");
         System.out.println("Options:");
