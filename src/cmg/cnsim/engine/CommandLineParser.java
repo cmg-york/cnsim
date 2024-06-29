@@ -1,17 +1,31 @@
 package cmg.cnsim.engine;
 
-public class CommandLineParser {
-    private String configFile;
-    private String workloadFile;
-    private String networkFile;
-    private String nodeFile;
-    private String outputDirectory;
+public final class CommandLineParser {
+    private final String configFile;
+    private final String workloadFile;
+    private final String networkFile;
+    private final String nodeFile;
+    private final String outputDirectory;
 
-    public CommandLineParser parse(String[] args) {
+    private CommandLineParser(String configFile, String workloadFile, String networkFile, String nodeFile, String outputDirectory) {
+        this.configFile = configFile;
+        this.workloadFile = workloadFile;
+        this.networkFile = networkFile;
+        this.nodeFile = nodeFile;
+        this.outputDirectory = outputDirectory;
+    }
+
+    public static CommandLineParser parse(String[] args) {
         if (args.length == 0 || args[0].equals("-h") || args[0].equals("--help")) {
             printUsage();
             return null;
         }
+
+        String configFile = null;
+        String workloadFile = null;
+        String networkFile = null;
+        String nodeFile = null;
+        String outputDirectory = null;
 
         for (int i = 0; i < args.length; i++) {
             String key = args[i];
@@ -20,7 +34,7 @@ public class CommandLineParser {
                 case "-c":
                 case "--config":
                     if (++i < args.length) {
-                        this.configFile = args[i];
+                        configFile = args[i];
                     } else {
                         System.out.println("Error: Missing value for argument " + key);
                         printUsage();
@@ -29,7 +43,7 @@ public class CommandLineParser {
                     break;
                 case "--wl":
                     if (++i < args.length) {
-                        this.workloadFile = args[i];
+                        workloadFile = args[i];
                     } else {
                         System.out.println("Error: Missing value for argument " + key);
                         printUsage();
@@ -38,7 +52,7 @@ public class CommandLineParser {
                     break;
                 case "--net":
                     if (++i < args.length) {
-                        this.networkFile = args[i];
+                        networkFile = args[i];
                     } else {
                         System.out.println("Error: Missing value for argument " + key);
                         printUsage();
@@ -47,7 +61,7 @@ public class CommandLineParser {
                     break;
                 case "--node":
                     if (++i < args.length) {
-                        this.nodeFile = args[i];
+                        nodeFile = args[i];
                     } else {
                         System.out.println("Error: Missing value for argument " + key);
                         printUsage();
@@ -56,7 +70,7 @@ public class CommandLineParser {
                     break;
                 case "--out":
                     if (++i < args.length) {
-                        this.outputDirectory = args[i];
+                        outputDirectory = args[i];
                     } else {
                         System.out.println("Error: Missing value for argument " + key);
                         printUsage();
@@ -70,15 +84,14 @@ public class CommandLineParser {
             }
         }
 
-        if (this.configFile == null) {
+        if (configFile == null) {
             System.out.println("Error: Config file is required");
             printUsage();
             return null;
         }
 
-        return this;
+        return new CommandLineParser(configFile, workloadFile, networkFile, nodeFile, outputDirectory);
     }
-
     public static void printUsage() {
         System.out.println("Usage: cnsim -c <config_file> [options]");
         System.out.println("Options:");
