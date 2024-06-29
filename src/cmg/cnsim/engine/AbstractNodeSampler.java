@@ -1,13 +1,10 @@
 package cmg.cnsim.engine;
 
-import java.util.Random;
 
-public abstract class AbstractNodeSampler {
+public abstract class AbstractNodeSampler implements IMultiSowable {
     
 	protected Sampler sampler;
-	protected Random random;
-	protected long randomSeed;
-
+	
 	protected float nodeHashPowerMean;
     protected float nodeHashPowerSD;
     protected float nodeElectricPowerMean;
@@ -18,9 +15,8 @@ public abstract class AbstractNodeSampler {
     
     
     public AbstractNodeSampler() {
-   		this.random = new Random();
- //  		random.setSeed(randomSeed);
-   		LoadConfig();
+   		super();
+ 		LoadConfig();
     }
     
     
@@ -42,7 +38,7 @@ public abstract class AbstractNodeSampler {
             float nodeElectricCostMean, float nodeElectricCostSD,
             double difficulty,
             Sampler sampler) {
-
+    	super();
         if(nodeHashPowerMean < 0)
     		throw new ArithmeticException("Node Hash Power Mean < 0");
         this.nodeHashPowerMean = nodeHashPowerMean;
@@ -207,7 +203,6 @@ public abstract class AbstractNodeSampler {
     		throw new ArithmeticException("Node Electric Cost Standard Deviation < 0");
         this.nodeElectricCostSD = nodeElectricCostSD;
     }
-
 	
 	
 	public Sampler getSampler() {
@@ -218,20 +213,8 @@ public abstract class AbstractNodeSampler {
 		this.sampler = sampler;
 	}
 
-	public Random getRandom() {
-		return random;
-	}
-
-	public void setRandom(Random random) {
-		this.random = random;
-	}
 	
-    public void setSeed(long seed) {
-    	randomSeed = seed;
-    	Debug.p("Setting the seed of " + random.toString() + " to " + seed);
-    	random.setSeed(seed);
-    }
-
+	public abstract void updateSeed();
     
     /**
      * Load configuration using Config object.

@@ -1,18 +1,38 @@
 package cmg.cnsim.engine;
 
+import java.util.Random;
+
 public class StandardNodeSampler extends AbstractNodeSampler {
-    
+    SeedManager seedManager;
+    Random random;
 
     public StandardNodeSampler(Sampler s) {
     	this.sampler = s;
+    	random = new Random();
     }
 	
-    public StandardNodeSampler(Sampler s, long seed) {
-    	super.random.setSeed(seed);
-    	this.sampler = s;
+    public StandardNodeSampler(Sampler s, long[] seedArray) {
+    	this(s);
+    	seedManager = new SeedManager(seedArray);
+    	seedManager.updateSeed(random);
     }
 	
-	
+	public Random getRandom() {
+		return random;
+	}
+
+	public void setRandom(Random random) {
+		this.random = random;
+	}
+    
+	public SeedManager getSeedManager() {
+		return seedManager;
+	}
+
+	public void updateSeed() {
+		seedManager.updateSeed(random);
+	}
+    
     /**
      * See parent. Uses method {@linkplain StandardSampler#getNextMiningIntervalMiliSeconds(double, double)}.
      * Result in miliseconds.
@@ -37,8 +57,8 @@ public class StandardNodeSampler extends AbstractNodeSampler {
     public double getNextMiningIntervalTrials(double difficulty) {
     	if(difficulty < 0)
     		throw new ArithmeticException("difficulty < 0");
-        return ((double) (Math.log(1-Math.random())/Math.log1p(- 1.0/difficulty)));
-
+        //return ((double) (Math.log(1-Math.random())/Math.log1p(- 1.0/difficulty)));
+        return ((double) (Math.log(1-random.nextDouble())/Math.log1p(- 1.0/difficulty)));
     }
 
     /**
@@ -77,7 +97,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
      */
     @Override
     public float getNextNodeElectricPower() {
-        return (sampler.getGaussian(nodeElectricPowerMean, nodeElectricPowerSD, super.random));
+        return (sampler.getGaussian(nodeElectricPowerMean, nodeElectricPowerSD, getRandom()));
     }
 
     /**
@@ -85,7 +105,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
      */
     @Override
     public float getNextNodeHashPower() {
-        return (sampler.getGaussian(nodeHashPowerMean, nodeHashPowerSD, random));
+        return (sampler.getGaussian(nodeHashPowerMean, nodeHashPowerSD, getRandom()));
     }
 
     /**
@@ -93,7 +113,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
      */
     @Override
     public float getNextNodeElectricityCost() {
-        return (sampler.getGaussian(nodeElectricCostMean, nodeElectricCostSD,random));
+        return (sampler.getGaussian(nodeElectricCostMean, nodeElectricCostSD, getRandom()));
     }
 
     
@@ -102,7 +122,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
      */
     @Override
     public int getNextRandomNode(int nNodes) {
-        return(random.nextInt(nNodes));
+        return(getRandom().nextInt(nNodes));
     }
     
 	

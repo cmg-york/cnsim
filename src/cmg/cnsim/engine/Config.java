@@ -117,6 +117,22 @@ public class Config {
 		return(prop.getProperty(propertyKey,null));
 	}
 
+	// TODO: test this
+    public static long[] parseStringToArray(String input) {
+        // Remove the curly braces and split the string by commas
+        String trimmed = input.substring(1, input.length() - 1);
+        String[] parts = trimmed.split(",");
+
+        // Create an array to store the integers
+        long[] result = new long[parts.length];
+
+        // Parse each part to an integer and store it in the array
+        for (int i = 0; i < parts.length; i++) {
+            result[i] = Long.parseLong(parts[i].trim());
+        }
+
+        return result;
+    }
 	
 
     public static void printProperties() {

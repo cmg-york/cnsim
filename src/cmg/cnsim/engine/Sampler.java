@@ -68,8 +68,7 @@ public class Sampler {
     	}
     	return gaussianValue;
     }
-	
-	
+		
     protected int getRandomNum(int min, int max, Random random) {
         return(random.nextInt((max - min) + 1) + min);
     }

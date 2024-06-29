@@ -27,9 +27,12 @@ public class Simulation {
 	//protected AbstractSampler sampler;
 	protected Sampler sampler;
 
-//	public Simulation(AbstractSampler a) {
+
+	public Simulation() {
+	}
+
+	
 	public Simulation(Sampler a) {
-		super();
 	    this.sampler = a;
 	}
 

@@ -2,7 +2,7 @@ package cmg.cnsim.engine;
 
 import java.util.Random;
 
-public abstract class AbstractNetworkSampler {
+public abstract class AbstractNetworkSampler implements ISowable {
 	
 	protected Sampler sampler;
 	protected Random random = new Random();
@@ -92,7 +92,8 @@ public abstract class AbstractNetworkSampler {
 		this.random = random;
 	}
 	
-    public void setSeed(long seed) {
+    @Override
+	public void setSeed(long seed) {
     	randomSeed = seed;
     	random.setSeed(seed);
     }

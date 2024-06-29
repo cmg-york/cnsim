@@ -1,7 +1,8 @@
     package cmg.cnsim.bitcoin;
 
     import cmg.cnsim.engine.*;
-    import cmg.cnsim.engine.network.AbstractNetwork;
+import cmg.cnsim.engine.event.Event_SeedUpdate;
+import cmg.cnsim.engine.network.AbstractNetwork;
     import cmg.cnsim.engine.network.FileBasedEndToEndNetwork;
     import cmg.cnsim.engine.network.RandomEndToEndNetwork;
     import cmg.cnsim.engine.node.AbstractNodeFactory;
@@ -10,7 +11,8 @@
     import cmg.cnsim.engine.transaction.Transaction;
     import cmg.cnsim.engine.transaction.TransactionWorkload;
 
-    import java.util.List;
+import java.util.Arrays;
+import java.util.List;
     import java.util.Scanner;
 
 
@@ -31,89 +33,57 @@
             
             //
             //
-            // Sampler Creation
+            // Creating simulation object
+            //
+            //
+            
+            Simulation s = new Simulation();
+            
+            //
+            //
+            // Creating Sampler
             //
             //
             Sampler sampler = new Sampler();
+            
+            //
+            //
+            // Set Sampler
+            //
+            //            
+            s.setSampler(sampler);
 
-            //Define node sampler. 
-            //If a file exists it will be file-based, otherwise, just create a standard sampler.
             
-            long nodeSeed = -1;
-            boolean hasNodeSeed = false;
-            if (Config.hasProperty("node.sampler.seed")) {
-            	nodeSeed = Config.getPropertyLong("node.sampler.seed");
-            	hasNodeSeed = true;
-            	Debug.p("Seed found for node sampler: " + nodeSeed);
-            }
-            
-            String nodeSamplerPath = Config.getPropertyString("node.sampler.file");
-            if (nodeSamplerPath!=null) {
-            	Debug.p("Creating a file-based node sampler");
-            	if (hasNodeSeed) {
-            		sampler.setNodeSampler(new FileBasedNodeSampler(nodeSamplerPath, new StandardNodeSampler(sampler,nodeSeed)));
-            	} else {
-            		sampler.setNodeSampler(new FileBasedNodeSampler(nodeSamplerPath, new StandardNodeSampler(sampler)));
-            	}
-            } else {
-            	Debug.p("Creating random node sampler");
-            	if (hasNodeSeed) {
-            		sampler.setNodeSampler(new StandardNodeSampler(sampler,nodeSeed));
-            	} else {
-            		sampler.setNodeSampler(new StandardNodeSampler(sampler));
-            	}
-            }
-            
-            
-            //Define network sampler. 
-            //Will be used only if a random network is required
-            Debug.p("Creating random network sampler");
-            sampler.setNetworkSampler(new StandardNetworkSampler(sampler));
-            
-            
-            if (Config.hasProperty("net.sampler.seed")) {
-            	Debug.p("Adding seed to network sampler: " + Config.getPropertyLong("net.sampler.seed"));
-            	sampler.getNetworkSampler().setSeed(Config.getPropertyLong("net.sampler.seed"));
-            }
-            
-            
-            //Define workload sampler. 
-            
-            long workloadSeed = -1;
-            boolean hasWorkloadSeed = false;
-            if (Config.hasProperty("workload.sampler.seed")) {
-            	workloadSeed = Config.getPropertyLong("workload.sampler.seed");
-            	hasWorkloadSeed = true;
-            	Debug.p("Seed found for workload sampler: " + workloadSeed);
-            }
-            
-            //If a file exists it will be file-based, otherwise, just create a standard sampler.
-            String workloadSamplerPath = Config.getPropertyString("workload.sampler.file");
-            if (workloadSamplerPath!=null) {
-            	Debug.p("Creating file-based workload sampler");
-            	if (hasWorkloadSeed) {
-            		sampler.setTransactionSampler(new FileBasedTransactionSampler(workloadSamplerPath, new StandardTransactionSampler(sampler,workloadSeed)));	
-            	} else {
-        			sampler.setTransactionSampler(new FileBasedTransactionSampler(workloadSamplerPath, new StandardTransactionSampler(sampler)));            		
-            	}
-            } else {
-                Debug.p("Creating random workload sampler");
-            	if (hasWorkloadSeed) {
-            		sampler.setTransactionSampler(new StandardTransactionSampler(sampler, workloadSeed));
-            	} else {
-            		sampler.setTransactionSampler(new StandardTransactionSampler(sampler));
-            	}
-            }
-            
-            
-            
+            //Develop sampler 1: Node Sampler 
             //
-            //
-            // Creating the simulation object
-            //
-            //
+            try {
+				sampler.setNodeSampler(new NodeSamplerFactory().getSampler(
+						Config.getPropertyString("node.sampler.file"),
+						Config.getPropertyString("node.sampler.seed"),
+						Config.getPropertyString("node.sampler.seedUpdateTimes"),
+						sampler,
+						s
+						));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
             
-            Simulation s = new Simulation(sampler);
+            //Develop sampler 2: Network Sampler 
+            //            
+            sampler.setNetworkSampler(new NetworkSamplerFactory().getNetworkSampler(sampler,Config.getPropertyLong("net.sampler.seed")));
+            
+
+            //Develop sampler 3: Transaction Sampler 
+            //
+            try {
+				sampler.setTransactionSampler(
+						new TransactionSamplerFactory().getSampler(
+								Config.getPropertyString("workload.sampler.file"), 
+								(Config.hasProperty("workload.sampler.seed") ? Config.getPropertyLong("workload.sampler.seed") : null), 
+								sampler));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
             
             
             //
@@ -177,8 +147,20 @@
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+            
+            
+            //
+            // Scheduling
+            //
+            //
+            
+            //Schedule the workload
             s.schedule(ts);
 
+
+            
+            
+            
             // Assign a target transaction for malicious behavior
             Transaction targetTransaction = null;
             if (Config.getPropertyBoolean("node.createMaliciousNode")) {
