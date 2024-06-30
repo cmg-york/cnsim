@@ -28,7 +28,6 @@ public class SimulationConfig {
         this.networkSeed = networkSeed;
     }
 
-    // Getters
     public String getConfigFile() {
         return configFile;
     }

@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
 class CommandLineParserTest {
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-    private final PrintStream originalOut = System.out;
 
     @BeforeEach
     void setUpStreams() {
@@ -63,6 +63,24 @@ class CommandLineParserTest {
     }
 
     @Test
+    void testParseWithInvalidLong() {
+        String[] args1 = {"-c", "config.txt", "--ws", "notALong"};
+        assertThrows(IllegalArgumentException.class, () -> CommandLineParser.parse(args1));
+
+        String[] args2 = {"-c", "config.txt", "--ws", "1.2"};
+        assertThrows(IllegalArgumentException.class, () -> CommandLineParser.parse(args2));
+    }
+
+    @Test
+    void testParseWithInvalidLongList() {
+        String[] args1 = {"-c", "config.txt", "--ns", "{1,2,notALong}"};
+        assertThrows(IllegalArgumentException.class, () -> CommandLineParser.parse(args1));
+
+        String[] args2 = {"-c", "config.txt", "--ns", "{1,2,1.2}"};
+        assertThrows(IllegalArgumentException.class, () -> CommandLineParser.parse(args2));
+    }
+
+    @Test
     void testParseWithOnlyConfigFile() {
         String[] args = {"-c", "config.txt"};
         CommandLineParser parser = CommandLineParser.parse(args);
@@ -73,6 +91,10 @@ class CommandLineParserTest {
         assertNull(parser.getNetworkFile());
         assertNull(parser.getNodeFile());
         assertNull(parser.getOutputDirectory());
+        assertNull(parser.getWorkloadSeed());
+        assertNull(parser.getNodeSeed());
+        assertNull(parser.getSwitchTimes());
+        assertNull(parser.getNetworkSeed());
     }
 
     @Test
@@ -82,7 +104,11 @@ class CommandLineParserTest {
                 "--wl", "workload.txt",
                 "--net", "network.txt",
                 "--node", "node.txt",
-                "--out", "output/"
+                "--out", "output/",
+                "--ws", "123456",
+                "--ns", "{1,2,3}",
+                "--st", "{100,200,300}",
+                "--es", "789012"
         };
         CommandLineParser parser = CommandLineParser.parse(args);
 
@@ -92,8 +118,11 @@ class CommandLineParserTest {
         assertEquals("network.txt", parser.getNetworkFile());
         assertEquals("node.txt", parser.getNodeFile());
         assertEquals("output/", parser.getOutputDirectory());
+        assertEquals(123456L, parser.getWorkloadSeed());
+        assertEquals(List.of(1L, 2L, 3L), parser.getNodeSeed());
+        assertEquals(List.of(100L, 200L, 300L), parser.getSwitchTimes());
+        assertEquals(789012L, parser.getNetworkSeed());
     }
-
     @Test
     void testParseWithMixedOrderOptions() {
         String[] args = {
@@ -160,5 +189,33 @@ class CommandLineParserTest {
         assertNull(parser.getNetworkFile());
         assertNull(parser.getNodeFile());
         assertNull(parser.getOutputDirectory());
+    }
+
+    @Test
+    void testParseWithWorkloadSeed() {
+        String[] args = {"-c", "config.txt", "--ws", "123456"};
+        CommandLineParser parser = CommandLineParser.parse(args);
+        assertEquals(123456L, parser.getWorkloadSeed());
+    }
+
+    @Test
+    void testParseWithNodeSeed() {
+        String[] args = {"-c", "config.txt", "--ns", "{1,2,3}"};
+        CommandLineParser parser = CommandLineParser.parse(args);
+        assertEquals(List.of(1L, 2L, 3L), parser.getNodeSeed());
+    }
+
+    @Test
+    void testParseWithSwitchTimes() {
+        String[] args = {"-c", "config.txt", "--st", "{100,200,300}"};
+        CommandLineParser parser = CommandLineParser.parse(args);
+        assertEquals(List.of(100L, 200L, 300L), parser.getSwitchTimes());
+    }
+
+    @Test
+    void testParseWithNetworkSeed() {
+        String[] args = {"-c", "config.txt", "--es", "789012"};
+        CommandLineParser parser = CommandLineParser.parse(args);
+        assertEquals(789012L, parser.getNetworkSeed());
     }
 }

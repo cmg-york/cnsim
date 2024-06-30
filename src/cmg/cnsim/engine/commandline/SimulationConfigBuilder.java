@@ -10,13 +10,12 @@ public class SimulationConfigBuilder {
     public static SimulationConfig build(CommandLineParser commandLineParser) throws IOException {
         // Load config file
         Config.init(commandLineParser.getConfigFile());
-
         // Build SimulationConfig
         String configFile = commandLineParser.getConfigFile();
         String workloadFile = getString(commandLineParser.getWorkloadFile(), Config.getPropertyString("workload.sampler.file"));
         String networkFile = getString(commandLineParser.getNetworkFile(), Config.getPropertyString("net.sampler.file"));
         String nodeFile = getString(commandLineParser.getNodeFile(), Config.getPropertyString("node.sampler.file"));
-        String outputDirectory = getString(commandLineParser.getOutputDirectory(), null);
+        String outputDirectory = getString(commandLineParser.getOutputDirectory(), "./log/"); // ./log/ is default
         Long workloadSeed = getLong(commandLineParser.getWorkloadSeed(), "workload.sampler.seed");
         List<Long> nodeSeed = commandLineParser.getNodeSeed();
         List<Long> switchTimes = commandLineParser.getSwitchTimes();
@@ -30,7 +29,7 @@ public class SimulationConfigBuilder {
     }
 
     private static String getString(String cmdLineValue, String configValue) {
-        if (cmdLineValue != null) {
+        if (cmdLineValue != null && !cmdLineValue.isEmpty()) {
             return cmdLineValue;
         } else {
             return configValue;
