@@ -31,7 +31,7 @@ public final class CommandLineParser {
     public static CommandLineParser parse(String[] args) {
         if (args.length == 0 || args[0].equals("-h") || args[0].equals("--help")) {
             printUsage();
-            return null;
+            System.exit(0);
         }
 
         String configFile = null;
@@ -95,7 +95,9 @@ public final class CommandLineParser {
         }
 
         if (configFile == null) {
-            throw new IllegalArgumentException("Config file is required");
+            System.err.println("Error: Config file is required");
+            printUsage();
+            System.exit(1);
         }
 
         return new CommandLineParser(configFile, workloadFile, networkFile, nodeFile, outputDirectory,
