@@ -44,4 +44,20 @@ public class SimulationConfig {
     public boolean hasProperty(String key) {
         return properties.containsKey(key);
     }
+
+    public String getWorkloadFile() {
+        return getString("workload.sampler.file");
+    }
+
+    public String getNetworkFile() {
+        return getString("net.sampler.file");
+    }
+
+    public String getNodeFile() {
+        return getString("node.sampler.file");
+    }
+
+    public String getOutputDirectory() {
+        return getString("output.directory");
+    }
 }

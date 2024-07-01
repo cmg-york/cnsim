@@ -8,6 +8,10 @@ import java.io.File;
 
 public class SimulationConfigBuilder {
     public static SimulationConfig build(CommandLineParser commandLineParser) throws IOException {
+        if (commandLineParser == null || commandLineParser.getConfigFile() == null) {
+            throw new IllegalArgumentException("Config file is required");
+        }
+
         // Load config file
         Config.init(commandLineParser.getConfigFile());
 
