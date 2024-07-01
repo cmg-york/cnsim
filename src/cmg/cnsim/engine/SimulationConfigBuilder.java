@@ -6,7 +6,27 @@ import java.util.Properties;
 import java.io.IOException;
 import java.io.File;
 
+/**
+ * Builds a SimulationConfig by combining command line arguments and configuration file settings.
+ * <p>
+ * This class is responsible for:
+ * - Loading the configuration file
+ * - Overriding config file settings with command line arguments
+ * - Validating the resulting configuration
+ * - Creating a SimulationConfig object
+ * <p>
+ * Command line arguments always take priority over config file settings.
+ */
 public class SimulationConfigBuilder {
+
+    /**
+     * Builds a SimulationConfig object based on the provided command line arguments and config file.
+     *
+     * @param commandLineParser The parsed command line arguments.
+     * @return A SimulationConfig object containing the combined and validated configuration.
+     * @throws IOException If there's an error reading the config file or if required files are missing.
+     * @throws IllegalArgumentException If the configuration is invalid.
+     */
     public static SimulationConfig build(CommandLineParser commandLineParser) throws IOException {
         if (commandLineParser == null || commandLineParser.getConfigFile() == null) {
             throw new IllegalArgumentException("Config file is required");
@@ -30,6 +50,12 @@ public class SimulationConfigBuilder {
         return new SimulationConfig(properties);
     }
 
+    /**
+     * Overrides config file properties with command line arguments.
+     *
+     * @param properties The properties from the config file.
+     * @param commandLineParser The parsed command line arguments.
+     */
     private static void overrideWithCommandLineArgs(Properties properties, CommandLineParser commandLineParser) {
         if (commandLineParser.getWorkloadFile() != null) {
             properties.setProperty("workload.sampler.file", commandLineParser.getWorkloadFile());
@@ -57,6 +83,13 @@ public class SimulationConfigBuilder {
         }
     }
 
+    /**
+     * Validates the combined configuration.
+     *
+     * @param properties The properties to validate.
+     * @throws IOException If required files do not exist.
+     * @throws IllegalArgumentException If the configuration is invalid.
+     */
     private static void validateConfig(Properties properties) throws IOException {
         validateFileExists(properties.getProperty("workload.sampler.file"), "Workload file");
         validateFileExists(properties.getProperty("net.sampler.file"), "Network file");
@@ -69,6 +102,13 @@ public class SimulationConfigBuilder {
         }
     }
 
+    /**
+     * Validates that a file exists at the given path.
+     *
+     * @param filePath The path to check.
+     * @param fileDescription A description of the file for error messages.
+     * @throws IOException If the file does not exist.
+     */
     private static void validateFileExists(String filePath, String fileDescription) throws IOException {
         if (filePath != null && !new File(filePath).exists()) {
             throw new IOException(fileDescription + " does not exist: " + filePath);

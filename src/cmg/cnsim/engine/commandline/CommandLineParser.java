@@ -3,6 +3,23 @@ package cmg.cnsim.engine.commandline;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Parses command line arguments for the CNSim simulator.
+ * <p>
+ * This class handles parsing of command line arguments, including:
+ * - Config file path (required)
+ * - Workload file path
+ * - Network file path
+ * - Node file path
+ * - Output directory path
+ * - Workload seed
+ * - Node seed list
+ * - Switch times list
+ * - Network seed
+ * <p>
+ * Usage: cnsim -c <config_file> [options]
+ */
 public final class CommandLineParser {
     private final String configFile;
     private final String workloadFile;
@@ -28,6 +45,13 @@ public final class CommandLineParser {
         this.networkSeed = networkSeed;
     }
 
+    /**
+     * Parses the given command line arguments.
+     *
+     * @param args The command line arguments to parse.
+     * @return A CommandLineParser object containing the parsed arguments.
+     * @throws IllegalArgumentException If required arguments are missing or invalid.
+     */
     public static CommandLineParser parse(String[] args) {
         if (args.length == 0 || args[0].equals("-h") || args[0].equals("--help")) {
             printUsage();
@@ -131,6 +155,9 @@ public final class CommandLineParser {
         return result;
     }
 
+    /**
+     * Prints the usage instructions for the simulator.
+     */
     public static void printUsage() {
         System.out.println("Usage: cnsim -c <config_file> [options]");
         System.out.println("Options:");
