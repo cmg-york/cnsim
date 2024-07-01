@@ -1,5 +1,6 @@
-package cmg.cnsim.engine.commandline;
+package cmg.cnsim.engine.commandline.test;
 
+import cmg.cnsim.engine.commandline.CommandLineParser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
