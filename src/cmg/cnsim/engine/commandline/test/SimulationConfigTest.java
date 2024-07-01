@@ -1,9 +1,9 @@
 package cmg.cnsim.engine.commandline.test;
 
 import cmg.cnsim.engine.SimulationConfig;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Properties;
 import java.util.List;
@@ -13,7 +13,7 @@ public class SimulationConfigTest {
     private SimulationConfig config;
     private Properties properties;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         properties = new Properties();
         properties.setProperty("test.string", "value");
@@ -64,22 +64,22 @@ public class SimulationConfigTest {
         assertFalse(config.hasProperty("non.existent.key"));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testGetIntWithInvalidValue() {
         properties.setProperty("test.invalid.int", "not an integer");
-        config.getInt("test.invalid.int");
+        assertThrows(NumberFormatException.class, () -> config.getInt("test.invalid.int"));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testGetLongWithInvalidValue() {
         properties.setProperty("test.invalid.long", "not a long");
-        config.getLong("test.invalid.long");
+        assertThrows(NumberFormatException.class, () -> config.getLong("test.invalid.long"));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testGetFloatWithInvalidValue() {
         properties.setProperty("test.invalid.float", "not a float");
-        config.getFloat("test.invalid.float");
+        assertThrows(NumberFormatException.class, () -> config.getFloat("test.invalid.float"));
     }
 
     @Test
