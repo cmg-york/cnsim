@@ -28,6 +28,7 @@ public class Reporter {
 	protected static ArrayList<String> eventLog = new ArrayList<String>();
 	protected static ArrayList<String> nodeLog = new ArrayList<String>();
 	protected static ArrayList<String> netLog = new ArrayList<String>();
+	protected static ArrayList<String> beliefLog = new ArrayList<String>();
 
 	protected static String runId;
 	protected static String path;
@@ -52,6 +53,7 @@ public class Reporter {
 		inputTxLog.add("TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
 		nodeLog.add("NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
 		netLog.add("From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
+		beliefLog.add("Node ID, Transaction ID, Believes, Time (ms from start)");
 	}
 	
 	public static String getRunId() {
@@ -69,7 +71,8 @@ public class Reporter {
 	 * @param objInvolved The object ID involved in the event (transaction, block, etc).
 	 * @author Sotirios Liaskos
 	 */
-	public static void addEvent(long evtID, long simTime, long sysTime, String evtType, int nodeInvolved, int objInvolved) {
+	public static void addEvent(long evtID, long simTime, long sysTime, 
+			String evtType, int nodeInvolved, long objInvolved) {
 		eventLog.add(evtID + "," + 
 					simTime + "," + 
 					sysTime + "," +
@@ -87,7 +90,7 @@ public class Reporter {
 	 * @param simTime Time transaction arrived in system
 	 * @author Sotirios Liaskos
 	 */
-	public static void addTx(int txID, float size, float value, long simTime) {
+	public static void addTx(long txID, float size, float value, long simTime) {
 		inputTxLog.add(txID + "," + 
 					size + "," +
 					value + "," +
@@ -131,6 +134,27 @@ public class Reporter {
 					bandwidth + "," +
 					simTime);
 	}
+	
+	
+	/**
+	 * Adds an entry to the belief log. Each entry   
+	 * @param node The ID of the node whose belief is registered.
+	 * @param tx The transaction the node's belief about its validity is registered. 
+	 * @param believes Whether the node believes the transaction is valid and "final". Will report {@code false} if 
+	 * the transaction is not in the structure or has not been seen before.   
+	 * @param simTime The time at which the report is produced.
+	 */
+	public static void addBeliefEntry(int node, long tx, boolean believes, long simTime) {
+		beliefLog.add(node + "," + 
+					tx + "," +
+					believes + "," +
+					simTime);
+	}
+	
+	
+	
+	
+	
 	
 	
 	/**
@@ -203,6 +227,26 @@ public class Reporter {
 			e.printStackTrace();
 		} 
 	}
+	
+	
+	/**
+	 * Save reporter's belief log to file. File name is "BeliefLog - [Simulation Date Time].csv"
+	 * @author Sotirios Liaskos
+	 */
+	public static void flushBeliefReport() {
+		FileWriter writer;
+		try {
+			writer = new FileWriter(path + "BeliefLog - " + runId + ".csv");
+			for(String str: beliefLog) {
+				  writer.write(str + System.lineSeparator());
+				}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	
 	
 	
 	/**

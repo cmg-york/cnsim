@@ -31,8 +31,8 @@ class TransactionGroupTest {
 	final void VariousTests() {
 		TransactionGroup g = pool.getTopN(186, new TxValuePerSizeComparator());
 		ArrayList<Transaction> r = g.getGroup();
-		ArrayList<Integer> ids_expected = new ArrayList<Integer>(Arrays.asList(4,6,5,2,1)); 
-		ArrayList<Integer> ids_actuals = new ArrayList<Integer>();
+		ArrayList<Long> ids_expected = new ArrayList<Long>(Arrays.asList(4,6,5,2,1)); 
+		ArrayList<Long> ids_actuals = new ArrayList<Long>();
 		for (Transaction tr: r) {
 			ids_actuals.add(tr.getID());
 			System.out.println("Transaction: " + tr.getID());
@@ -46,8 +46,8 @@ class TransactionGroupTest {
 		
 		g = pool.getTopN(185, new TxValuePerSizeComparator());
 		r = g.getGroup();
-		ids_expected = new ArrayList<Integer>(Arrays.asList(4,6,5,2)); 
-		ids_actuals = new ArrayList<Integer>();
+		ids_expected = new ArrayList<Long>(Arrays.asList(4,6,5,2)); 
+		ids_actuals = new ArrayList<Long>();
 		for (Transaction tr: r) {
 			ids_actuals.add(tr.getID());
 			System.out.println("Transaction: " + tr.getID());

@@ -41,7 +41,8 @@ public class BehaviorTest {
     @Test
     void testDoubleSpendingAttack() throws Exception{
 
-        Simulation s = new Simulation(sampler);
+        Simulation s = new Simulation();
+        s.setSampler(sampler);
         AbstractNodeFactory nf = new BitcoinNodeFactory("Honest", s);
         NodeSet ns = new NodeSet(nf);
         ns.addNodes(3);

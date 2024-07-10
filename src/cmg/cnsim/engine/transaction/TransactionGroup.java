@@ -186,7 +186,7 @@ public class TransactionGroup implements ITxContainer {
 	 * See {@linkplain ITxContainer#contains(int)}.
 	 */
   	@Override
-  	public boolean contains(int txID) {
+  	public boolean contains(long txID) {
 		boolean found = false;
 		for (Transaction r: group) {
 			if (r.getID() == txID) {found = true;}
