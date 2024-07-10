@@ -169,11 +169,7 @@ public class TransactionGroupTest {
     @Test
     public void testRemoveNextTx2() {
         // Remove next transaction from empty container
-        emptyPool.removeNextTx();
-
-        assertEquals(0, emptyPool.getGroup().size());
-        assertEquals(0, emptyPool.getSize());
-        assertEquals(0, emptyPool.getValue());
+        assertThrows(NoSuchElementException.class, emptyPool::removeNextTx);
     }
 
     @Test
