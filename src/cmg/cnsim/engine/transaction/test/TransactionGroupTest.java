@@ -38,7 +38,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testTransactionGroupArgConstructor() {
-        // Array type is integer instead of float in order for Arrays.stream().sum() to work properly
+        // Integer array used instead of float for compatibility with streams
         int[] sizes = {2753, 2839, 1291};
         int[] values = {732100, 173901, 238179};
         ArrayList<Transaction> newTransactions = new ArrayList<>(Arrays.asList(
@@ -59,8 +59,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testUpdateTransactionGroup1() {
-        // Non-empty input
+    public void testUpdateTransactionGroup_nonEmptyPool() {
         float value1 = 150;
         float value2 = 320;
         float size1 = 2000;
@@ -78,13 +77,10 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testUpdateTransactionGroup2() {
-        // Empty input
-        pool.updateTransactionGroup(new ArrayList<>());
-
-        assertEquals(0, pool.getGroup().size());
-        assertEquals(0, pool.getSize());
-        assertEquals(0, pool.getValue());
+    public void testUpdateTransactionGroup_emptyPool() {
+        assertEquals(0, emptyPool.getGroup().size());
+        assertEquals(0, emptyPool.getSize());
+        assertEquals(0, emptyPool.getValue());
     }
 
     @Test
@@ -99,8 +95,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testRemoveTransaction1() {
-        // Remove existing transaction
+    public void testRemoveTransaction_existingTransaction() {
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
         Transaction existingTransaction = pool.getGroup().get(1);
@@ -114,8 +109,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testRemoveTransaction2() {
-        // Remove non-existing transaction from non-empty container
+    public void testRemoveTransaction_nonExistingTransaction() {
         ArrayList<Transaction> groupBefore = pool.getGroup();
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
@@ -129,8 +123,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testRemoveTransaction3() {
-        // Remove transaction from empty container
+    public void testRemoveTransaction_emptyPool() {
         emptyPool.removeTransaction(otherTransaction);
 
         assertTrue(emptyPool.getGroup().isEmpty());
@@ -138,21 +131,8 @@ public class TransactionGroupTest {
         assertEquals(0, emptyPool.getValue());
     }
 
-    private float[] calculateSizeAndValue(TransactionGroup pool) {
-        float newSize = 0;
-        float newValue = 0;
-
-        for (Transaction transaction : pool.getGroup()) {
-            newSize += transaction.getSize();
-            newValue += transaction.getValue();
-        }
-
-        return new float[]{newSize, newValue};
-    }
-
     @Test
-    public void testRemoveNextTx1() {
-        // Remove next transaction from non-empty container
+    public void testRemoveNextTx_nonEmptyPool() {
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
         int groupSizeBefore = pool.getGroup().size();
@@ -167,14 +147,12 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testRemoveNextTx2() {
-        // Remove next transaction from empty container
+    public void testRemoveNextTx_emptyPool() {
         assertThrows(NoSuchElementException.class, emptyPool::removeNextTx);
     }
 
     @Test
-    public void testExtractGroup1() {
-        // Extract existing transaction(s) from non-empty container
+    public void testExtractGroup_existingTransaction() {
         TransactionGroup targetGroup = new TransactionGroup(new ArrayList<>(Arrays.asList(
                 pool.getGroup().get(0),
                 pool.getGroup().get(1)
@@ -194,8 +172,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testExtractGroup2() {
-        // Extract non-existing transactions from non-empty container
+    public void testExtractGroup_nonExistingTransaction() {
         TransactionGroup targetGroup = new TransactionGroup(new ArrayList<>(Collections.singletonList(
                 otherTransaction
         )));
@@ -214,8 +191,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testExtractGroup3() {
-        // Extract transactions from empty container
+    public void testExtractGroup_emptyPool() {
         TransactionGroup targetGroup = new TransactionGroup(new ArrayList<>(Collections.singletonList(
                 otherTransaction
         )));
@@ -228,20 +204,19 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testContainsObj() {
+    public void testContains_matchByReference() {
         assertTrue(pool.contains(pool.getGroup().getFirst()));
         assertFalse(pool.contains(otherTransaction));
     }
 
     @Test
-    public void testContainsID() {
+    public void testContains_matchById() {
         assertTrue(pool.contains(new Transaction(pool.getGroup().getFirst().getID())));
         assertFalse(pool.contains(otherTransaction.getID()));
     }
 
     @Test
-    public void testOverlapsWithObj1() {
-        // Non-empty container with overlapping transactions
+    public void testOverlapsWithObj_overlappingTransactions() {
         TransactionGroup group = new TransactionGroup(new ArrayList<>(Arrays.asList(
                 new Transaction(),
                 pool.getGroup().getFirst()
@@ -251,8 +226,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testOverlapsWithObj2() {
-        // Non-empty container without overlapping transactions
+    public void testOverlapsWithObj_nonOverlappingTransactions() {
         otherTransaction.setID(pool.getGroup().getFirst().getID());
         TransactionGroup group = new TransactionGroup(new ArrayList<>(Arrays.asList(
                 otherTransaction,
@@ -263,15 +237,13 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testOverlapsWithObj3() {
-        // Empty container
+    public void testOverlapsWithObj_emptyPool() {
         assertFalse(pool.overlapsWithbyObj(emptyPool));
         assertFalse(emptyPool.overlapsWithbyObj(pool));
     }
 
     @Test
-    public void testOverlapsWith1() {
-        // Non-empty container with overlapping transactions
+    public void testOverlapsWith_overlappingTransactions() {
         otherTransaction.setID(pool.getGroup().getFirst().getID());
         ArrayList<Transaction> overlappingTransactions = new ArrayList<>(Arrays.asList(
                 otherTransaction,
@@ -284,8 +256,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testOverlapsWith2() {
-        // Non-empty container without overlapping transactions
+    public void testOverlapsWith_nonOverlappingTransactions() {
         ArrayList<Transaction> nonOverlappingTransactions = new ArrayList<>(Arrays.asList(
                 new Transaction(9990),
                 new Transaction(9991)
@@ -297,14 +268,13 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testOverlapsWith3() {
+    public void testOverlapsWith_emptyPool() {
         assertFalse(pool.overlapsWith(emptyPool));
         assertFalse(emptyPool.overlapsWith(pool));
     }
 
     @Test
-    public void testGetTopN1() {
-        // Size limit < the smallest transaction by size
+    public void testGetTopN_sizeLimitLessThanFirstTransaction() {
         float sizeLimit = sortedGroup.getLast().getSize() - 0.1f;
 
         TransactionGroup group = pool.getTopN(sizeLimit, comparator);
@@ -313,8 +283,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testGetTopN2() {
-        // Size limit = arbitrary transaction
+    public void testGetTopN_sizeLimitEqualToArbitraryTransaction() {
         int targetIndex = 2;
         float sizeLimit = sortedGroup.stream()
                 .limit(targetIndex)
@@ -328,8 +297,7 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testGetTopN3() {
-        // Invalid size limit
+    public void testGetTopN_invalidSizeLimit() {
         assertThrows(IllegalArgumentException.class, () -> pool.getTopN(-1, comparator));
     }
 }
