@@ -39,7 +39,7 @@
              // Build SimulationConfig
              SimulationConfig config;
              try {
-                 config = SimulationConfigFactory.build(commandLineParser);
+                 config = SimulationConfigFactory.create(commandLineParser);
              } catch (IOException | IllegalArgumentException e) {
                  System.err.println("Error building configuration: " + e.getMessage());
                  return;

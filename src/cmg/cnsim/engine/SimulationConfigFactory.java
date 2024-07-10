@@ -20,14 +20,14 @@ import java.io.File;
 public class SimulationConfigFactory {
 
     /**
-     * Builds a SimulationConfig object based on the provided command line arguments and config file.
+     * Creates a SimulationConfig object based on the provided command line arguments and config file.
      *
      * @param commandLineParser The parsed command line arguments.
      * @return A SimulationConfig object containing the combined and validated configuration.
      * @throws IOException If there's an error reading the config file or if required files are missing.
      * @throws IllegalArgumentException If the configuration is invalid.
      */
-    public static SimulationConfig build(CommandLineParser commandLineParser) throws IOException {
+    public static SimulationConfig create(CommandLineParser commandLineParser) throws IOException {
         if (commandLineParser == null || commandLineParser.getConfigFile() == null) {
             throw new IllegalArgumentException("Config file is required");
         }

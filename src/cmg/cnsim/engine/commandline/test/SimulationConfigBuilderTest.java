@@ -50,7 +50,7 @@ public class SimulationConfigBuilderTest {
     public void testBuildWithValidConfig() throws IOException {
         String[] args = {"-c", configFile.getAbsolutePath()};
         CommandLineParser parser = CommandLineParser.parse(args);
-        SimulationConfig config = SimulationConfigFactory.build(parser);
+        SimulationConfig config = SimulationConfigFactory.create(parser);
 
         assertNotNull(config);
         assertEquals(workloadFile.getAbsolutePath(), config.getPropertyString("workload.sampler.file"));
@@ -60,14 +60,14 @@ public class SimulationConfigBuilderTest {
 
     @Test
     public void testBuildWithNullCommandLineParser() {
-        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.build(null));
+        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.create(null));
     }
 
     @Test
     public void testBuildWithNullConfigFile() {
         String[] args = {};
         CommandLineParser parser = CommandLineParser.parse(args);
-        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.build(parser));
+        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.create(parser));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SimulationConfigBuilderTest {
             };
             CommandLineParser parser = CommandLineParser.parse(args);
 
-            SimulationConfig config = SimulationConfigFactory.build(parser);
+            SimulationConfig config = SimulationConfigFactory.create(parser);
 
             assertEquals(newWorkloadFile.getAbsolutePath(), config.getPropertyString("workload.sampler.file"));
             assertEquals("123", config.getPropertyString("workload.sampler.seed"));
@@ -101,7 +101,7 @@ public class SimulationConfigBuilderTest {
         workloadFile.delete();
         String[] args = {"-c", configFile.getAbsolutePath()};
         CommandLineParser parser = CommandLineParser.parse(args);
-        assertThrows(IOException.class, () -> SimulationConfigFactory.build(parser));
+        assertThrows(IOException.class, () -> SimulationConfigFactory.create(parser));
     }
 
     @Test
@@ -111,6 +111,6 @@ public class SimulationConfigBuilderTest {
                 "--st", "{10,20}"
         };
         CommandLineParser parser = CommandLineParser.parse(args);
-        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.build(parser));
+        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.create(parser));
     }
 }
