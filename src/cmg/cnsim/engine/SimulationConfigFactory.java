@@ -17,7 +17,7 @@ import java.io.File;
  * <p>
  * Command line arguments always take priority over config file settings.
  */
-public class SimulationConfigBuilder {
+public class SimulationConfigFactory {
 
     /**
      * Builds a SimulationConfig object based on the provided command line arguments and config file.

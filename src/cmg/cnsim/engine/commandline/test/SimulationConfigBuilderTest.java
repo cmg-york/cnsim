@@ -1,7 +1,7 @@
 package cmg.cnsim.engine.commandline.test;
 
 import cmg.cnsim.engine.SimulationConfig;
-import cmg.cnsim.engine.SimulationConfigBuilder;
+import cmg.cnsim.engine.SimulationConfigFactory;
 import cmg.cnsim.engine.commandline.CommandLineParser;
 
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ public class SimulationConfigBuilderTest {
     public void testBuildWithValidConfig() throws IOException {
         String[] args = {"-c", configFile.getAbsolutePath()};
         CommandLineParser parser = CommandLineParser.parse(args);
-        SimulationConfig config = SimulationConfigBuilder.build(parser);
+        SimulationConfig config = SimulationConfigFactory.build(parser);
 
         assertNotNull(config);
         assertEquals(workloadFile.getAbsolutePath(), config.getString("workload.sampler.file"));
@@ -60,14 +60,14 @@ public class SimulationConfigBuilderTest {
 
     @Test
     public void testBuildWithNullCommandLineParser() {
-        assertThrows(IllegalArgumentException.class, () -> SimulationConfigBuilder.build(null));
+        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.build(null));
     }
 
     @Test
     public void testBuildWithNullConfigFile() {
         String[] args = {};
         CommandLineParser parser = CommandLineParser.parse(args);
-        assertThrows(IllegalArgumentException.class, () -> SimulationConfigBuilder.build(parser));
+        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.build(parser));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SimulationConfigBuilderTest {
             };
             CommandLineParser parser = CommandLineParser.parse(args);
 
-            SimulationConfig config = SimulationConfigBuilder.build(parser);
+            SimulationConfig config = SimulationConfigFactory.build(parser);
 
             assertEquals(newWorkloadFile.getAbsolutePath(), config.getString("workload.sampler.file"));
             assertEquals("123", config.getString("workload.sampler.seed"));
@@ -101,7 +101,7 @@ public class SimulationConfigBuilderTest {
         workloadFile.delete();
         String[] args = {"-c", configFile.getAbsolutePath()};
         CommandLineParser parser = CommandLineParser.parse(args);
-        assertThrows(IOException.class, () -> SimulationConfigBuilder.build(parser));
+        assertThrows(IOException.class, () -> SimulationConfigFactory.build(parser));
     }
 
     @Test
@@ -111,6 +111,6 @@ public class SimulationConfigBuilderTest {
                 "--st", "{10,20}"
         };
         CommandLineParser parser = CommandLineParser.parse(args);
-        assertThrows(IllegalArgumentException.class, () -> SimulationConfigBuilder.build(parser));
+        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.build(parser));
     }
 }
