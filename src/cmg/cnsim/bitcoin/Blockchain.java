@@ -447,7 +447,7 @@ public class Blockchain implements IStructure {
 			// Check if any block in the blockchain overlaps with the current block
 			// TODO: this must be fixed
 			if (block.overlapsWith(current)) found1 = true;
-			if (block.overlapsWithbyObj(current)) found2 = true;
+			if (block.overlapsWithByObj(current)) found2 = true;
 
 				// Assert to ensure consistency between overlapsWith and overlapsWithbyObj methods
 			assert(!(found1 ^ found2));

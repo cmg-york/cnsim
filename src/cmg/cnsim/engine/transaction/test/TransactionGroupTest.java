@@ -222,7 +222,7 @@ public class TransactionGroupTest {
                 pool.getGroup().getFirst()
         )));
 
-        assertTrue(pool.overlapsWithbyObj(group));
+        assertTrue(pool.overlapsWithByObj(group));
     }
 
     @Test
@@ -233,13 +233,13 @@ public class TransactionGroupTest {
                 new Transaction()
         )));
 
-        assertFalse(pool.overlapsWithbyObj(group));
+        assertFalse(pool.overlapsWithByObj(group));
     }
 
     @Test
     public void testOverlapsWithObj_emptyPool() {
-        assertFalse(pool.overlapsWithbyObj(emptyPool));
-        assertFalse(emptyPool.overlapsWithbyObj(pool));
+        assertFalse(pool.overlapsWithByObj(emptyPool));
+        assertFalse(emptyPool.overlapsWithByObj(pool));
     }
 
     @Test

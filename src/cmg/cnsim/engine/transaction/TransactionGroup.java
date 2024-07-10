@@ -187,7 +187,7 @@ public class TransactionGroup implements ITxContainer {
      * @param p The <tt>TransactionGroup</tt> in question.
      * @return <tt>true</tt> of there is at least one transaction in <tt>p</tt> that is contained in the group, <tt>false</tt>, otherwise.
      */
-    public boolean overlapsWithbyObj(TransactionGroup p) {
+    public boolean overlapsWithByObj(TransactionGroup p) {
         boolean result = false;
         for (Transaction t : p.getGroup()) {
             if (group.contains(t)) {
@@ -199,7 +199,7 @@ public class TransactionGroup implements ITxContainer {
     }
 
     /**
-     * As {@link TransactionGroup#overlapsWithbyObj(TransactionGroup)} but criterion that is used is
+     * As {@link TransactionGroup#overlapsWithByObj(TransactionGroup)} but criterion that is used is
      * transaction ID.
      *
      * @param g The {@link TransactionGroup} object in question.
