@@ -38,6 +38,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testTransactionGroupArgConstructor() {
+        // Array type is integer instead of float in order for Arrays.stream().sum() to work properly
         int[] sizes = {2753, 2839, 1291};
         int[] values = {732100, 173901, 238179};
         ArrayList<Transaction> newTransactions = new ArrayList<>(Arrays.asList(
@@ -60,10 +61,10 @@ public class TransactionGroupTest {
     @Test
     public void testUpdateTransactionGroup1() {
         // Non-empty input
-        int value1 = 150;
-        int value2 = 320;
-        int size1 = 2000;
-        int size2 = 4100;
+        float value1 = 150;
+        float value2 = 320;
+        float size1 = 2000;
+        float size2 = 4100;
         ArrayList<Transaction> newTransactions = new ArrayList<>(Arrays.asList(
                 new Transaction(55, 14, value1, size1),
                 new Transaction(66, 23, value2, size2)
@@ -72,8 +73,8 @@ public class TransactionGroupTest {
         pool.updateTransactionGroup(newTransactions);
 
         assertArrayEquals(newTransactions.toArray(), pool.getGroup().toArray());
-        assertEquals(value1 + value2, pool.getSize());
-        assertEquals(size1 + size2, pool.getValue());
+        assertEquals(size1 + size2, pool.getSize());
+        assertEquals(value1 + value2, pool.getValue());
     }
 
     @Test

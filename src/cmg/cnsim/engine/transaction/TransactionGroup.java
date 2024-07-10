@@ -112,6 +112,8 @@ public class TransactionGroup implements ITxContainer {
      * @param initial An array list of <tt>Transaction</tt> objects, to replace the existing one.
      */
     public void updateTransactionGroup(ArrayList<Transaction> initial) {
+		totalValue = 0;
+		totalSize = 0;
         group = initial;
         for (Transaction t: initial) {
         	totalValue += t.getValue();
