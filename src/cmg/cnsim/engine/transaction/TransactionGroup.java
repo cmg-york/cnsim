@@ -137,6 +137,7 @@ public class TransactionGroup implements ITxContainer {
 	 */
 	@Override
     public void removeTransaction(Transaction t) {
+		if (!group.contains(t)) return;
         group.remove(t);
 		totalSize -= t.getSize();
 		totalValue -= t.getValue();
