@@ -65,7 +65,7 @@ public class SimulationConfig {
      * @return The float value associated with the key.
      * @throws NumberFormatException If the value cannot be parsed as a float.
      */
-    public float getFloat(String key) {
+    public float getPropertyFloat(String key) {
         return Float.parseFloat(properties.getProperty(key));
     }
 
@@ -85,7 +85,7 @@ public class SimulationConfig {
      * @param key The key of the property to retrieve.
      * @return A list of long values, or null if the key doesn't exist.
      */
-    public List<Long> getLongList(String key) {
+    public List<Long> getPropertyLongList(String key) {
         String value = getPropertyString(key);
         if (value == null) {
             return null;

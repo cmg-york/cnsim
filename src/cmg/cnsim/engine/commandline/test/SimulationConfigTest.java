@@ -44,7 +44,7 @@ public class SimulationConfigTest {
 
     @Test
     public void testGetFloat() {
-        assertEquals(3.14f, config.getFloat("test.float"), 0.001);
+        assertEquals(3.14f, config.getPropertyFloat("test.float"), 0.001);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class SimulationConfigTest {
     @Test
     public void testGetLongList() {
         List<Long> expected = List.of(1L, 2L, 3L, 4L, 5L);
-        assertEquals(expected, config.getLongList("test.longlist"));
+        assertEquals(expected, config.getPropertyLongList("test.longlist"));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class SimulationConfigTest {
     @Test
     public void testGetFloatWithInvalidValue() {
         properties.setProperty("test.invalid.float", "not a float");
-        assertThrows(NumberFormatException.class, () -> config.getFloat("test.invalid.float"));
+        assertThrows(NumberFormatException.class, () -> config.getPropertyFloat("test.invalid.float"));
     }
 
     @Test
@@ -91,12 +91,12 @@ public class SimulationConfigTest {
     @Test
     public void testGetLongListWithInvalidValue() {
         properties.setProperty("test.invalid.longlist", "not a long list");
-        assertThrows(NumberFormatException.class, () -> config.getLongList("test.invalid.longlist"));
+        assertThrows(NumberFormatException.class, () -> config.getPropertyLongList("test.invalid.longlist"));
     }
 
     @Test
     public void testGetLongListWithEmptyList() {
         properties.setProperty("test.empty.longlist", "{}");
-        assertTrue(config.getLongList("test.empty.longlist").isEmpty());
+        assertTrue(config.getPropertyLongList("test.empty.longlist").isEmpty());
     }
 }
