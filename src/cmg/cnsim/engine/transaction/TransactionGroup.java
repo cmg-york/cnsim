@@ -3,8 +3,8 @@ package cmg.cnsim.engine.transaction;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * A list containing various transactions. Can be used as a block or other needed grouping (e.g. pool).
@@ -58,7 +58,7 @@ public class TransactionGroup implements ITxContainer {
     public TransactionGroup(String fileName, boolean hasHeader) throws Exception {
         this();
 
-        String l = "";
+        String l;
         String delimiter = ",";
 
         int tCount = 1;
@@ -159,13 +159,12 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public boolean contains(Transaction t) {
-        boolean found = false;
         for (Transaction r : group) {
             if (r.getID() == t.getID()) {
-                found = true;
+                return true;
             }
         }
-        return found;
+        return false;
     }
 
     /**
@@ -173,13 +172,12 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public boolean contains(int txID) {
-        boolean found = false;
         for (Transaction r : group) {
             if (r.getID() == txID) {
-                found = true;
+                return true;
             }
         }
-        return found;
+        return false;
     }
 
     /**
@@ -208,23 +206,21 @@ public class TransactionGroup implements ITxContainer {
      * @return <tt>true</tt> of there is at least one transaction in <tt>g</tt> that is contained in the group, <tt>false</tt>, otherwise.
      */
     public boolean overlapsWith(TransactionGroup g) {
-        boolean found = false;
         for (Transaction r : group) {
             for (Transaction t : g.getContent()) {
                 if (t.getID() == r.getID()) {
-                    found = true;
-                    return found;
+                    return true;
                 }
             }
         }
-        return found;
+        return false;
     }
 
     /**
      * Retrieves a TransactionGroup containing the top N transactions based on
      * a given size limit and comparator.
      *
-     * @param sizeLimit The maximum cumulative size (in bytes) of transactions allowed in the the result.
+     * @param sizeLimit The maximum cumulative size (in bytes) of transactions allowed in the result.
      * @param comp      The comparator used to sort the transactions.
      * @return A {@link TransactionGroup} object containing the top N transactions that do not
      * exceed sizeLimit based on given comparator.
@@ -234,14 +230,14 @@ public class TransactionGroup implements ITxContainer {
             throw new IllegalArgumentException(String.format("Size limit (%f) must be a positive integer", sizeLimit));
         }
 
-        ArrayList<Transaction> result = new ArrayList<Transaction>();
-        Collections.sort(group, comp);
+        ArrayList<Transaction> result = new ArrayList<>();
+        List<Transaction> sortedGroup = group.stream().sorted(comp).toList();
 
         int i = 0;
         float sum = 0;
-        while ((sum <= sizeLimit) && (i < group.size())) {
-            sum += group.get(i).getSize();
-            result.add(group.get(i));
+        while ((sum <= sizeLimit) && (i < sortedGroup.size())) {
+            sum += sortedGroup.get(i).getSize();
+            result.add(sortedGroup.get(i));
             i++;
         }
         if (sum > sizeLimit) { //Last one was exceeding the limit.
@@ -289,7 +285,7 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public Transaction[] getContent() {
-        return group.toArray(new Transaction[group.size()]);
+        return group.toArray(new Transaction[0]);
     }
 
     /**
@@ -318,15 +314,15 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public String printIDs(String sep) {
-        String s = "{";
+        StringBuilder s = new StringBuilder("{");
         for (Transaction t : group) {
-            s += t.getID() + sep;
+            s.append(t.getID()).append(sep);
         }
         if (s.length() > 1)
-            s = s.substring(0, s.length() - 1) + "}";
+            s = new StringBuilder(s.substring(0, s.length() - 1) + "}");
         else
-            s = s + "}";
-        return (s);
+            s.append("}");
+        return (s.toString());
     }
 
     /**
@@ -334,12 +330,13 @@ public class TransactionGroup implements ITxContainer {
      *
      * @return A string containing the IDs of the Transactions in the pool, separated by commas.
      */
+    @SuppressWarnings("unused")
     public String debugPrintPoolTx() {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (Transaction t : group) {
-            s = s + t.getID() + ", ";
+            s.append(t.getID()).append(", ");
         }
-        return (s);
+        return (s.toString());
     }
 
 }
