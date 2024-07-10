@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-
 /**
  * A list containing various transactions. Can be used as a block or other needed grouping (e.g. pool).
  *
@@ -19,16 +18,7 @@ public class TransactionGroup implements ITxContainer {
     protected float totalValue;
     protected float totalSize;
 
-
-    //
-    //
-    // Constructors
-    //
-    //
-    @Deprecated
-    public void ________________Constructors() {
-    }
-
+    ////////// Constructors //////////
 
     /**
      * Plain constructor, simply initializes the internal data structure.
@@ -103,16 +93,7 @@ public class TransactionGroup implements ITxContainer {
         br.close();
     }
 
-
-    //
-    //
-    // C o n t e n t    E d i t i n g
-    //
-    //
-    @Deprecated
-    public void ___________ContentEditing() {
-    }
-
+    ////////// Modifiers //////////
 
     /**
      * Replace transaction group with a new one.
@@ -128,7 +109,6 @@ public class TransactionGroup implements ITxContainer {
             totalSize += t.getSize();
         }
     }
-
 
     /**
      * See {@linkplain ITxContainer#addTransaction(Transaction)}.
@@ -162,7 +142,6 @@ public class TransactionGroup implements ITxContainer {
         return t;
     }
 
-
     /**
      * See {@linkplain ITxContainer#extractGroup(TransactionGroup)}.
      */
@@ -173,14 +152,7 @@ public class TransactionGroup implements ITxContainer {
         }
     }
 
-    //
-    //
-    // E x a m i n e   C o n t e n t
-    //
-    //
-    @Deprecated
-    public void _____________ExamineContent() {
-    }
+    ////////// Examine Content //////////
 
     /**
      * See {@linkplain ITxContainer#contains(Transaction)}.
@@ -209,7 +181,6 @@ public class TransactionGroup implements ITxContainer {
         }
         return found;
     }
-
 
     /**
      * Check if the group overlaps with another transaction group, i.e.,
@@ -279,21 +250,7 @@ public class TransactionGroup implements ITxContainer {
         return (new TransactionGroup(result));
     }
 
-
-    //
-    //
-    // Extracing Information
-    //
-    //
-    @Deprecated
-    public void ______________ExtractingInfo() {
-    }
-
-
-    //
-    // Getting Information about the TransactionGroup
-    //
-
+    ////////// Accessors //////////
 
     /**
      * See {@linkplain ITxContainer#getID()}.
@@ -354,16 +311,7 @@ public class TransactionGroup implements ITxContainer {
         return group.get(index);
     }
 
-
-    //
-    //
-    // Printing the Group
-    //
-    //
-    @Deprecated
-    public void ______________PrintingGroup() {
-    }
-
+    ////////// Print Group //////////
 
     /**
      * See {@linkplain ITxContainer#printIDs(String)}.
