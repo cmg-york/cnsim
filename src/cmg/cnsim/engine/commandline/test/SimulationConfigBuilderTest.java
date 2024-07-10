@@ -53,9 +53,9 @@ public class SimulationConfigBuilderTest {
         SimulationConfig config = SimulationConfigFactory.build(parser);
 
         assertNotNull(config);
-        assertEquals(workloadFile.getAbsolutePath(), config.getString("workload.sampler.file"));
-        assertEquals(networkFile.getAbsolutePath(), config.getString("net.sampler.file"));
-        assertEquals(nodeFile.getAbsolutePath(), config.getString("node.sampler.file"));
+        assertEquals(workloadFile.getAbsolutePath(), config.getPropertyString("workload.sampler.file"));
+        assertEquals(networkFile.getAbsolutePath(), config.getPropertyString("net.sampler.file"));
+        assertEquals(nodeFile.getAbsolutePath(), config.getPropertyString("node.sampler.file"));
     }
 
     @Test
@@ -86,11 +86,11 @@ public class SimulationConfigBuilderTest {
 
             SimulationConfig config = SimulationConfigFactory.build(parser);
 
-            assertEquals(newWorkloadFile.getAbsolutePath(), config.getString("workload.sampler.file"));
-            assertEquals("123", config.getString("workload.sampler.seed"));
-            assertEquals("1, 2", config.getString("node.sampler.seed"));
-            assertEquals("10, 20", config.getString("switch.times"));
-            assertEquals("456", config.getString("net.sampler.seed"));
+            assertEquals(newWorkloadFile.getAbsolutePath(), config.getPropertyString("workload.sampler.file"));
+            assertEquals("123", config.getPropertyString("workload.sampler.seed"));
+            assertEquals("1, 2", config.getPropertyString("node.sampler.seed"));
+            assertEquals("10, 20", config.getPropertyString("switch.times"));
+            assertEquals("456", config.getPropertyString("net.sampler.seed"));
         } finally {
             newWorkloadFile.delete();
         }

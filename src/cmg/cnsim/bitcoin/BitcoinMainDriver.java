@@ -1,6 +1,7 @@
     package cmg.cnsim.bitcoin;
 
     import cmg.cnsim.engine.*;
+    import cmg.cnsim.engine.commandline.CommandLineParser;
     import cmg.cnsim.engine.network.AbstractNetwork;
     import cmg.cnsim.engine.network.FileBasedEndToEndNetwork;
     import cmg.cnsim.engine.network.RandomEndToEndNetwork;
@@ -10,6 +11,7 @@
     import cmg.cnsim.engine.transaction.Transaction;
     import cmg.cnsim.engine.transaction.TransactionWorkload;
 
+    import java.io.IOException;
     import java.util.List;
     import java.util.Scanner;
 
@@ -19,17 +21,32 @@
         public static void main(String[] args) {
             //run simulation with the given configuration for n times
             BitcoinMainDriver b = new BitcoinMainDriver();
-            b.run();
+            b.run(args);
         }
 
         
-         private void run() {
+         private void run(String[] args) {
             //print current directory
             System.out.println("Current directory: " + System.getProperty("user.dir"));
-            Config.init("./resources/config.txt");
+//            Config.init("./resources/config.txt");
 
-            
-            //
+             // Parse command line arguments
+             CommandLineParser commandLineParser = CommandLineParser.parse(args);
+             if (commandLineParser == null) {
+                 return; // Exit if help was requested or parsing failed
+             }
+
+             // Build SimulationConfig
+             SimulationConfig config;
+             try {
+                 config = SimulationConfigFactory.build(commandLineParser);
+             } catch (IOException | IllegalArgumentException e) {
+                 System.err.println("Error building configuration: " + e.getMessage());
+                 return;
+             }
+
+
+             //
             //
             // Sampler Creation
             //
@@ -41,13 +58,13 @@
             
             long nodeSeed = -1;
             boolean hasNodeSeed = false;
-            if (Config.hasProperty("node.sampler.seed")) {
-            	nodeSeed = Config.getPropertyLong("node.sampler.seed");
+            if (config.hasProperty("node.sampler.seed")) {
+            	nodeSeed = config.getPropertyLong("node.sampler.seed");
             	hasNodeSeed = true;
             	Debug.p("Seed found for node sampler: " + nodeSeed);
             }
             
-            String nodeSamplerPath = Config.getPropertyString("node.sampler.file");
+            String nodeSamplerPath = config.getNodeFile();
             if (nodeSamplerPath!=null) {
             	Debug.p("Creating a file-based node sampler");
             	if (hasNodeSeed) {
@@ -71,9 +88,9 @@
             sampler.setNetworkSampler(new StandardNetworkSampler(sampler));
             
             
-            if (Config.hasProperty("net.sampler.seed")) {
-            	Debug.p("Adding seed to network sampler: " + Config.getPropertyLong("net.sampler.seed"));
-            	sampler.getNetworkSampler().setSeed(Config.getPropertyLong("net.sampler.seed"));
+            if (config.hasProperty("net.sampler.seed")) {
+            	Debug.p("Adding seed to network sampler: " + config.getPropertyLong("net.sampler.seed"));
+            	sampler.getNetworkSampler().setSeed(config.getPropertyLong("net.sampler.seed"));
             }
             
             
@@ -81,14 +98,14 @@
             
             long workloadSeed = -1;
             boolean hasWorkloadSeed = false;
-            if (Config.hasProperty("workload.sampler.seed")) {
-            	workloadSeed = Config.getPropertyLong("workload.sampler.seed");
+            if (config.hasProperty("workload.sampler.seed")) {
+            	workloadSeed = config.getPropertyLong("workload.sampler.seed");
             	hasWorkloadSeed = true;
             	Debug.p("Seed found for workload sampler: " + workloadSeed);
             }
             
             //If a file exists it will be file-based, otherwise, just create a standard sampler.
-            String workloadSamplerPath = Config.getPropertyString("workload.sampler.file");
+            String workloadSamplerPath = config.getWorkloadFile();
             if (workloadSamplerPath!=null) {
             	Debug.p("Creating file-based workload sampler");
             	if (hasWorkloadSeed) {
@@ -127,7 +144,7 @@
             Debug.p("Nodeset created");
             
             // Adding nodes
-            ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
+            ns.addNodes(config.getPropertyInt("net.numOfNodes"));
             Debug.p("Nodes added");
 
             //
@@ -139,7 +156,7 @@
             //Define network. 
             //If a file exists it will be file-based, otherwise, just create a standard network.
             AbstractNetwork net = null;
-            String netFilePath = Config.getPropertyString("net.sampler.file");
+            String netFilePath = config.getNetworkFile();
 			if (netFilePath != null) {
 				try {
 					Debug.p("Creating file-based network.");
@@ -173,7 +190,7 @@
             // Transaction workload
             TransactionWorkload ts = new TransactionWorkload(sampler);
             try {
-				ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
+				ts.appendTransactions(config.getPropertyLong("workload.numTransactions"));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -181,7 +198,7 @@
 
             // Assign a target transaction for malicious behavior
             Transaction targetTransaction = null;
-            if (Config.getPropertyBoolean("node.createMaliciousNode")) {
+            if (config.getPropertyBoolean("node.createMaliciousNode")) {
                 targetTransaction = getTargetTransactionFromUser(ts.getAllTransactions());
             }
             for (INode node : ns.getNodes()) {

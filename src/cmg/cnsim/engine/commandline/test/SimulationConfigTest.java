@@ -28,18 +28,18 @@ public class SimulationConfigTest {
 
     @Test
     public void testGetString() {
-        assertEquals("value", config.getString("test.string"));
-        assertNull(config.getString("non.existent.key"));
+        assertEquals("value", config.getPropertyString("test.string"));
+        assertNull(config.getPropertyString("non.existent.key"));
     }
 
     @Test
     public void testGetInt() {
-        assertEquals(42, config.getInt("test.int"));
+        assertEquals(42, config.getPropertyInt("test.int"));
     }
 
     @Test
     public void testGetLong() {
-        assertEquals(1234567890L, config.getLong("test.long"));
+        assertEquals(1234567890L, config.getPropertyLong("test.long"));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class SimulationConfigTest {
 
     @Test
     public void testGetBoolean() {
-        assertTrue(config.getBoolean("test.boolean"));
+        assertTrue(config.getPropertyBoolean("test.boolean"));
     }
 
     @Test
@@ -67,13 +67,13 @@ public class SimulationConfigTest {
     @Test
     public void testGetIntWithInvalidValue() {
         properties.setProperty("test.invalid.int", "not an integer");
-        assertThrows(NumberFormatException.class, () -> config.getInt("test.invalid.int"));
+        assertThrows(NumberFormatException.class, () -> config.getPropertyInt("test.invalid.int"));
     }
 
     @Test
     public void testGetLongWithInvalidValue() {
         properties.setProperty("test.invalid.long", "not a long");
-        assertThrows(NumberFormatException.class, () -> config.getLong("test.invalid.long"));
+        assertThrows(NumberFormatException.class, () -> config.getPropertyLong("test.invalid.long"));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class SimulationConfigTest {
     @Test
     public void testGetBooleanWithInvalidValue() {
         properties.setProperty("test.invalid.boolean", "not a boolean");
-        assertFalse(config.getBoolean("test.invalid.boolean"));
+        assertFalse(config.getPropertyBoolean("test.invalid.boolean"));
     }
 
     @Test

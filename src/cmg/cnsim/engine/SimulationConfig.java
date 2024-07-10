@@ -32,7 +32,7 @@ public class SimulationConfig {
      * @param key The key of the property to retrieve.
      * @return The string value associated with the key.
      */
-    public String getString(String key) {
+    public String getPropertyString(String key) {
         return properties.getProperty(key);
     }
 
@@ -43,7 +43,7 @@ public class SimulationConfig {
      * @return The integer value associated with the key.
      * @throws NumberFormatException If the value cannot be parsed as an integer.
      */
-    public int getInt(String key) {
+    public int getPropertyInt(String key) {
         return Integer.parseInt(properties.getProperty(key));
     }
 
@@ -54,7 +54,7 @@ public class SimulationConfig {
      * @return The long value associated with the key.
      * @throws NumberFormatException If the value cannot be parsed as a long.
      */
-    public long getLong(String key) {
+    public long getPropertyLong(String key) {
         return Long.parseLong(properties.getProperty(key));
     }
 
@@ -75,7 +75,7 @@ public class SimulationConfig {
      * @param key The key of the property to retrieve.
      * @return The boolean value associated with the key.
      */
-    public boolean getBoolean(String key) {
+    public boolean getPropertyBoolean(String key) {
         return Boolean.parseBoolean(properties.getProperty(key));
     }
 
@@ -86,7 +86,7 @@ public class SimulationConfig {
      * @return A list of long values, or null if the key doesn't exist.
      */
     public List<Long> getLongList(String key) {
-        String value = getString(key);
+        String value = getPropertyString(key);
         if (value == null) {
             return null;
         }
@@ -112,7 +112,7 @@ public class SimulationConfig {
      * @return The path of the workload file.
      */
     public String getWorkloadFile() {
-        return getString("workload.sampler.file");
+        return getPropertyString("workload.sampler.file");
     }
 
     /**
@@ -121,7 +121,7 @@ public class SimulationConfig {
      * @return The path of the network file.
      */
     public String getNetworkFile() {
-        return getString("net.sampler.file");
+        return getPropertyString("net.sampler.file");
     }
 
     /**
@@ -130,7 +130,7 @@ public class SimulationConfig {
      * @return The path of the node file.
      */
     public String getNodeFile() {
-        return getString("node.sampler.file");
+        return getPropertyString("node.sampler.file");
     }
 
     /**
@@ -139,6 +139,6 @@ public class SimulationConfig {
      * @return The output directory path.
      */
     public String getOutputDirectory() {
-        return getString("output.directory");
+        return getPropertyString("output.directory");
     }
 }
