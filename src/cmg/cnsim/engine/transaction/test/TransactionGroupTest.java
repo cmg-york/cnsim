@@ -5,9 +5,7 @@ import cmg.cnsim.engine.transaction.TransactionGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,6 +14,8 @@ public class TransactionGroupTest {
     private TransactionGroup pool;
     private TransactionGroup emptyPool;
     private Transaction otherTransaction;
+    private Comparator<Transaction> comparator;
+    private List<Transaction> sortedGroup;
 
     @BeforeEach
     public void setup() {
@@ -28,6 +28,12 @@ public class TransactionGroupTest {
         pool = new TransactionGroup(new ArrayList<>(transactions));
         emptyPool = new TransactionGroup();
         otherTransaction = new Transaction(4, 13, 982, 1202);
+
+        // Sorts in descending order
+        comparator = (Transaction t1, Transaction t2) -> Float.compare(t2.getSize(), t1.getSize());
+        sortedGroup = pool.getGroup().stream()
+                .sorted(comparator)
+                .toList();
     }
 
     @Test
@@ -297,5 +303,36 @@ public class TransactionGroupTest {
     public void testOverlapsWith3() {
         assertFalse(pool.overlapsWith(emptyPool));
         assertFalse(emptyPool.overlapsWith(pool));
+    }
+
+    @Test
+    public void testGetTopN1() {
+        // Size limit < the smallest transaction by size
+        float sizeLimit = sortedGroup.getLast().getSize() - 0.1f;
+
+        TransactionGroup group = pool.getTopN(sizeLimit, comparator);
+
+        assertTrue(group.getGroup().isEmpty());
+    }
+
+    @Test
+    public void testGetTopN2() {
+        // Size limit = arbitrary transaction
+        int targetIndex = 2;
+        float sizeLimit = sortedGroup.stream()
+                .limit(targetIndex)
+                .map(Transaction::getSize)
+                .reduce(0.0f, Float::sum);
+
+        TransactionGroup group = pool.getTopN(sizeLimit, comparator);
+
+        assertEquals(targetIndex, group.getGroup().size());
+        assertArrayEquals(sortedGroup.stream().limit(targetIndex).toArray(), group.getGroup().toArray());
+    }
+
+    @Test
+    public void testGetTopN3() {
+        // Invalid size limit
+        assertThrows(IllegalArgumentException.class, () -> pool.getTopN(-1, comparator));
     }
 }
