@@ -2,6 +2,7 @@ package cmg.cnsim.engine.transaction;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -53,9 +54,9 @@ public class TransactionGroup implements ITxContainer {
      *
      * @param fileName  A name to the text file containing the transactions.
      * @param hasHeader Whether the file has a header.
-     * @throws Exception Formatting error.
+     * @throws IOException Error finding or reading the file.
      */
-    public TransactionGroup(String fileName, boolean hasHeader) throws Exception {
+    public TransactionGroup(String fileName, boolean hasHeader) throws IOException {
         this();
 
         String l;
@@ -77,11 +78,11 @@ public class TransactionGroup implements ITxContainer {
                 String[] t = l.split(delimiter);
                 id = Integer.parseInt(t[0]);
                 if (id != tCount)
-                    throw new Exception("Error in workload file: transaction IDs must start from 1 and strictly increase by 1.");
+                    throw new IllegalArgumentException("Error in workload file: transaction IDs must start from 1 and strictly increase by 1.");
                 tCount++;
                 time = Long.parseLong(t[1]);
                 if (time < lastTime)
-                    throw new Exception("Error in workload file: time must not decrease as transaction IDs increase.");
+                    throw new IllegalArgumentException("Error in workload file: time must not decrease as transaction IDs increase.");
                 lastTime = time;
                 value = Float.parseFloat(t[2]);
                 size = Float.parseFloat(t[3]);

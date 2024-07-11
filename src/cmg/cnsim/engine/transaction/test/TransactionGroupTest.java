@@ -5,6 +5,7 @@ import cmg.cnsim.engine.transaction.TransactionGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,8 +55,64 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testTransactionGroupFileConstructor() {
-        // TODO: To be implemented...
+    public void testTransactionGroupFileConstructor_validInput() throws IOException {
+        String pathWithoutHeader = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_validInputWithoutHeader.txt";
+        String pathWithHeader = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_validInputWithHeader.txt";
+
+        TransactionGroup newPool1 = new TransactionGroup(pathWithoutHeader, false);
+        TransactionGroup newPool2 = new TransactionGroup(pathWithHeader, true);
+        TransactionGroup expectedPool = new TransactionGroup(new ArrayList<>(Arrays.asList(
+                new Transaction(1, 40, 322, 1892, 51383),
+                new Transaction(2, 42, 183, 9374, 66109),
+                new Transaction(3, 51, 238, 4192, 43101),
+                new Transaction(4, 59, 441, 5233, 21767),
+                new Transaction(5, 64, 101, 2209, 77603)
+        )));
+
+        assertTrue(expectedPool.getGroup().size() == newPool1.getGroup().size() && expectedPool.getGroup().size() == newPool2.getGroup().size());
+        assertTrue(expectedPool.getSize() == newPool1.getSize() && expectedPool.getSize() == newPool2.getSize());
+        assertTrue(expectedPool.getValue() == newPool1.getValue() && expectedPool.getValue() == newPool2.getValue());
+        for (int i = 0; i < expectedPool.getGroup().size(); i++) {
+            Transaction transaction0 = expectedPool.getGroup().get(i);
+            Transaction transaction1 = newPool1.getGroup().get(i);
+            Transaction transaction2 = newPool2.getGroup().get(i);
+
+            assertTrue(transaction0.getID() == transaction1.getID() && transaction0.getID() == transaction2.getID());
+            assertTrue(transaction0.getCreationTime() == transaction1.getCreationTime() && transaction0.getCreationTime() == transaction2.getCreationTime());
+            assertTrue(transaction0.getValue() == transaction1.getValue() && transaction0.getValue() == transaction2.getValue());
+            assertTrue(transaction0.getSize() == transaction1.getSize() && transaction0.getSize() == transaction2.getSize());
+            assertTrue(transaction0.getNodeID() == transaction1.getNodeID() && transaction0.getNodeID() == transaction2.getNodeID());
+        }
+    }
+
+    @Test
+    public void testTransactionGroupFileConstructor_checkTxIdStart() {
+        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTxIdStart.txt";
+        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
+    }
+
+    @Test
+    public void testTransactionGroupFileConstructor_checkTxIdIncrement() {
+        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTxIdIncrement.txt";
+        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
+    }
+
+    @Test
+    public void testTransactionGroupFileConstructor_checkTxIdIncreasing() {
+        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTxIdIncreasing.txt";
+        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
+    }
+
+    @Test
+    public void testTransactionGroupFileConstructor_checkTimePositive() {
+        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTimePositive.txt";
+        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
+    }
+
+    @Test
+    public void testTransactionGroupFileConstructor_checkTimeIncreasing() {
+        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTimeIncreasing.txt";
+        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
