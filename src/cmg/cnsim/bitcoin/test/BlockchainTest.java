@@ -38,39 +38,50 @@ class BlockchainTest {
 	void setUp() throws Exception {	
 	}
 
+	/**
+	 * Tests the overlap functionality between blocks.
+	 * <p>
+	 * This test verifies the overlap logic between transactions in different blocks.
+	 * It ensures that blocks with overlapping transactions are correctly identified.
+	 * <p>
+	 * The test covers the following scenarios:
+	 * 1. Two blocks with overlapping transactions.
+	 * 2. Two blocks without overlapping transactions.
+	 */
 	@Test
-	final void testHelpers() {
-		//Test overlap
+	void testHelpers() {
+		// Scenario 1: Two blocks with overlapping transactions
 		Block block1 = new Block();
-		block1.addTransaction(new Transaction(1,10,10,50)); 
-		block1.addTransaction(new Transaction(2,11,20,25));
-		block1.addTransaction(new Transaction(3,13,100,500));
+		block1.addTransaction(new Transaction(1, 10, 10, 50));
+		block1.addTransaction(new Transaction(2, 11, 20, 25));
+		block1.addTransaction(new Transaction(3, 13, 100, 500));
 
 		Block block2 = new Block();
-		block2.addTransaction(new Transaction(3,10,10,50)); 
-		block2.addTransaction(new Transaction(4,11,20,25));
-		block2.addTransaction(new Transaction(5,13,100,500));
+		block2.addTransaction(new Transaction(3, 10, 10, 50));
+		block2.addTransaction(new Transaction(4, 11, 20, 25));
+		block2.addTransaction(new Transaction(5, 13, 100, 500));
 
-		assertTrue(block2.overlapsWith(block1));
-		assertTrue(block1.overlapsWith(block2));
+		// Assert that the two blocks overlap
+		assertTrue(block2.overlapsWith(block1), "Block2 should overlap with Block1");
+		assertTrue(block1.overlapsWith(block2), "Block1 should overlap with Block2");
 
-		//assertTrue(block2.overlapsWithbyID(block1));
-		//assertTrue(block1.overlapsWithbyID(block2));
-		
+		// TODO: Fix overlapsWithByID method
+		// assertTrue(block2.overlapsWithByID(block1));
+		// assertTrue(block1.overlapsWithByID(block2));
+
+		// Scenario 2: Two blocks without overlapping transactions
 		block2 = new Block();
-		block2.addTransaction(new Transaction(4,10,10,50)); 
-		block2.addTransaction(new Transaction(5,11,20,25));
-		block2.addTransaction(new Transaction(6,13,100,500));
+		block2.addTransaction(new Transaction(4, 10, 10, 50));
+		block2.addTransaction(new Transaction(5, 11, 20, 25));
+		block2.addTransaction(new Transaction(6, 13, 100, 500));
 
-		assertFalse(block2.overlapsWith(block1));
-		assertFalse(block1.overlapsWith(block2));
+		// Assert that the two blocks do not overlap
+		assertFalse(block2.overlapsWith(block1), "Block2 should not overlap with Block1");
+		assertFalse(block1.overlapsWith(block2), "Block1 should not overlap with Block2");
 
-
-		//assertFalse(block2.overlapsWithbyID(block1));
-		//assertFalse(block1.overlapsWithbyID(block2));
-
-		
-		
+		// TODO: Fix overlapsWithByID method
+		// assertFalse(block2.overlapsWithByID(block1));
+		// assertFalse(block1.overlapsWithByID(block2));
 	}
 	
 	
