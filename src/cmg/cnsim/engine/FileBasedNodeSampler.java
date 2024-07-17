@@ -61,6 +61,16 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 		}
 	}
 
+	public void updateSeed() {
+		if (alternativeSampler != null) {
+			alternativeSampler.updateSeed();
+		} else {
+			System.err.print("Error in update seed: alternativeSampler not defined.");
+		}
+			
+	}
+	
+	
 	@Override
 	public long getNextMiningInterval(double hashPower) {
 		return alternativeSampler.getNextMiningInterval(hashPower);

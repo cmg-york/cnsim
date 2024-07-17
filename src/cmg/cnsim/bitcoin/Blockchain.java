@@ -330,8 +330,8 @@ public class Blockchain implements IStructure {
 			//Flip overlapExists if overlap is found.
 			overlapExists = (overlapExists || pointer.overlapsWith(b)); 
 						
-			//if (overlapExists) Debug.p("----> Found overlap, abandonging branch."); 
-			// move towards the 
+			//if (overlapExists) Debug.p("----> Found overlap, abandoning branch."); 
+			// move towards the root
 			pointer = (Block) pointer.getParent();
 		}
 		return(overlapExists);
@@ -595,7 +595,26 @@ public class Blockchain implements IStructure {
 		}
 		return longestTip;
 	}
-
+	
+	//TODO: Test this
+	@Override
+	public boolean transactionInStructure(long txID) {
+		Block longestTip = getLongestTip();
+		
+		if (longestTip == null) {
+			return false;
+		}
+		
+		boolean found = false;
+		Block current = longestTip;
+		while (current != null) {
+			found = (found || current.contains(txID));
+			if (found) break;
+			current = (Block) current.getParent();
+		}
+		return found;
+	}
+	
 	public String printLongestChain() {
 		StringBuilder result = new StringBuilder();
 		Block longestTip = getLongestTip();

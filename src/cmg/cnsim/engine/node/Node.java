@@ -413,5 +413,42 @@ public abstract class Node implements INode {
 	public void event_NodeReceivesPropagatedTransaction(Transaction t, long time) {
 	}
 
-    
+
+	/**
+	 * See {@linkplain INode#event_PrintPeriodicReport(long)}
+	 */
+	@Override
+	public void event_PrintPeriodicReport(long time) {
+		this.periodicReport();
+	}
+
+
+
+	/**
+	 * See {@linkplain INode#event_PrintBeliefReport(long)}
+	 */
+	@Override
+	public void event_PrintBeliefReport(long[] sample, long time) {
+		this.beliefReport(sample, time);
+		
+	}
+
+	/**
+	 * See {@linkplain INode#event_PrintStructureReport(long)}
+	 */
+	@Override
+	public void event_PrintStructureReport(long time) {
+		this.structureReport();
+	}
+
+
+	/**
+	 * See {@linkplain INode#event_PrintStructureReport(long)}
+	 */
+	@Override
+	public void event_NodeStatusReport(long time) {
+		this.nodeStatusReport();
+	}
+	
+	
 }

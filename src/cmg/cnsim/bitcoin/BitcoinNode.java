@@ -2,6 +2,7 @@ package cmg.cnsim.bitcoin;
 
 import cmg.cnsim.engine.Config;
 import cmg.cnsim.engine.IStructure;
+import cmg.cnsim.engine.Reporter;
 import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.node.INode;
 import cmg.cnsim.engine.node.Node;
@@ -70,17 +71,6 @@ public class BitcoinNode extends Node {
 	@Override
 	public IStructure getStructure() {
 		return blockchain;
-	}
-
-
-	@Override
-	public void timeAdvancementReport() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void periodicReport() {
-		// TODO Auto-generated method stub
 	}
 
 
@@ -214,6 +204,44 @@ public class BitcoinNode extends Node {
 		return blockchain;
 	}
 
+	
 
+	
+	//
+	// REPORTING ROUTINES
+	//
+	
+	
+	
+	@Override
+	public void timeAdvancementReport() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void periodicReport() {
+		// TODO Auto-generated method stub
+	}
+
+	
+	
+	@Override
+	public void beliefReport(long[] sample, long time) {
+		for (int i = 0; i < sample.length; i++) {
+			Reporter.addBeliefEntry(this.getID(), sample[i], blockchain.transactionInStructure(sample[i]), time);
+		}
+	}
+
+	@Override
+	public void nodeStatusReport() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void structureReport() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

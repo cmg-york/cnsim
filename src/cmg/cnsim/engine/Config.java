@@ -31,11 +31,22 @@ public class Config {
     	try {
 			chk(propertyKey);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
     		System.exit(-1);
 		}
     }
+    
+    
+
+    public static String getProperty(String propertyKey, boolean returnNull) {
+    	if (returnNull) {
+    		return prop.getProperty(propertyKey);
+    	} else {
+    		return getProperty(propertyKey);
+    	}
+    }
+
+    
     
     public static String getProperty(String propertyKey) {
     	check(propertyKey);
@@ -117,6 +128,34 @@ public class Config {
 		return(prop.getProperty(propertyKey,null));
 	}
 
+	
+	
+	// TODO: test this, add exception for malformed string.
+    /**
+     * Takes a string of the form "{ID1, ID2, ...}" and returns a long array with the IDs.   
+     * @param input A string of the form "{ID1, ID2, ...}", where ID1, ID2 are transaction IDs.
+     * @return A long array of ID1, ID2, ... .  If input string is empty (""), or "{}", or null, 
+     * return value is null.
+     * @exception Throws exception if input string is malformed i.e., 
+     *    (a) missing "{" or "}, 
+     *    (b) any IDi is greater than workload.numTransactions
+     *    (c) any IDi is not numeric
+     */
+    public static long[] parseStringToArray(String input) {
+        // Remove the curly braces and split the string by commas
+        String trimmed = input.substring(1, input.length() - 1);
+        String[] parts = trimmed.split(",");
+
+        // Create an array to store the integers
+        long[] result = new long[parts.length];
+
+        // Parse each part to an integer and store it in the array
+        for (int i = 0; i < parts.length; i++) {
+            result[i] = Long.parseLong(parts[i].trim());
+        }
+
+        return result;
+    }
 	
 
     public static void printProperties() {

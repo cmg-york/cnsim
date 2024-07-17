@@ -8,9 +8,9 @@ sim.reporting.window = 100000
 
 #Network-specific parameters
 #
-net.sampler.file = ./resources/net.csv
+net.sampler.file = ./tests/BitcoinNode/net.csv
 net.sampler.seed = 123
-net.numOfNodes = 5
+net.numOfNodes = 3
 #net.throughputMean = 2500000f
 net.throughputMean = 25000f
 net.throughputSD = 20f
@@ -18,7 +18,7 @@ net.throughputSD = 20f
 
 # Workload Parameters
 #
-workload.sampler.file = ./resources/workload.csv
+workload.sampler.file = ./tests/BitcoinNode/workload.csv
 #workload.sampler.seed = 321
 #workload.lambda = 7f
 workload.lambda = 70f
@@ -31,14 +31,14 @@ workload.txFeeValueMean = 50f
 workload.txFeeValueSD = 12f
 
 # Attack Related
-worlkoad.targetTransaction = 3
+workload.targetTransaction = 3
 #transaction.source = random
 
 
 # Node Parameters
 #
-node.sampler.file = ./resources/nodelist.csv
-node.sampler.seed = {444,222}
+node.sampler.file = ./tests/BitcoinNode/nodelist.csv
+node.sampler.seed = {444}
 node.sampler.seedUpdateTimes = {2500}
 node.createMaliciousNode = false
 node.maliciousHashPower = 900000f

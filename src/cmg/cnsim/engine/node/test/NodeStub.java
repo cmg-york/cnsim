@@ -6,9 +6,9 @@ import cmg.cnsim.engine.node.Node;
 import cmg.cnsim.engine.transaction.ITxContainer;
 import cmg.cnsim.engine.transaction.Transaction;
 
-public class Nodet extends Node {
+public class NodeStub extends Node {
 
-    public Nodet(Simulation sim) {
+    public NodeStub(Simulation sim) {
         super(sim);
     }
 
@@ -41,4 +41,23 @@ public class Nodet extends Node {
     public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
 
     }
+
+    
+	@Override
+	public void beliefReport(long[] sample, long time) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void nodeStatusReport() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void structureReport() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -23,13 +23,18 @@ public class Simulation {
 	private final EventTimeComparator comp = new EventTimeComparator();
 	protected PriorityQueue<Event> queue = new PriorityQueue<>(comp);
 	
+
+
 	private AbstractNetwork net;
 	//protected AbstractSampler sampler;
 	protected Sampler sampler;
 
-//	public Simulation(AbstractSampler a) {
+
+	public Simulation() {
+	}
+
+	
 	public Simulation(Sampler a) {
-		super();
 	    this.sampler = a;
 	}
 
@@ -89,6 +94,12 @@ public class Simulation {
 	    return(this.net.getNodeSet());
 	}
 	 
+	
+	public PriorityQueue<Event> getQueue() {
+		return queue;
+	}
+
+	
 	
 	/**
 	 * @deprecated

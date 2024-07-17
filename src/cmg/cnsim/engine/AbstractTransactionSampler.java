@@ -6,7 +6,7 @@ import java.util.Random;
  * 
  * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  */
-public abstract class AbstractTransactionSampler {
+public abstract class AbstractTransactionSampler implements ISowable {
 	
 	protected Sampler sampler;
 	protected Random random;

@@ -139,12 +139,38 @@ public interface INode {
 	public void timeAdvancementReport();
 	
 	/**
-	 * Generates a time advancement report.
+	 * Generates a generic time-advancement report.
      * The method is called from the simulator (or other) environment in for periodic logging on events status etc.
 	 * The content and format of the report may vary depending on the implementation.
 	 * This method does not take any parameters.
 	 */
 	public void periodicReport();
+	
+	
+	/**
+	 * Generates a transaction belief report.
+     * The method is called from the simulator (or other) environment. In response the node must report whether it
+     * believes each of the transactions in its structure. 
+	 * @param sample A list of transaction IDs for which beliefs are to be reported.
+	 * @param time The time of the request.
+	 */
+	public void beliefReport(long[] sample, long time);
+	
+	/**
+	 * Generates a node status report.
+     * The method is called from the simulator (or other) environment. In response the node must report 
+     * it's status (e.g. whether it is active, how many tokens it has, how much power it has spend etc.) 
+	 */
+	public void nodeStatusReport();
+	
+	
+	/**
+	 * Generates a structure report.
+     * The method is called from the simulator (or other) environment. In response the node must output the structure, 
+	 */
+	public void structureReport();
+	
+	
 	
 	/**
 	 * To be called when the node object is not closing though end of simulation or other termination condition. 
@@ -190,5 +216,40 @@ public interface INode {
 	 * @param time The timestamp of the event.
 	 */
     public void event_NodeCompletesValidation(ITxContainer t, long time);
+    
+    
+    
+	/**
+	 * Event: Node receives a request to print a periodic report
+	 *
+	 * @param time The timestamp of the event.
+	 */
+    public void event_PrintPeriodicReport(long time);
+
+    
+	/**
+	 * Event: Node receives a request to print a belief report
+	 *
+	 * @param sample The transactions for which the belief report is to be produced.
+	 * @param time The timestamp of the event.
+	 */
+    public void event_PrintBeliefReport(long[] sample,long time);
+    
+	/**
+	 * Event: Node receives a request to print a structure
+	 *
+	 * @param time The timestamp of the event.
+	 */
+    public void event_PrintStructureReport(long time);
+        
+    
+	/**
+	 * Event: Node receives a request to print a self status report
+	 *
+	 * @param time The timestamp of the event.
+	 */
+    public void event_NodeStatusReport(long time);
+    
+    
 
 }
