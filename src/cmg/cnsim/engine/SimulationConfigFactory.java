@@ -36,10 +36,7 @@ public class SimulationConfigFactory {
         Config.init(commandLineParser.getConfigFile());
 
         // Create properties with config file values
-        Properties properties = new Properties();
-        for (String key : Config.prop.stringPropertyNames()) {
-            properties.setProperty(key, Config.prop.getProperty(key));
-        }
+        Properties properties = new Properties(Config.prop);
 
         // Override with command line arguments
         overrideWithCommandLineArgs(properties, commandLineParser);

@@ -88,7 +88,7 @@
             sampler.setNetworkSampler(new StandardNetworkSampler(sampler));
             
             
-            if (config.hasProperty("net.sampler.seed")) {
+            if (Config.hasProperty("net.sampler.seed")) {
             	Debug.p("Adding seed to network sampler: " + config.getPropertyLong("net.sampler.seed"));
             	sampler.getNetworkSampler().setSeed(config.getPropertyLong("net.sampler.seed"));
             }
