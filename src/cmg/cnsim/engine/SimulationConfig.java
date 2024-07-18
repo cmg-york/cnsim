@@ -15,15 +15,15 @@ import java.util.Properties;
  * It encapsulates all configuration data needed to run a simulation.
  */
 public class SimulationConfig {
-    private final Properties properties;
+    private static Properties properties;
 
     /**
-     * Constructs a SimulationConfig with the given properties.
+     * Initializes a SimulationConfig with the given properties.
      *
-     * @param properties The properties containing the configuration settings.
+     * @param props The properties containing the configuration settings.
      */
-    public SimulationConfig(Properties properties) {
-        this.properties = properties;
+    public static void initProperties(Properties props) {
+        properties = props;
     }
 
     /**
@@ -32,7 +32,7 @@ public class SimulationConfig {
      * @param key The key of the property to retrieve.
      * @return The string value associated with the key.
      */
-    public String getPropertyString(String key) {
+    public static String getPropertyString(String key) {
         return properties.getProperty(key);
     }
 
@@ -43,7 +43,7 @@ public class SimulationConfig {
      * @return The integer value associated with the key.
      * @throws NumberFormatException If the value cannot be parsed as an integer.
      */
-    public int getPropertyInt(String key) {
+    public static int getPropertyInt(String key) {
         return Integer.parseInt(properties.getProperty(key));
     }
 
@@ -54,7 +54,7 @@ public class SimulationConfig {
      * @return The long value associated with the key.
      * @throws NumberFormatException If the value cannot be parsed as a long.
      */
-    public long getPropertyLong(String key) {
+    public static long getPropertyLong(String key) {
         return Long.parseLong(properties.getProperty(key));
     }
 
@@ -65,7 +65,7 @@ public class SimulationConfig {
      * @return The float value associated with the key.
      * @throws NumberFormatException If the value cannot be parsed as a float.
      */
-    public float getPropertyFloat(String key) {
+    public static float getPropertyFloat(String key) {
         return Float.parseFloat(properties.getProperty(key));
     }
 
@@ -75,7 +75,7 @@ public class SimulationConfig {
      * @param key The key of the property to retrieve.
      * @return The boolean value associated with the key.
      */
-    public boolean getPropertyBoolean(String key) {
+    public static boolean getPropertyBoolean(String key) {
         return Boolean.parseBoolean(properties.getProperty(key));
     }
 
@@ -85,7 +85,7 @@ public class SimulationConfig {
      * @param key The key of the property to retrieve.
      * @return A list of long values, or null if the key doesn't exist.
      */
-    public List<Long> getPropertyLongList(String key) {
+    public static List<Long> getPropertyLongList(String key) {
         String value = getPropertyString(key);
         if (value == null) {
             return null;
@@ -102,7 +102,7 @@ public class SimulationConfig {
      * @param key The key to check.
      * @return true if the property exists, false otherwise.
      */
-    public boolean hasProperty(String key) {
+    public static boolean hasProperty(String key) {
         return properties.containsKey(key);
     }
 
@@ -111,7 +111,7 @@ public class SimulationConfig {
      *
      * @return The path of the workload file.
      */
-    public String getWorkloadFile() {
+    public static String getWorkloadFile() {
         return getPropertyString("workload.sampler.file");
     }
 
@@ -120,7 +120,7 @@ public class SimulationConfig {
      *
      * @return The path of the network file.
      */
-    public String getNetworkFile() {
+    public static String getNetworkFile() {
         return getPropertyString("net.sampler.file");
     }
 
@@ -129,7 +129,7 @@ public class SimulationConfig {
      *
      * @return The path of the node file.
      */
-    public String getNodeFile() {
+    public static String getNodeFile() {
         return getPropertyString("node.sampler.file");
     }
 
@@ -138,7 +138,7 @@ public class SimulationConfig {
      *
      * @return The output directory path.
      */
-    public String getOutputDirectory() {
+    public static String getOutputDirectory() {
         return getPropertyString("output.directory");
     }
 }

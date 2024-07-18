@@ -2,6 +2,7 @@ package cmg.cnsim.bitcoin;
 
 import cmg.cnsim.engine.*;
 import cmg.cnsim.engine.event.Event_SeedUpdate;
+import cmg.cnsim.engine.commandline.CommandLineParser;
 import cmg.cnsim.engine.network.AbstractNetwork;
 import cmg.cnsim.engine.network.FileBasedEndToEndNetwork;
 import cmg.cnsim.engine.network.RandomEndToEndNetwork;
@@ -11,6 +12,7 @@ import cmg.cnsim.engine.node.NodeSet;
 import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionWorkload;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -21,14 +23,28 @@ public class BitcoinMainDriver {
     public static void main(String[] args) {
         //run simulation with the given configuration for n times
         BitcoinMainDriver b = new BitcoinMainDriver();
-        b.run();
+        b.run(args);
     }
 
 
-    private void run() {
+    private void run(String[] args) {
         //print current directory
         System.out.println("Current directory: " + System.getProperty("user.dir"));
-        Config.init("./resources/config.txt");
+
+        try {
+            // Parse command line arguments
+            CommandLineParser commandLineParser = CommandLineParser.parse(args);
+            if (commandLineParser == null) {
+                return; // Exit if help was requested or parsing failed
+            }
+
+            // Create and initialize SimulationConfig
+            SimulationConfigFactory.create(commandLineParser);
+
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Error setting up simulation: " + e.getMessage());
+            return;
+        }
 
 
         //
@@ -58,9 +74,9 @@ public class BitcoinMainDriver {
         //
         try {
             sampler.setNodeSampler(new NodeSamplerFactory().getSampler(
-                    Config.getPropertyString("node.sampler.file"),
-                    Config.getPropertyString("node.sampler.seed"),
-                    Config.getPropertyString("node.sampler.seedUpdateTimes"),
+                    SimulationConfig.getPropertyString("node.sampler.file"),
+                    SimulationConfig.getPropertyString("node.sampler.seed"),
+                    SimulationConfig.getPropertyString("node.sampler.seedUpdateTimes"),
                     sampler,
                     s
             ));
@@ -70,7 +86,7 @@ public class BitcoinMainDriver {
 
         //Develop sampler 2: Network Sampler
         //
-        sampler.setNetworkSampler(new NetworkSamplerFactory().getNetworkSampler(sampler,Config.getPropertyLong("net.sampler.seed")));
+        sampler.setNetworkSampler(new NetworkSamplerFactory().getNetworkSampler(sampler,SimulationConfig.getPropertyLong("net.sampler.seed")));
 
 
         //Develop sampler 3: Transaction Sampler
@@ -78,8 +94,8 @@ public class BitcoinMainDriver {
         try {
             sampler.setTransactionSampler(
                     new TransactionSamplerFactory().getSampler(
-                            Config.getPropertyString("workload.sampler.file"),
-                            (Config.hasProperty("workload.sampler.seed") ? Config.getPropertyLong("workload.sampler.seed") : null),
+                            SimulationConfig.getPropertyString("workload.sampler.file"),
+                            (SimulationConfig.hasProperty("workload.sampler.seed") ? SimulationConfig.getPropertyLong("workload.sampler.seed") : null),
                             sampler));
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,7 +113,7 @@ public class BitcoinMainDriver {
         Debug.p("Nodeset created");
 
         // Adding nodes
-        ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
+        ns.addNodes(SimulationConfig.getPropertyInt("net.numOfNodes"));
         Debug.p("Nodes added");
 
         //
@@ -109,7 +125,7 @@ public class BitcoinMainDriver {
         //Define network.
         //If a file exists it will be file-based, otherwise, just create a standard network.
         AbstractNetwork net = null;
-        String netFilePath = Config.getPropertyString("net.sampler.file");
+        String netFilePath = SimulationConfig.getPropertyString("net.sampler.file");
         if (netFilePath != null) {
             try {
                 Debug.p("Creating file-based network.");
@@ -143,7 +159,7 @@ public class BitcoinMainDriver {
         // Transaction workload
         TransactionWorkload ts = new TransactionWorkload(sampler);
         try {
-            ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
+            ts.appendTransactions(SimulationConfig.getPropertyLong("workload.numTransactions"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -163,7 +179,7 @@ public class BitcoinMainDriver {
 
         // Assign a target transaction for malicious behavior
         Transaction targetTransaction = null;
-        if (Config.getPropertyBoolean("node.createMaliciousNode")) {
+        if (SimulationConfig.getPropertyBoolean("node.createMaliciousNode")) {
             targetTransaction = getTargetTransactionFromUser(ts.getAllTransactions());
         }
         for (INode node : ns.getNodes()) {

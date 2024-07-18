@@ -23,11 +23,10 @@ public class SimulationConfigFactory {
      * Creates a SimulationConfig object based on the provided command line arguments and config file.
      *
      * @param commandLineParser The parsed command line arguments.
-     * @return A SimulationConfig object containing the combined and validated configuration.
      * @throws IOException If there's an error reading the config file or if required files are missing.
      * @throws IllegalArgumentException If the configuration is invalid.
      */
-    public static SimulationConfig create(CommandLineParser commandLineParser) throws IOException {
+    public static void create(CommandLineParser commandLineParser) throws IOException {
         if (commandLineParser == null || commandLineParser.getConfigFile() == null) {
             throw new IllegalArgumentException("Config file is required");
         }
@@ -44,7 +43,8 @@ public class SimulationConfigFactory {
         // Perform validations
         validateConfig(properties);
 
-        return new SimulationConfig(properties);
+        // Initialize SimulationConfig with the properties
+        SimulationConfig.initProperties(properties);
     }
 
     /**
@@ -70,10 +70,10 @@ public class SimulationConfigFactory {
             properties.setProperty("workload.sampler.seed", commandLineParser.getWorkloadSeed().toString());
         }
         if (commandLineParser.getNodeSeed() != null) {
-            properties.setProperty("node.sampler.seed", commandLineParser.getNodeSeed().toString().replaceAll("\\[|\\]", ""));
+            properties.setProperty("node.sampler.seed", "{" + commandLineParser.getNodeSeed().toString().replaceAll("\\[|\\]", "") + "}");
         }
         if (commandLineParser.getSwitchTimes() != null) {
-            properties.setProperty("switch.times", commandLineParser.getSwitchTimes().toString().replaceAll("\\[|\\]", ""));
+            properties.setProperty("switch.times", "{" + commandLineParser.getSwitchTimes().toString().replaceAll("\\[|\\]", "") + "}");
         }
         if (commandLineParser.getNetworkSeed() != null) {
             properties.setProperty("net.sampler.seed", commandLineParser.getNetworkSeed().toString());

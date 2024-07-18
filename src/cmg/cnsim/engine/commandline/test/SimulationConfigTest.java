@@ -23,7 +23,7 @@ public class SimulationConfigTest {
         properties.setProperty("test.boolean", "true");
         properties.setProperty("test.longlist", "{1,2,3,4,5}");
 
-        config = new SimulationConfig(properties);
+        SimulationConfig.initProperties(properties);
     }
 
     @Test

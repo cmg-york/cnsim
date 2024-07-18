@@ -50,12 +50,12 @@ public class SimulationConfigBuilderTest {
     public void testBuildWithValidConfig() throws IOException {
         String[] args = {"-c", configFile.getAbsolutePath()};
         CommandLineParser parser = CommandLineParser.parse(args);
-        SimulationConfig config = SimulationConfigFactory.create(parser);
+        SimulationConfigFactory.create(parser);
 
-        assertNotNull(config);
-        assertEquals(workloadFile.getAbsolutePath(), config.getPropertyString("workload.sampler.file"));
-        assertEquals(networkFile.getAbsolutePath(), config.getPropertyString("net.sampler.file"));
-        assertEquals(nodeFile.getAbsolutePath(), config.getPropertyString("node.sampler.file"));
+//        assertNotNull(config);
+        assertEquals(workloadFile.getAbsolutePath(), SimulationConfig.getPropertyString("workload.sampler.file"));
+        assertEquals(networkFile.getAbsolutePath(), SimulationConfig.getPropertyString("net.sampler.file"));
+        assertEquals(nodeFile.getAbsolutePath(), SimulationConfig.getPropertyString("node.sampler.file"));
     }
 
     @Test
@@ -84,13 +84,13 @@ public class SimulationConfigBuilderTest {
             };
             CommandLineParser parser = CommandLineParser.parse(args);
 
-            SimulationConfig config = SimulationConfigFactory.create(parser);
+            SimulationConfigFactory.create(parser);
 
-            assertEquals(newWorkloadFile.getAbsolutePath(), config.getPropertyString("workload.sampler.file"));
-            assertEquals("123", config.getPropertyString("workload.sampler.seed"));
-            assertEquals("1, 2", config.getPropertyString("node.sampler.seed"));
-            assertEquals("10, 20", config.getPropertyString("switch.times"));
-            assertEquals("456", config.getPropertyString("net.sampler.seed"));
+            assertEquals(newWorkloadFile.getAbsolutePath(), SimulationConfig.getPropertyString("workload.sampler.file"));
+            assertEquals("123", SimulationConfig.getPropertyString("workload.sampler.seed"));
+            assertEquals("{1, 2}", SimulationConfig.getPropertyString("node.sampler.seed"));
+            assertEquals("10, 20", SimulationConfig.getPropertyString("switch.times"));
+            assertEquals("456", SimulationConfig.getPropertyString("net.sampler.seed"));
         } finally {
             newWorkloadFile.delete();
         }
