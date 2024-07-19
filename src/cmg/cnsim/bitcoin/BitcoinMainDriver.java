@@ -31,21 +31,8 @@ public class BitcoinMainDriver {
         //print current directory
         System.out.println("Current directory: " + System.getProperty("user.dir"));
 
-        try {
-            // Parse command line arguments
-            CommandLineParser commandLineParser = CommandLineParser.parse(args);
-            if (commandLineParser == null) {
-                return; // Exit if help was requested or parsing failed
-            }
-
-            // Create and initialize SimulationConfig
-            SimulationConfigFactory.create(commandLineParser);
-
-        } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Error setting up simulation: " + e.getMessage());
-            return;
-        }
-
+        // Initialize SimulationConfig
+        SimulationConfig.initialize(args);
 
         //
         //

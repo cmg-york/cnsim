@@ -1,5 +1,6 @@
 package cmg.cnsim.engine;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -18,7 +19,25 @@ public class SimulationConfig {
     private static Properties properties;
 
     /**
-     * Initializes a SimulationConfig with the given properties.
+     * Initializes the SimulationConfig using command line arguments.
+     *
+     * @param args The command line arguments.
+     * @throws RuntimeException If there's an error setting up the simulation.
+     */
+    public static void initialize(String[] args) {
+        try {
+            SimulationConfigFactory.create(args);
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Error setting up simulation");
+            e.printStackTrace();
+            throw new RuntimeException("Failed to initialize SimulationConfig", e);
+        }
+    }
+
+
+    /**
+     * Initializes the properties for SimulationConfig.
+     * This method should be called by SimulationConfigFactory after creating the properties.
      *
      * @param props The properties containing the configuration settings.
      */

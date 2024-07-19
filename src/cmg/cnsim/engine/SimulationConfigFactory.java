@@ -22,62 +22,38 @@ public class SimulationConfigFactory {
     /**
      * Creates a SimulationConfig object based on the provided command line arguments and config file.
      *
-     * @param commandLineParser The parsed command line arguments.
+     * @param args The command line arguments.
      * @throws IOException If there's an error reading the config file or if required files are missing.
      * @throws IllegalArgumentException If the configuration is invalid.
      */
-    public static void create(CommandLineParser commandLineParser) throws IOException {
-        if (commandLineParser == null || commandLineParser.getConfigFile() == null) {
-            throw new IllegalArgumentException("Config file is required");
+    public static void create(String[] args) throws IOException {
+        CommandLineParser parser = new CommandLineParser();
+        Properties commandLineProperties = parser.parse(args);
+
+        if (commandLineProperties == null) {
+            return; // Help was printed or parsing failed
         }
 
+        String configFile = parser.getConfigFile();
+        if (configFile == null) {
+            throw new IllegalArgumentException("Config file is required");
+        }
+        validateFileExists(configFile, "Config file");
+
         // Load config file
-        Config.init(commandLineParser.getConfigFile());
+        Config.init(configFile);
 
         // Create properties with config file values
         Properties properties = new Properties(Config.prop);
 
         // Override with command line arguments
-        overrideWithCommandLineArgs(properties, commandLineParser);
+        properties.putAll(commandLineProperties);
 
         // Perform validations
         validateConfig(properties);
 
         // Initialize SimulationConfig with the properties
         SimulationConfig.initProperties(properties);
-    }
-
-    /**
-     * Overrides config file properties with command line arguments.
-     *
-     * @param properties The properties from the config file.
-     * @param commandLineParser The parsed command line arguments.
-     */
-    private static void overrideWithCommandLineArgs(Properties properties, CommandLineParser commandLineParser) {
-        if (commandLineParser.getWorkloadFile() != null) {
-            properties.setProperty("workload.sampler.file", commandLineParser.getWorkloadFile());
-        }
-        if (commandLineParser.getNetworkFile() != null) {
-            properties.setProperty("net.sampler.file", commandLineParser.getNetworkFile());
-        }
-        if (commandLineParser.getNodeFile() != null) {
-            properties.setProperty("node.sampler.file", commandLineParser.getNodeFile());
-        }
-        if (commandLineParser.getOutputDirectory() != null) {
-            properties.setProperty("output.directory", commandLineParser.getOutputDirectory());
-        }
-        if (commandLineParser.getWorkloadSeed() != null) {
-            properties.setProperty("workload.sampler.seed", commandLineParser.getWorkloadSeed().toString());
-        }
-        if (commandLineParser.getNodeSeed() != null) {
-            properties.setProperty("node.sampler.seed", "{" + commandLineParser.getNodeSeed().toString().replaceAll("\\[|\\]", "") + "}");
-        }
-        if (commandLineParser.getSwitchTimes() != null) {
-            properties.setProperty("switch.times", "{" + commandLineParser.getSwitchTimes().toString().replaceAll("\\[|\\]", "") + "}");
-        }
-        if (commandLineParser.getNetworkSeed() != null) {
-            properties.setProperty("net.sampler.seed", commandLineParser.getNetworkSeed().toString());
-        }
     }
 
     /**
@@ -92,8 +68,9 @@ public class SimulationConfigFactory {
         validateFileExists(properties.getProperty("net.sampler.file"), "Network file");
         validateFileExists(properties.getProperty("node.sampler.file"), "Node file");
 
-        String switchTimes = properties.getProperty("switch.times");
+        String switchTimes = properties.getProperty("node.sampler.seedUpdateTimes");
         String nodeSeed = properties.getProperty("node.sampler.seed");
+
         if (switchTimes != null && !switchTimes.isEmpty() && (nodeSeed == null || nodeSeed.isEmpty())) {
             throw new IllegalArgumentException("Switch times given but no seed list to switch around.");
         }

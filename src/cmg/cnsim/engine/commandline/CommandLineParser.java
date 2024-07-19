@@ -1,8 +1,7 @@
 package cmg.cnsim.engine.commandline;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * Parses command line arguments for the CNSim simulator.
@@ -18,194 +17,251 @@ import java.util.List;
  * - Switch times list
  * - Network seed
  * <p>
- * Usage: cnsim -c <config_file> [options]
+ * Usage: cnsim [options]
  */
 public final class CommandLineParser {
-    private final String configFile;
-    private final String workloadFile;
-    private final String networkFile;
-    private final String nodeFile;
-    private final String outputDirectory;
-    private final Long workloadSeed;
-    private final List<Long> nodeSeed;
-    private final List<Long> switchTimes;
-    private final Long networkSeed;
+    private final Map<String, Field> optionFields = new HashMap<>();
 
-    private CommandLineParser(String configFile, String workloadFile, String networkFile, String nodeFile,
-                              String outputDirectory, Long workloadSeed, List<Long> nodeSeed,
-                              List<Long> switchTimes, Long networkSeed) {
-        this.configFile = configFile;
-        this.workloadFile = workloadFile;
-        this.networkFile = networkFile;
-        this.nodeFile = nodeFile;
-        this.outputDirectory = outputDirectory;
-        this.workloadSeed = workloadSeed;
-        this.nodeSeed = nodeSeed;
-        this.switchTimes = switchTimes;
-        this.networkSeed = networkSeed;
+    @CommandLineOption(
+            key = "config.file",
+            description = "Configuration file path",
+            argument = "<file>",
+            required = true,
+            aliases = {"-c", "--config"}
+    )
+    private String configFile;
+
+    @CommandLineOption(
+            key = "workload.sampler.file",
+            description = "Workload file path",
+            argument = "<file>",
+            aliases = "--wl"
+    )
+    private String workloadFile;
+
+    @CommandLineOption(
+            key = "net.sampler.file",
+            description = "Network file path",
+            argument = "<file>",
+            aliases = "--net"
+    )
+    private String networkFile;
+
+    @CommandLineOption(
+            key = "node.sampler.file",
+            description = "Node file path",
+            argument = "<file>",
+            aliases = "--node"
+    )
+    private String nodeFile;
+
+    @CommandLineOption(
+            key = "output.directory",
+            description = "Output directory path",
+            argument = "<directory>",
+            aliases = "--out"
+    )
+    private String outputDirectory;
+
+    @CommandLineOption(
+            key = "workload.sampler.seed",
+            description = "Workload seed",
+            argument = "<long>",
+            aliases = {"--ws", "--workload-seed"}
+    )
+    private Long workloadSeed;
+
+    @CommandLineOption(
+            key = "node.sampler.seed",
+            description = "Node seed list (format: {long,long,...})",
+            argument = "<list>",
+            aliases = {"--ns", "--node-seed"}
+    )
+    private List<Long> nodeSeed;
+
+    @CommandLineOption(
+            key = "node.sampler.seedUpdateTimes",
+            description = "Switch times list (format: {long,long,...})",
+            argument = "<list>",
+            aliases = {"--st", "--switch-times"}
+    )
+    private List<Long> switchTimes;
+
+    @CommandLineOption(
+            key = "net.sampler.seed",
+            description = "Network seed",
+            argument = "<long>",
+            aliases = {"--es", "--net-seed"}
+    )
+    private Long networkSeed;
+
+
+    /**
+     * Constructs a new CommandLineParser instance.
+     * <p>
+     * This constructor initializes the CommandLineParser by scanning all declared fields
+     * of the class for the {@link CommandLineOption} annotation. For each annotated field,
+     * it populates the optionFields map with entries for both the main key and all aliases
+     * of the option, associating them with the corresponding Field object.
+     * </p>
+     */
+    public CommandLineParser() {
+        for (Field field : getClass().getDeclaredFields()) {
+            CommandLineOption annotation = field.getAnnotation(CommandLineOption.class);
+            if (annotation != null) {
+                optionFields.put(annotation.key(), field);
+                for (String alias : annotation.aliases()) {
+                    optionFields.put(alias, field);
+                }
+            }
+        }
     }
 
     /**
      * Parses the given command line arguments.
      *
      * @param args The command line arguments to parse.
-     * @return A CommandLineParser object containing the parsed arguments.
-     * @throws IllegalArgumentException If required arguments are missing or invalid.
+     * @return A Properties object containing the parsed arguments.
+     * @throws IllegalArgumentException If (1) required arguments are missing or invalid,
+     * (2) args has an unknown option, or (3) there is a missing value for argument.
      */
-    public static CommandLineParser parse(String[] args) {
-        if (args.length == 0 || args[0].equals("-h") || args[0].equals("--help")) {
+    public Properties parse(String[] args) {
+        Properties properties = new Properties();
+
+        if (args == null || args.length == 0 || args[0].equals("-h") || args[0].equals("--help")) {
             printUsage();
-//            System.exit(0);
+            System.exit(0);
             return null;
         }
+        parseArguments(args, properties);
+        validateRequiredOptions();
 
-        String configFile = null;
-        String workloadFile = null;
-        String networkFile = null;
-        String nodeFile = null;
-        String outputDirectory = null;
-        Long workloadSeed = null;
-        List<Long> nodeSeed = null;
-        List<Long> switchTimes = null;
-        Long networkSeed = null;
+        System.out.println(properties);
+        return properties;
+    }
 
+    /**
+     * Parses the arguments and populates the properties object.
+     */
+    private void parseArguments(String[] args, Properties properties) {
         for (int i = 0; i < args.length; i++) {
-            String key = args[i];
-
-            switch (key) {
-                case "-c":
-                case "--config":
-                    configFile = getArgumentValue(args, i, key);
-                    i++;
-                    break;
-                case "--wl":
-                    workloadFile = getArgumentValue(args, i, key);
-                    i++;
-                    break;
-                case "--net":
-                    networkFile = getArgumentValue(args, i, key);
-                    i++;
-                    break;
-                case "--node":
-                    nodeFile = getArgumentValue(args, i, key);
-                    i++;
-                    break;
-                case "--out":
-                    outputDirectory = getArgumentValue(args, i, key);
-                    i++;
-                    break;
-                case "--ws":
-                case "--workload-seed":
-                    workloadSeed = parseLong(getArgumentValue(args, i, key));
-                    i++;
-                    break;
-                case "--ns":
-                case "--node-seed":
-                    nodeSeed = parseLongList(getArgumentValue(args, i, key));
-                    i++;
-                    break;
-                case "--st":
-                case "--switch-times":
-                    switchTimes = parseLongList(getArgumentValue(args, i, key));
-                    i++;
-                    break;
-                case "--es":
-                case "--net-seed":
-                    networkSeed = parseLong(getArgumentValue(args, i, key));
-                    i++;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown option: " + key);
+            String arg = args[i];
+            Field field = optionFields.get(arg);
+            if (field != null) {
+                String value = getArgumentValue(args, ++i);
+                setFieldValue(field, value, properties);
+            } else {
+                throw new IllegalArgumentException("Unknown option: " + arg);
             }
         }
-
-        if (configFile == null) {
-            printUsage();
-            throw new IllegalArgumentException("Config file is required");
-//            System.err.println("Error: Config file is required");
-//            System.exit(1);
-        }
-
-        return new CommandLineParser(configFile, workloadFile, networkFile, nodeFile, outputDirectory,
-                workloadSeed, nodeSeed, switchTimes, networkSeed);
     }
 
-    private static String getArgumentValue(String[] args, int index, String key) {
-        if (index + 1 < args.length) {
-            return args[index + 1];
-        } else {
-            throw new IllegalArgumentException("Missing value for argument " + key);
-        }
-    }
-
-    private static Long parseLong(String value) {
+    /**
+     * Sets the value of a field and adds it to the properties.
+     */
+    private void setFieldValue(Field field, String value, Properties properties) {
         try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid long value: " + value);
+            Object parsedValue = parseValue(field.getType(), value);
+            field.setAccessible(true);
+            field.set(this, parsedValue);
+            properties.setProperty(getKeyForField(field), value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Error setting field value", e);
         }
     }
 
-    private static List<Long> parseLongList(String value) {
-        String[] parts = value.replaceAll("[{}]", "").split(",");
-        List<Long> result = new ArrayList<>();
-        for (String part : parts) {
-            result.add(parseLong(part.trim()));
+    /**
+     * Gets the argument value for a given option.
+     */
+    private String getArgumentValue(String[] args, int index) {
+        if (index < args.length) {
+            return args[index];
+        } else {
+            throw new IllegalArgumentException("Missing value for argument " + args[index - 1]);
         }
-        return result;
+    }
+
+    /**
+     * Validates that all required options are present.
+     */
+    private void validateRequiredOptions() {
+        for (Field field : getClass().getDeclaredFields()) {
+            CommandLineOption annotation = field.getAnnotation(CommandLineOption.class);
+            if (annotation != null && annotation.required()) {
+                try {
+                    field.setAccessible(true);
+                    if (field.get(this) == null) {
+                        throw new IllegalArgumentException("Required option missing: " + annotation.key());
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Error accessing field", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets the key for a given field from its annotation.
+     */
+    private String getKeyForField(Field field) {
+        return field.getAnnotation(CommandLineOption.class).key();
     }
 
     /**
      * Prints the usage instructions for the simulator.
      */
-    public static void printUsage() {
-        System.out.println("Usage: cnsim -c <config_file> [options]");
+    public void printUsage() {
+        System.out.println("Usage: cnsim [options]");
         System.out.println("Options:");
-        System.out.println("  -c, --config <file>          Configuration file path (required)");
-        System.out.println("  --wl <file>                  Workload file path");
-        System.out.println("  --net <file>                 Network file path");
-        System.out.println("  --node <file>                Node file path");
-        System.out.println("  --out <directory>            Output directory path");
-        System.out.println("  --ws, --workload-seed <long> Workload seed");
-        System.out.println("  --ns, --node-seed <list>     Node seed list (format: {long,long,...})");
-        System.out.println("  --st, --switch-times <list>  Switch times list (format: {long,long,...})");
-        System.out.println("  --es, --net-seed <long>      Network seed");
-        System.out.println("  -h, --help                   Print this help message");
+        for (Field field : getClass().getDeclaredFields()) {
+            CommandLineOption annotation = field.getAnnotation(CommandLineOption.class);
+            if (annotation != null) {
+                System.out.println(getUsageString(annotation));
+            }
+        }
+        System.out.println("  -h, --help\t\tPrint this help message");
     }
 
-    public String getConfigFile() {
-        return configFile;
+    private String getUsageString(CommandLineOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("  ");
+        if (option.aliases().length > 0) {
+            sb.append(String.join(", ", option.aliases()));
+        }
+        sb.append(" " + option.argument()).append("\t\t").append(option.description() + " - " + option.key());
+        if (option.required()) {
+            sb.append(" (required)");
+        }
+        return sb.toString();
     }
 
-    public String getWorkloadFile() {
-        return workloadFile;
+    private Object parseValue(Class<?> type, String value) {
+        if (type == String.class) {
+            return value;
+        } else if (type == Long.class) {
+            return Long.parseLong(value);
+        } else if (type == List.class) {
+            return parseLongList(value);
+        }
+        throw new IllegalArgumentException("Unsupported type: " + type);
     }
 
-    public String getNetworkFile() {
-        return networkFile;
+    private List<Long> parseLongList(String value) {
+        String[] parts = value.replaceAll("[{}\\[\\]]", "").split(",");
+        List<Long> result = new ArrayList<>();
+        for (String part : parts) {
+            result.add(Long.parseLong(part.trim()));
+        }
+        return result;
     }
 
-    public String getNodeFile() {
-        return nodeFile;
-    }
-
-    public Long getWorkloadSeed() {
-        return workloadSeed;
-    }
-
-    public List<Long> getNodeSeed() {
-        return nodeSeed;
-    }
-
-    public List<Long> getSwitchTimes() {
-        return switchTimes;
-    }
-
-    public Long getNetworkSeed() {
-        return networkSeed;
-    }
-
-    public String getOutputDirectory() {
-        return outputDirectory;
-    }
+    public String getConfigFile() { return configFile; }
+    public String getWorkloadFile() { return workloadFile; }
+    public String getNetworkFile() {return networkFile; }
+    public String getNodeFile(){ return nodeFile; }
+    public Long getWorkloadSeed() { return workloadSeed; }
+    public List<Long> getNodeSeed() { return nodeSeed; }
+    public List<Long> getSwitchTimes() { return switchTimes; }
+    public Long getNetworkSeed() { return networkSeed; }
+    public String getOutputDirectory() { return outputDirectory; }
 }
