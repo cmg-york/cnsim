@@ -617,19 +617,32 @@ class BlockchainTest {
 
 	//TODO write more tests for orphans
 
+	/**
+	 * Tests the blockchain's ability to handle orphan blocks and their integration once the missing parent block is added.
+	 * <p>
+	 * This test verifies that the blockchain can correctly identify orphan blocks, maintain their status,
+	 * and integrate them once their parent blocks are added. It covers the following scenarios:
+	 * 1. Creating a genesis block and adding it to the blockchain.
+	 * 2. Creating a block with a missing parent to simulate an orphan block.
+	 * 3. Attempting to add the orphan block to the blockchain and verifying its orphan status.
+	 * 4. Adding the missing parent block to the blockchain.
+	 * 5. Verifying that the orphan block is no longer an orphan and is correctly integrated into the blockchain.
+	 * 6. Ensuring the blockchain structure reflects the correct integration of the orphan block and its parent.
+	 */
 	@Test
 	void testOrphanBlockHandlingAndIntegration() {
 		// Initial setup: Create a genesis block and add it to the blockchain
 		Block genesisBlock = new Block();
-		genesisBlock.addTransaction(new Transaction(0, System.currentTimeMillis(), 1.0f, 0.1f)); // Genesis transaction
+		genesisBlock.addTransaction(new Transaction(0, System.currentTimeMillis(), 1.0f, 0.1f));
 		blockchain.addToStructure(genesisBlock);
+
+		// This parent ID points to a block that has not been added yet, simulating an orphan
+		Block missingParentBlock = new Block();
+		missingParentBlock.addTransaction(new Transaction(1, System.currentTimeMillis(), 2.0f, 0.2f));
 
 		// Create a block that should be an orphan initially (its parent is not yet in the blockchain)
 		Block orphanBlock = new Block();
 		orphanBlock.addTransaction(new Transaction(2, System.currentTimeMillis(), 3.0f, 0.3f));
-		// This parent ID points to a block that has not been added yet, simulating an orphan
-		Block missingParentBlock = new Block();
-		missingParentBlock.addTransaction(new Transaction(1, System.currentTimeMillis(), 2.0f, 0.2f));
 		orphanBlock.setParent(missingParentBlock);
 
 		// Attempt to add the orphan block to the blockchain
@@ -647,9 +660,9 @@ class BlockchainTest {
 		// Verify the blockchain structure to ensure both the previously orphan block and its parent are correctly integrated
 		String[] expectedStructure = {
 				"BlockID,ParentID,BlockHeight,Transactions",
-				String.format("%d,0,2,{2}", missingParentBlock.getID()), // Assuming ID is assigned sequentially by the blockchain
 				String.format("%d,%d,3,{2}", orphanBlock.getID(), missingParentBlock.getID()),
-				"0,-1,1,{0}" // Genesis block
+				String.format("%d,1,2,{1}", missingParentBlock.getID()), // Assuming ID is assigned sequentially by the blockchain
+				"1,-1,1,{0}" // Genesis block
 		};
 		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should include the orphan block and its parent correctly after integration");
 	}
