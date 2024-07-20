@@ -576,48 +576,6 @@ class BlockchainTest {
 		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should match expected after complex forks and reunification");
 	}
 
-	//TODO Our simulator does not handel this
-	@Test
-	final void testHandlingTransactionsExceedingBlockSizeLimit() {
-		// Initial setup: Create a genesis block and add it to the blockchain
-		Block genesisBlock = new Block();
-		genesisBlock.addTransaction(new Transaction(0, 1, 1, 1)); // Simplified genesis transaction
-		blockchain.addToStructure(genesisBlock);
-
-		// Attempt to create and add a block that exceeds the size limit
-		Block oversizedBlock = new Block();
-		oversizedBlock.setParent(genesisBlock);
-		// Assuming the size limit for the sake of example; actual implementations may vary
-		// Add enough transactions to exceed the block size limit
-		for (int i = 1; i <= 100; i++) {
-			oversizedBlock.addTransaction(new Transaction(i, 10 +i, 10 , 10000*i)); // Adding transactions to exceed size limit
-		}
-		blockchain.addToStructure(oversizedBlock);
-
-		// Verify that the blockchain did not accept the oversized block
-		String[] expectedStructureAfterOversizedBlock = {
-				"BlockID,ParentID,BlockHeight,Transactions",
-				"0,-1,1,{0}" // Only the genesis block should be present
-		};
-		assertArrayEquals(expectedStructureAfterOversizedBlock, blockchain.printStructure(), "Blockchain should reject the oversized block");
-
-		// Create and add a block with transactions within the size limit
-		Block validBlock = new Block();
-		validBlock.setParent(genesisBlock);
-		validBlock.addTransaction(new Transaction(101, 20, 200, 2)); // A single valid transaction within size limit
-		blockchain.addToStructure(validBlock);
-
-		// Verify that the blockchain accepts the new block with valid size
-		String[] expectedStructureAfterValidBlock = {
-				"BlockID,ParentID,BlockHeight,Transactions",
-				"1,0,2,{101}", // The valid block is accepted and added to the blockchain
-				"0,-1,1,{0}"
-		};
-		assertArrayEquals(expectedStructureAfterValidBlock, blockchain.printStructure(), "Blockchain should accept and correctly integrate blocks within the size limit");
-
-		// This test ensures the blockchain enforces block size limits to maintain operational efficiency and network health.
-	}
-
 	//TODO check again
 	@Test
 	final void testHandlingRapidSuccessionOfBlocks() {
