@@ -509,11 +509,24 @@ class BlockchainTest {
 		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should match expected after reorganization");
 	}
 
+	/**
+	 * Tests the handling of complex forks and their reunification in the blockchain.
+	 * <p>
+	 * This test verifies that the blockchain correctly manages multiple forks and reunifies them
+	 * while maintaining the correct structure. It covers the following scenarios:
+	 * 1. Creating a genesis block and adding it to the blockchain.
+	 * 2. Adding two blocks that extend the genesis block, creating a fork with two tips.
+	 * 3. Extending both forks by adding blocks to each fork.
+	 * 4. Verifying the existence of multiple tips before reunification.
+	 * 5. Adding a new block that reunifies the forks by extending one of the forks.
+	 * 6. Ensuring the longest tip is correctly identified after reunification.
+	 * 7. Verifying the blockchain structure matches the expected structure after reunification.
+	 */
 	@Test
 	final void testHandlingComplexForks() {
 		// Initial setup: Create a genesis block and add it to the blockchain
 		Block genesisBlock = new Block();
-		genesisBlock.addTransaction(new Transaction(0, 1, 1, 1)); // Simplified genesis transaction
+		genesisBlock.addTransaction(new Transaction(0, 1, 1, 1));
 		blockchain.addToStructure(genesisBlock);
 
 		// Create and add two blocks extending the genesis block, creating initial fork
@@ -527,38 +540,39 @@ class BlockchainTest {
 		secondFork.addTransaction(new Transaction(2, 20, 2, 2));
 		blockchain.addToStructure(secondFork);
 
-		// Extending the first fork, creating another level of forks
+		// Extending the first fork
 		Block thirdFork = new Block();
 		thirdFork.setParent(firstFork);
 		thirdFork.addTransaction(new Transaction(3, 30, 3, 3));
 		blockchain.addToStructure(thirdFork);
 
+		// Extending the second fork
 		Block fourthFork = new Block();
 		fourthFork.setParent(secondFork);
 		fourthFork.addTransaction(new Transaction(4, 40, 4, 4));
 		blockchain.addToStructure(fourthFork);
 
 		// Verify the existence of multiple tips before reunification
-		assertTrue(blockchain.printTips(",").contains("{3,4}"), "There should be two tips representing the forks");
+		assertTrue(blockchain.printTips(",").contains("{4,5}"), "There should be two tips representing the forks");
 
 		// Adding a new block that reunites the forks by choosing one as its parent
 		Block reunificationBlock = new Block();
-		reunificationBlock.setParent(thirdFork); // Reunification by extending the third fork
+		reunificationBlock.setParent(thirdFork);
 		reunificationBlock.addTransaction(new Transaction(5, 50, 5, 5));
 		blockchain.addToStructure(reunificationBlock);
 
-		// Verify that the blockchain has now a single tip after the reunification
-		assertEquals(5, blockchain.getLongestTip().getID(), "After reunification, there should be only one tip");
+		// Verify that the longest tip is now the reunification block
+		assertEquals(6, blockchain.getLongestTip().getID(), "After reunification, there should be only one tip");
 
 		// Ensure the blockchain structure reflects the reunification correctly
 		String[] expectedStructure = {
 				"BlockID,ParentID,BlockHeight,Transactions",
-				"5,3,4,{5}",
-				"4,2,3,{4}",
-				"3,1,3,{3}",
-				"2,0,2,{2}",
-				"1,0,2,{1}",
-				"0,-1,1,{0}"
+				"6,4,4,{5}",
+				"5,3,3,{4}",
+				"4,2,3,{3}",
+				"3,1,2,{2}",
+				"2,1,2,{1}",
+				"1,-1,1,{0}"
 		};
 		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should match expected after complex forks and reunification");
 	}
@@ -774,6 +788,6 @@ class BlockchainTest {
 		// Additionally, check if the rejected block is considered an orphan or simply discarded
 		assertTrue(blockchain.printOrphans().length - 1 == 0, "There should be no orphans from rejected blocks with duplicate transactions");
 	}
-	
+
 
 }
