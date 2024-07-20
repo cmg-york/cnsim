@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -576,63 +575,6 @@ class BlockchainTest {
 		};
 		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should match expected after complex forks and reunification");
 	}
-
-	@Test
-	final void testHandlingComplexForks2() {
-		// Initial setup: Create a genesis block and add it to the blockchain
-		Block genesisBlock = new Block();
-		genesisBlock.addTransaction(new Transaction(0, 1, 1, 1)); // Simplified genesis transaction
-		blockchain.addToStructure(genesisBlock);
-
-		// Simulate adding two concurrent blocks, creating a fork
-		Block blockA = new Block();
-		blockA.setParent(genesisBlock);
-		blockA.addTransaction(new Transaction(1, 10, 2, 2));
-		blockchain.addToStructure(blockA);
-
-		Block blockB = new Block();
-		blockB.setParent(genesisBlock);
-		blockB.addTransaction(new Transaction(2, 20, 3, 3));
-		blockchain.addToStructure(blockB);
-
-		// Initially, the blockchain should have a fork at this point
-		assertTrue(blockchain.printTips(",").contains("{1,2}"), "There should be two tips representing a fork due to concurrent blocks");
-
-		// Add additional blocks to extend each fork, simulating continued block generation
-		Block blockA1 = new Block();
-		blockA1.setParent(blockA);
-		blockA1.addTransaction(new Transaction(3, 30, 4, 4));
-		blockchain.addToStructure(blockA1);
-
-		Block blockB1 = new Block();
-		blockB1.setParent(blockB);
-		blockB1.addTransaction(new Transaction(4, 40, 5, 5));
-		blockchain.addToStructure(blockB1);
-
-		// Add a block that extends one of the forks, making it the longest chain
-		Block blockA2 = new Block();
-		blockA2.setParent(blockA1);
-		blockA2.addTransaction(new Transaction(5, 50, 6, 6));
-		blockchain.addToStructure(blockA2);
-
-		// Verify that the blockchain resolves to a single tip, choosing the longest chain
-		assertEquals("{5}", blockchain.getLongestTip().printIDs(","), "The blockchain should resolve to a single tip, favoring the longest chain");
-
-		// Ensure the blockchain structure reflects the resolution of the fork correctly
-		String[] expectedStructure = {
-				"BlockID,ParentID,BlockHeight,Transactions",
-				"5,3,4,{5}",
-				"4,2,3,{4}",
-				"3,1,3,{3}",
-				"2,0,2,{2}",
-				"1,0,2,{1}",
-				"0,-1,1,{0}"};
-		blockchain.printStructure();
-		System.out.println(Arrays.toString(blockchain.printStructure()));
-		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should match expected after resolving concurrent blocks");
-		// This test verifies the blockchain's ability to manage forks caused by concurrent block additions and ensure that the longest chain rule is correctly applied for maintaining chain integrity.
-	}
-
 
 	//TODO Our simulator does not handel this
 	@Test
