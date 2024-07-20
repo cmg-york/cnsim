@@ -667,14 +667,23 @@ class BlockchainTest {
 		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should include the orphan block and its parent correctly after integration");
 	}
 
-
-	//TODO while a block comes that the longest chain has one transaction of it already
-
+	/**
+	 * Tests the blockchain's handling of blocks with duplicate transactions.
+	 * <p>
+	 * This test verifies that the blockchain correctly rejects a block that contains a duplicate transaction
+	 * already present in a previously added block. It covers the following scenarios:
+	 * 1. Creating a genesis block and adding it to the blockchain.
+	 * 2. Creating and adding a valid block that extends the genesis block.
+	 * 3. Attempting to add a new block that contains a duplicate of an existing transaction.
+	 * 4. Verifying that the blockchain rejects the block with the duplicate transaction.
+	 * 5. Ensuring the blockchain structure does not include the invalid block.
+	 * 6. Confirming that the rejected block is not considered an orphan.
+	 */
 	@Test
 	void testBlockWithDuplicateTransactionIsRejected() {
 		// Initial setup: Create a genesis block and add it to the blockchain
 		Block genesisBlock = new Block();
-		genesisBlock.addTransaction(new Transaction(0, System.currentTimeMillis(), 1.0f, 0.1f)); // Simplified genesis transaction
+		genesisBlock.addTransaction(new Transaction(0, System.currentTimeMillis(), 1.0f, 0.1f));
 		blockchain.addToStructure(genesisBlock);
 
 		// Create and add a valid block extending the genesis block
@@ -686,7 +695,6 @@ class BlockchainTest {
 
 		// Attempt to add a new block containing a duplicate of the existing transaction
 		Block blockWithDuplicateTransaction = new Block();
-		blockWithDuplicateTransaction.setParent(genesisBlock); // Also linking to genesis block
 		blockWithDuplicateTransaction.addTransaction(uniqueTransaction); // Adding the same transaction again
 		blockchain.addToStructure(blockWithDuplicateTransaction);
 
@@ -697,14 +705,12 @@ class BlockchainTest {
 		// Verify that the blockchain structure does not include the invalid block
 		String[] expectedStructure = {
 				"BlockID,ParentID,BlockHeight,Transactions",
-				String.format("%d,0,2,{1}", validBlock.getID()),
-				"0,-1,1,{0}" // Genesis block
+				String.format("%d,1,2,{1}", validBlock.getID()),
+				"1,-1,1,{0}" // Genesis block
 		};
 		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should not include the block with the duplicate transaction");
 
 		// Additionally, check if the rejected block is considered an orphan or simply discarded
-		assertTrue(blockchain.printOrphans().length - 1 == 0, "There should be no orphans from rejected blocks with duplicate transactions");
+        assertEquals(0, blockchain.printOrphans().length - 1, "There should be no orphans from rejected blocks with duplicate transactions");
 	}
-
-
 }
