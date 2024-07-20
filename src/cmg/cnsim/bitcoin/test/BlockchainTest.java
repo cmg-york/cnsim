@@ -576,7 +576,16 @@ class BlockchainTest {
 		assertArrayEquals(expectedStructure, blockchain.printStructure(), "Blockchain structure should match expected after complex forks and reunification");
 	}
 
-	//TODO check again
+	/**
+	 * Tests the blockchain's ability to handle the rapid addition of multiple blocks in quick succession.
+	 * <p>
+	 * This test verifies that the blockchain can correctly add multiple blocks in a short period,
+	 * maintaining the correct structure and integrity. It covers the following scenarios:
+	 * 1. Creating a genesis block and adding it to the blockchain.
+	 * 2. Rapidly adding a specified number of blocks to the blockchain, each extending the previous block.
+	 * 3. Verifying that all blocks were added correctly.
+	 * 4. Ensuring the blockchain's integrity and height are maintained.
+	 */
 	@Test
 	final void testHandlingRapidSuccessionOfBlocks() {
 		// Initial setup: Create a genesis block and add it to the blockchain
@@ -586,29 +595,24 @@ class BlockchainTest {
 
 		// Rapidly add multiple blocks to the blockchain
 		Block previousBlock = genesisBlock;
-		int numberOfBlocksToAdd = 10; // Simulate adding 10 blocks in rapid succession
+		final int numberOfBlocksToAdd = 10; // Simulate adding 10 blocks in rapid succession
 		for (int i = 1; i <= numberOfBlocksToAdd; i++) {
 			Block newBlock = new Block();
 			newBlock.setParent(previousBlock);
-			newBlock.addTransaction(new Transaction(i, 10 * i, 100 * i, 2)); // Add a unique transaction to each block
+			newBlock.addTransaction(new Transaction(i, 10L * i, 100 * i, 2)); // Add a unique transaction to each block
 			blockchain.addToStructure(newBlock);
 			previousBlock = newBlock; // Update the reference for the next block's parent
 		}
 
 		// Verify that all blocks were added correctly
 		for (int i = 1; i <= numberOfBlocksToAdd; i++) {
-			final int blockID = i;
-			// Assuming a method exists to retrieve a block by its ID for verification
-			Block block = blockchain.getBlockByID(blockID);
-			assertNotNull(block, "Block " + blockID + " should exist in the blockchain");
-			System.out.println(block.printIDs(","));
-			assertEquals(i, block.getCount(), "Block " + blockID + " should contain exactly one transaction");
+			Block block = blockchain.getBlockByID(i);
+			assertNotNull(block, "Block " + i + " should exist in the blockchain");
+			assertEquals(1, block.getCount(), "Block " + i + " should contain exactly one transaction");
 		}
 
 		// Ensure the blockchain's integrity is maintained
 		assertEquals(numberOfBlocksToAdd + 1, blockchain.getBlockchainHeight(), "Blockchain should have the correct number of blocks");
-
-		// This test checks if the blockchain can handle a high throughput of block additions without compromising data integrity or the correct order of blocks.
 	}
 
 	//TODO write more tests for orphans
