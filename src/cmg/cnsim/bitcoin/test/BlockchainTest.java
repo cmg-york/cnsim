@@ -9,8 +9,6 @@ import cmg.cnsim.engine.transaction.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -18,23 +16,19 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  */
 class BlockchainTest {
-	ArrayList<Block> blocks = new ArrayList<Block>();
-	Blockchain blockchain = new Blockchain();
-//	Block keep3, keep4;
-//	Block keepme;
-
-	private void printBlockchain() {
-		String[] result = blockchain.printStructure();
-		for (int i = 0 ; i < result.length; i++) {
-			System.out.println('"' + result[i] + '"' + ',');
-		}
-	}
+	private Blockchain blockchain;
 
 	/**
-	 * @throws java.lang.Exception Throws an exception.
+	 * Sets up the test environment before each test method.
+	 * <p>
+	 * This method initializes a new instance of the Blockchain class and resets
+	 * the static `currID` field of the Block class to 1 to ensure a consistent
+	 * starting state for each test.
 	 */
 	@BeforeEach
-	void setUp() throws Exception {
+	void setUp() {
+		blockchain = new Blockchain();
+		Block.currID = 1;
 	}
 
 	/**
