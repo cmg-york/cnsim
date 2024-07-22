@@ -51,7 +51,7 @@ public interface ITxContainer {
 	 * @param txID The transaction ID in question
 	 * @return <tt>true</tt> if <tt>t</tt> is in the container, <tt>false</tt> otherwise.
 	 */
-	public boolean contains(int txID);
+	public boolean contains(long txID);
 	
 	
     /**

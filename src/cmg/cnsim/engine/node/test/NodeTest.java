@@ -10,7 +10,7 @@ public class NodeTest {
     @Test
     public void testGetID() {
         Simulation sim = new Simulation(null);
-        Node node = new Nodet(sim);
+        Node node = new NodeStub(sim);
 
         int expectedID = 1;
         int actualID = node.getID();
@@ -20,7 +20,7 @@ public class NodeTest {
     @Test
     public void testSetHashPower() {
         Simulation sim = new Simulation(null);
-        Node node = new Nodet(sim);
+        Node node = new NodeStub(sim);
         float expectedHashPower = 10.0f;
         node.setHashPower(expectedHashPower);
         float actualHashPower = node.getHashPower();
@@ -30,7 +30,7 @@ public class NodeTest {
     @Test
     public void testSetElectricityCost() {
         Simulation sim = new Simulation(null);
-        Node node = new Nodet(sim);
+        Node node = new NodeStub(sim);
         float expectedElectricityCost = 0.5f;
         node.setElectricityCost(expectedElectricityCost);
         float actualElectricityCost = node.getElectricityCost();
@@ -40,7 +40,7 @@ public class NodeTest {
     @Test
     public void testStartAndStopMining() {
         Simulation sim = new Simulation(null);
-        Node node = new Nodet(sim);
+        Node node = new NodeStub(sim);
 
         // Initially, node should not be mining
         Assert.assertFalse(node.isMining());

@@ -11,4 +11,12 @@ public interface IStructure {
 	 * @return An array of string presenting the structure. 
 	 */
 	String[] printStructure();
+	
+	
+	/**
+	 * Checks if a transaction is part of the structure.
+	 * @param txID The ID of the transaction.
+	 * @return {@code true} if the transaction is part of the structure and {@code false} if it is not 
+	 */
+	boolean transactionInStructure(long txID);
 }

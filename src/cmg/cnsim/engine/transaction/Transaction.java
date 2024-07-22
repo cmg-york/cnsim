@@ -5,7 +5,7 @@ public class Transaction {
 	public static int currID = 1;
 	public enum Type {HONEST, MALICIOUS, FAKE}
 
-	protected int ID;
+	protected long ID;
 	protected float size;
 	protected float value;
 	protected long creationTime;
@@ -19,7 +19,7 @@ public class Transaction {
 	 * @param value The value of the transaction in local currency.
 	 * @param size The size of the transaction in bytes
 	 */
-	public Transaction(int ID, long time, float value, float size) {
+	public Transaction(long ID, long time, float value, float size) {
 	    if(time < 0)
 	    	throw new ArithmeticException("Trying to create new transation with Time < 0");
 	    creationTime = time;
@@ -138,7 +138,7 @@ public class Transaction {
 	 * Get the unique ID of the transaction.
 	 * @return The unique ID of the transaction.
 	 */
-	public int getID() {
+	public long getID() {
 	   return(ID);
 	}
 
