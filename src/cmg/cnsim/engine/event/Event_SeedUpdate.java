@@ -27,6 +27,7 @@ public class Event_SeedUpdate extends Event {
         super.happen(sim);
         sampler.updateSeed();
         Reporter.addEvent(
+        		sim.getSimID(),
         		this.getEvtID(), 
         		this.getTime(), 
         		System.currentTimeMillis() - Simulation.sysStartTime, 

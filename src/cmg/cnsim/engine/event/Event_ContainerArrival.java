@@ -45,6 +45,7 @@ public class Event_ContainerArrival extends Event {
         super.happen(sim);
         node.event_NodeReceivesPropagatedContainer(container);
         Reporter.addEvent(
+        		sim.getSimID(),
         		this.getEvtID(), 
         		this.getTime(), 
         		System.currentTimeMillis() - Simulation.sysStartTime, 

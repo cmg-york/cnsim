@@ -44,6 +44,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         b.setValidationDifficulty(-1.0);
      
         BitcoinReporter.reportBlockEvent(
+				Simulation.currentSimulationID,
         		Simulation.currTime,
         		System.currentTimeMillis()- Simulation.sysStartTime,
         		b.getCurrentNodeID(),
@@ -61,6 +62,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
             //reportBlockEvent(b, "Propagated Block Discarded");
             b.setLastBlockEvent("ERROR: propagated Block already exists");
         	BitcoinReporter.reportBlockEvent(
+					Simulation.currentSimulationID,
             		Simulation.currTime,
             		System.currentTimeMillis() - Simulation.sysStartTime,
             		b.getCurrentNodeID(),
@@ -98,6 +100,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
 
         //Report the validation event
         BitcoinReporter.reportBlockEvent(
+				Simulation.currentSimulationID,
         		b.getSimTime_validation(),
         		b.getSysTime_validation(),
         		b.getValidationNodeID(),
@@ -124,6 +127,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         } else {
             //reportBlockEvent(b, "Discarding own Block (ERROR)");
             BitcoinReporter.reportBlockEvent(
+					Simulation.currentSimulationID,
             		b.getSimTime_validation(),
             		b.getSysTime_validation()- Simulation.sysStartTime,
             		b.getValidationNodeID(),

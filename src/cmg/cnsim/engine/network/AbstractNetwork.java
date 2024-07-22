@@ -101,7 +101,7 @@ public abstract class AbstractNetwork {
 	}
 
 	public void setThroughput(int origin, int destination, float throughput) {
-		Reporter.addNetEvent(origin, destination, throughput, Simulation.currTime);
+		Reporter.addNetEvent(Simulation.currentSimulationID, origin, destination, throughput, Simulation.currTime);
 		if(origin < 0)
 			throw new ArithmeticException("Origin < 0");
 		if(destination < 0)

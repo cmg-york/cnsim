@@ -19,6 +19,10 @@ public class Simulation {
 
 	public static long currTime;
 	public static long sysStartTime;
+	public static int currentSimulationID = 1;
+
+	
+	private int simID;
 	
 	private final EventTimeComparator comp = new EventTimeComparator();
 	protected PriorityQueue<Event> queue = new PriorityQueue<>(comp);
@@ -30,12 +34,19 @@ public class Simulation {
 	protected Sampler sampler;
 
 
-	public Simulation() {
+	public Simulation(int simID) {
+		this.simID = simID;
+		currentSimulationID = simID;
 	}
 
 	
-	public Simulation(Sampler a) {
+	public Simulation(Sampler a, int simID) {
+		this(simID);
 	    this.sampler = a;
+	}
+	
+	public int getSimID() {
+		return (simID);
 	}
 
 	

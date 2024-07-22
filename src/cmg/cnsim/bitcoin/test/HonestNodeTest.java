@@ -47,7 +47,7 @@ class HonestNodeTest {
         Config.init("./tests/BitcoinNode/HonestNodeTestConfig.txt");
         
         // Creating simulation object
-        s = new Simulation();
+        s = new Simulation(1);
 
         // Creating Sampler
         Sampler sampler = new Sampler();

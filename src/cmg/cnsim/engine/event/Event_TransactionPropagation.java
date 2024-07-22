@@ -45,6 +45,7 @@ public class Event_TransactionPropagation extends Event {
         super.happen(sim);
         node.event_NodeReceivesPropagatedTransaction(trans, getTime());
         Reporter.addEvent(
+        		sim.getSimID(),
         		getEvtID(), 
         		getTime(), 
         		System.currentTimeMillis() - Simulation.sysStartTime, 

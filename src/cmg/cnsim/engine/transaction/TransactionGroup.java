@@ -168,12 +168,11 @@ public class TransactionGroup implements ITxContainer {
         return false;
     }
 
-<<<<<<< HEAD
     /**
      * See {@linkplain ITxContainer#contains(int)}.
      */
     @Override
-    public boolean contains(int txID) {
+    public boolean contains(long txID) {
         for (Transaction r : group) {
             if (r.getID() == txID) {
                 return true;
@@ -181,19 +180,6 @@ public class TransactionGroup implements ITxContainer {
         }
         return false;
     }
-=======
-	/**
-	 * See {@linkplain ITxContainer#contains(int)}.
-	 */
-  	@Override
-  	public boolean contains(long txID) {
-		boolean found = false;
-		for (Transaction r: group) {
-			if (r.getID() == txID) {found = true;}
-		}
-		return found;
-	}
->>>>>>> 0b8cda7d265a321f63f257af06439b418ba7d51d
 
     /**
      * Check if the group overlaps with another transaction group, i.e.,

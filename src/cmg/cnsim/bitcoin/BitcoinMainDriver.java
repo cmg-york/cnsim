@@ -31,16 +31,19 @@ public class BitcoinMainDriver {
         //print current directory
         System.out.println("Current directory: " + System.getProperty("user.dir"));
 
+        
         // Initialize SimulationConfig
         SimulationConfig.initialize(args);
 
+        // SIM SCOPE STARTS HERE
+                
         //
         //
         // Creating simulation object
         //
         //
 
-        Simulation s = new Simulation();
+        Simulation s = new Simulation(1);
 
         //
         //
@@ -204,6 +207,9 @@ public class BitcoinMainDriver {
 
         s.getNodeSet().closeNodes();
 
+        
+        // SIM SCOPE ENDS HERE
+        
         BitcoinReporter.flushBlockReport();
         BitcoinReporter.flushStructReport();
         BitcoinReporter.flushEvtReport();
@@ -211,7 +217,10 @@ public class BitcoinMainDriver {
         BitcoinReporter.flushInputReport();
         BitcoinReporter.flushNetworkReport();
         BitcoinReporter.flushConfig();
-        // each node should log its own blockchain in the end
+        
+        
+        
+        
     }
 
 
