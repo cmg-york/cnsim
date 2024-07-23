@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,7 +35,7 @@ public class TransactionGroupTest {
         comparator = (Transaction t1, Transaction t2) -> Float.compare(t2.getSize(), t1.getSize());
         sortedGroup = pool.getGroup().stream()
                 .sorted(comparator)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Test
@@ -193,7 +194,7 @@ public class TransactionGroupTest {
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
         int groupSizeBefore = pool.getGroup().size();
-        Transaction nextTransaction = pool.getGroup().getFirst();
+        Transaction nextTransaction = pool.getGroup().get(0);
 
         pool.removeNextTx();
 
@@ -262,13 +263,13 @@ public class TransactionGroupTest {
 
     @Test
     public void testContains_matchByReference() {
-        assertTrue(pool.contains(pool.getGroup().getFirst()));
+        assertTrue(pool.contains(pool.getGroup().get(0)));
         assertFalse(pool.contains(otherTransaction));
     }
 
     @Test
     public void testContains_matchById() {
-        assertTrue(pool.contains(new Transaction(pool.getGroup().getFirst().getID())));
+        assertTrue(pool.contains(new Transaction(pool.getGroup().get(0).getID())));
         assertFalse(pool.contains(otherTransaction.getID()));
     }
 
@@ -276,7 +277,7 @@ public class TransactionGroupTest {
     public void testOverlapsWithObj_overlappingTransactions() {
         TransactionGroup group = new TransactionGroup(new ArrayList<>(Arrays.asList(
                 new Transaction(),
-                pool.getGroup().getFirst()
+                pool.getGroup().get(0)
         )));
 
         assertTrue(pool.overlapsWithByObj(group));
@@ -284,7 +285,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testOverlapsWithObj_nonOverlappingTransactions() {
-        otherTransaction.setID(pool.getGroup().getFirst().getID());
+        otherTransaction.setID(pool.getGroup().get(0).getID());
         TransactionGroup group = new TransactionGroup(new ArrayList<>(Arrays.asList(
                 otherTransaction,
                 new Transaction()
@@ -301,7 +302,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testOverlapsWith_overlappingTransactions() {
-        otherTransaction.setID(pool.getGroup().getFirst().getID());
+        otherTransaction.setID(pool.getGroup().get(0).getID());
         ArrayList<Transaction> overlappingTransactions = new ArrayList<>(Arrays.asList(
                 otherTransaction,
                 new Transaction(123)
@@ -332,7 +333,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testGetTopN_sizeLimitLessThanFirstTransaction() {
-        float sizeLimit = sortedGroup.getLast().getSize() - 0.1f;
+        float sizeLimit = sortedGroup.get(sortedGroup.size() - 1).getSize() - 0.1f;
 
         TransactionGroup group = pool.getTopN(sizeLimit, comparator);
 

@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 /**
  * A list containing various transactions. Can be used as a block or other needed grouping (e.g. pool).
@@ -137,7 +139,8 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public Transaction removeNextTx() {
-        Transaction t = group.removeFirst();
+        if (group.isEmpty()) throw new NoSuchElementException();
+        Transaction t = group.remove(0);
         totalSize -= t.getSize();
         totalValue -= t.getValue();
         return t;
@@ -232,7 +235,7 @@ public class TransactionGroup implements ITxContainer {
         }
 
         ArrayList<Transaction> result = new ArrayList<>();
-        List<Transaction> sortedGroup = group.stream().sorted(comp).toList();
+        List<Transaction> sortedGroup = group.stream().sorted(comp).collect(Collectors.toList());
 
         int i = 0;
         float sum = 0;
