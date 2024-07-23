@@ -169,7 +169,7 @@ public class TransactionGroup implements ITxContainer {
     }
 
     /**
-     * See {@linkplain ITxContainer#contains(int)}.
+     * See {@linkplain ITxContainer#contains(long)}.
      */
     @Override
     public boolean contains(long txID) {
