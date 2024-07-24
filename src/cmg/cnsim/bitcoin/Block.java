@@ -6,6 +6,7 @@ import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionGroup;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * 
@@ -44,7 +45,7 @@ public class Block extends TransactionGroup implements Cloneable {
 	protected int height = 0;
 
 	
-	//The times the block was validated 
+	//The times the block was validated
 	private long simTime_validation = -1;
 	private long sysTime_validation = -1;
 	
@@ -306,4 +307,26 @@ public class Block extends TransactionGroup implements Cloneable {
 	protected Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        Block block = (Block) other;
+        return height == block.height
+                && simTime_validation == block.simTime_validation
+                && sysTime_validation == block.sysTime_validation
+                && validationNodeID == block.validationNodeID
+                && currentNodeID == block.currentNodeID
+                && Double.compare(validationDifficulty, block.validationDifficulty) == 0
+                && Double.compare(validationCycles, block.validationCycles) == 0
+                && Objects.equals(contx, block.contx)
+                && Objects.equals(parent, block.parent)
+                && Objects.equals(lastBlockEvent, block.lastBlockEvent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(contx, parent, height, simTime_validation, sysTime_validation, validationNodeID, currentNodeID, validationDifficulty, validationCycles, lastBlockEvent);
+    }
 }
