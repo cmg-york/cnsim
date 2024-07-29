@@ -111,7 +111,7 @@ public class Block extends TransactionGroup implements Cloneable {
      * @param cycles       The number of cycles (hashes) expended for the validation.
      */
     public void validateBlock(
-            ArrayList<Transaction> newTransList,
+            TransactionGroup newTransList,
             long simTime,
             long sysTime,
             int nodeID,
@@ -119,7 +119,7 @@ public class Block extends TransactionGroup implements Cloneable {
             double difficulty,
             double cycles
     ) {
-        super.updateTransactionGroup(newTransList);
+        super.updateTransactionGroup(newTransList.getGroup());
 //    	groupID = getID();
 
         simTime_validation = simTime;

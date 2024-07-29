@@ -2,6 +2,7 @@ package cmg.cnsim.bitcoin.test;
 
 import cmg.cnsim.bitcoin.Block;
 import cmg.cnsim.engine.transaction.Transaction;
+import cmg.cnsim.engine.transaction.TransactionGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -82,7 +83,7 @@ public class BlockTest {
         double cycles = 4.7;
 
         Block.Context previousContext = block.getContext();
-        block.validateBlock(newTransactions, simTime, sysTime, nodeID, eventType, difficulty, cycles);
+        block.validateBlock(new TransactionGroup(newTransactions), simTime, sysTime, nodeID, eventType, difficulty, cycles);
         Block.Context newContext = block.getContext();
 
         assertEquals(newTransactions, block.getGroup());
