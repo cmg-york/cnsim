@@ -13,6 +13,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit test class for {@link Block}.
+ */
 public class BlockTest {
 
     private ArrayList<Transaction> transactions;
@@ -28,6 +31,9 @@ public class BlockTest {
         block = new Block(transactions);
     }
 
+    /**
+     * Tests {@link Block#Block()}.
+     */
     @Test
     public void testBlockNoArgConstructor() {
         Block block1 = new Block();
@@ -38,6 +44,9 @@ public class BlockTest {
         assertEquals(block2.getID() + 1, block3.getID());
     }
 
+    /**
+     * Tests {@link Block#Block(ArrayList)}.
+     */
     @Test
     public void testBlockArgConstructor_id() {
         Block block1 = new Block(new ArrayList<>());
@@ -48,11 +57,17 @@ public class BlockTest {
         assertEquals(block2.getID() + 1, block3.getID());
     }
 
+    /**
+     * Tests {@link Block#Block(ArrayList)}.
+     */
     @Test
     public void testBlockArgConstructor_transactionList() {
         assertEquals(transactions, block.getGroup());
     }
 
+    /**
+     * Tests {@link Block#validateBlock}.
+     */
     @Test
     public void testValidateBlock() {
         ArrayList<Transaction> newTransactions = new ArrayList<>(Arrays.asList(
@@ -86,6 +101,9 @@ public class BlockTest {
         assertEquals(cycles, newContext.cycles);
     }
 
+    /**
+     * Tests {@code Block#clone}
+     */
     @Test
     public void testClone_emptyTransactions() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Block newBlock = new Block();
@@ -98,6 +116,9 @@ public class BlockTest {
         assertEquals(newBlock, clonedBlock);
     }
 
+    /**
+     * Tests {@code Block#clone}
+     */
     @Test
     public void testClone_nonEmptyTransactions() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method cloneMethod = Block.class.getDeclaredMethod("clone");
@@ -107,4 +128,5 @@ public class BlockTest {
         assertNotSame(block, clonedBlock);
         assertEquals(block, clonedBlock);
     }
+
 }
