@@ -6,6 +6,7 @@ sim.maxTransactions = 50000
 sim.reportingWindow = 100000
 sim.numofSim = 30
 sim.reporting.window = 100000
+sim.output.directory = ./log/
 
 #Network-specific parameters
 #

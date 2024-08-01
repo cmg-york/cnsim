@@ -13,53 +13,73 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-
 
 @TestMethodOrder(OrderAnnotation.class)
 public class SimulationConfigFactoryTest {
 
-    private File configFile;
-    private File workloadFile;
-    private File networkFile;
-    private File nodeFile;
+    private static final String TEST_RESOURCES_DIR = "test_resources";
+    private static final String CONFIG_NAME = "config.txt";
+    private static final String WORKLOAD_NAME = "workload.txt";
+    private static final String NETWORK_NAME = "network.txt";
+    private static final String NODE_NAME = "node.txt";
+
+    private Path testResourcesPath;
+    private Path configPath;
+    private Path workloadPath;
+    private Path networkPath;
+    private Path nodePath;
 
     @BeforeEach
     public void setUp() throws IOException {
-        // Create temporary files for testing
-        configFile = File.createTempFile("configTest", ".txt");
-        workloadFile = File.createTempFile("workload", ".txt");
-        networkFile = File.createTempFile("network", ".txt");
-        nodeFile = File.createTempFile("node", ".txt");
+        // Create test_resources directory in the project root
+        testResourcesPath = Paths.get(TEST_RESOURCES_DIR).toAbsolutePath();
+        Files.createDirectories(testResourcesPath);
 
-        // Write some content to the config file
-        try (FileWriter writer = new FileWriter(configFile)) {
-            writer.write("workload.sampler.file=" + workloadFile.getAbsolutePath() + "\n");
-            writer.write("net.sampler.file=" + networkFile.getAbsolutePath() + "\n");
-            writer.write("node.sampler.file=" + nodeFile.getAbsolutePath() + "\n");
+        // Set up file paths
+        configPath = testResourcesPath.resolve(CONFIG_NAME);
+        workloadPath = testResourcesPath.resolve(WORKLOAD_NAME);
+        networkPath = testResourcesPath.resolve(NETWORK_NAME);
+        nodePath = testResourcesPath.resolve(NODE_NAME);
+
+        // Create the config file with paths to other resources
+        try (FileWriter writer = new FileWriter(configPath.toFile())) {
+            writer.write("workload.sampler.file=" + workloadPath + "\n");
+            writer.write("net.sampler.file=" + networkPath + "\n");
+            writer.write("node.sampler.file=" + nodePath + "\n");
         }
+
+        // Create empty files for other resources
+        Files.createFile(workloadPath);
+        Files.createFile(networkPath);
+        Files.createFile(nodePath);
+
+        System.out.println("Test resources created at: " + testResourcesPath);
     }
 
     @AfterEach
-    public void tearDown() {
-        // Delete temporary files
-        configFile.delete();
-        workloadFile.delete();
-        networkFile.delete();
-        nodeFile.delete();
+    public void tearDown() throws IOException {
+        // Delete the created files and directory
+        Files.deleteIfExists(configPath);
+        Files.deleteIfExists(workloadPath);
+        Files.deleteIfExists(networkPath);
+        Files.deleteIfExists(nodePath);
+        Files.deleteIfExists(testResourcesPath);
     }
 
     @Test
     @Order(1)
     public void testCreateWithValidConfig() throws IOException {
-        String[] args = {"-c", configFile.getAbsolutePath()};
+        String[] args = {"-c", configPath.toString()};
         SimulationConfigFactory.create(args);
 
-        assertEquals(workloadFile.getAbsolutePath(), SimulationConfig.getPropertyString("workload.sampler.file"));
-        assertEquals(networkFile.getAbsolutePath(), SimulationConfig.getPropertyString("net.sampler.file"));
-        assertEquals(nodeFile.getAbsolutePath(), SimulationConfig.getPropertyString("node.sampler.file"));
+        assertEquals(workloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
+        assertEquals(networkPath.toString(), SimulationConfig.getPropertyString("net.sampler.file"));
+        assertEquals(nodePath.toString(), SimulationConfig.getPropertyString("node.sampler.file"));
 
         // Ensure these are not set
         assertNull(SimulationConfig.getPropertyString("node.sampler.seedUpdateTimes"));
@@ -68,42 +88,33 @@ public class SimulationConfigFactoryTest {
     @Test
     public void testCreateWithSwitchTimesAndNodeSeed() throws IOException {
         String[] args = {
-                "-c", configFile.getAbsolutePath(),
+                "-c", configPath.toString(),
                 "--ns", "{1,2,3}",
                 "--st", "{100,200,300}"
         };
         SimulationConfigFactory.create(args);
 
-        assertEquals(workloadFile.getAbsolutePath(), SimulationConfig.getPropertyString("workload.sampler.file"));
-        assertEquals(networkFile.getAbsolutePath(), SimulationConfig.getPropertyString("net.sampler.file"));
-        assertEquals(nodeFile.getAbsolutePath(), SimulationConfig.getPropertyString("node.sampler.file"));
+        assertEquals(workloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
+        assertEquals(networkPath.toString(), SimulationConfig.getPropertyString("net.sampler.file"));
+        assertEquals(nodePath.toString(), SimulationConfig.getPropertyString("node.sampler.file"));
         assertEquals("{1,2,3}", SimulationConfig.getPropertyString("node.sampler.seed"));
         assertEquals("{100,200,300}", SimulationConfig.getPropertyString("node.sampler.seedUpdateTimes"));
     }
 
-//    @Test
-//    public void testBuildWithNull() {
-//        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.create(null));
-//    }
-//    @Test
-//    public void testCreateWithNoArgs() {
-//        String[] args = {};
-//        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.create(args));
-//    }
-
     @Test
     public void testCreateWithMissingConfigFile() {
-        String[] args = {"-c", "non_existent_config.txt"};
+        String[] args = {"-c", testResourcesPath.resolve("non_existent_config.txt").toString()};
         assertThrows(IOException.class, () -> SimulationConfigFactory.create(args));
     }
 
     @Test
     public void testOverrideWithCommandLineArgs() throws IOException {
-        File newWorkloadFile = File.createTempFile("newWorkload", ".txt");
+        Path newWorkloadPath = testResourcesPath.resolve("newWorkload.txt");
+        Files.createFile(newWorkloadPath);
         try {
             String[] args = {
-                    "-c", configFile.getAbsolutePath(),
-                    "--wl", newWorkloadFile.getAbsolutePath(),
+                    "-c", configPath.toString(),
+                    "--wl", newWorkloadPath.toString(),
                     "--ws", "123",
                     "--ns", "{1,2}",
                     "--st", "{10,20}",
@@ -112,33 +123,33 @@ public class SimulationConfigFactoryTest {
 
             SimulationConfigFactory.create(args);
 
-            assertEquals(newWorkloadFile.getAbsolutePath(), SimulationConfig.getPropertyString("workload.sampler.file"));
+            assertEquals(newWorkloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
             assertEquals("123", SimulationConfig.getPropertyString("workload.sampler.seed"));
             assertEquals("{1,2}", SimulationConfig.getPropertyString("node.sampler.seed"));
             assertEquals("{10,20}", SimulationConfig.getPropertyString("node.sampler.seedUpdateTimes"));
             assertEquals("456", SimulationConfig.getPropertyString("net.sampler.seed"));
         } finally {
-            newWorkloadFile.delete();
+            Files.deleteIfExists(newWorkloadPath);
         }
     }
 
     @Test
-    public void testValidateConfigWithMissingFile() {
-        workloadFile.delete();
-        String[] args = {"-c", configFile.getAbsolutePath()};
+    public void testValidateConfigWithMissingFile() throws IOException {
+        Files.delete(workloadPath);
+        String[] args = {"-c", configPath.toString()};
         assertThrows(IOException.class, () -> SimulationConfigFactory.create(args));
     }
 
     @Test
     public void testValidateConfigWithSwitchTimesButNoNodeSeed() throws IOException {
-        try (FileWriter writer = new FileWriter(configFile)) {
-            writer.write("workload.sampler.file=" + workloadFile.getAbsolutePath() + "\n");
-            writer.write("net.sampler.file=" + networkFile.getAbsolutePath() + "\n");
-            writer.write("node.sampler.file=" + nodeFile.getAbsolutePath() + "\n");
+        try (FileWriter writer = new FileWriter(configPath.toFile())) {
+            writer.write("workload.sampler.file=" + workloadPath + "\n");
+            writer.write("net.sampler.file=" + networkPath + "\n");
+            writer.write("node.sampler.file=" + nodePath + "\n");
             writer.write("node.sampler.seedUpdateTimes={10,20}\n");
         }
 
-        String[] args = {"-c", configFile.getAbsolutePath()};
+        String[] args = {"-c", configPath.toString()};
         assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.create(args));
     }
 }
