@@ -41,6 +41,7 @@ public class Event_NewTransactionArrival extends Event {
         super.happen(sim);
         node.event_NodeReceivesClientTransaction(transaction, getTime());
         Reporter.addEvent(
+        		sim.getSimID(),
         		getEvtID(), 
         		getTime(), 
         		System.currentTimeMillis() - Simulation.sysStartTime, 
@@ -48,6 +49,7 @@ public class Event_NewTransactionArrival extends Event {
         		node.getID(), 
         		transaction.getID());
         Reporter.addTx(
+        		sim.getSimID(),
         		transaction.getID(), 
         		transaction.getSize(), 
         		transaction.getValue(),

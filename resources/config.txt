@@ -1,5 +1,6 @@
 # Simulation-wide parameters 
 #
+sim.numSimulations = 1
 sim.maxNodes = 20
 sim.maxTransactions = 50000
 sim.reportingWindow = 100000
@@ -10,6 +11,7 @@ sim.reporting.window = 100000
 #
 net.sampler.file = ./resources/net.csv
 net.sampler.seed = 123
+net.sampler.seed.addExpIDToSeed = true
 net.numOfNodes = 5
 #net.throughputMean = 2500000f
 net.throughputMean = 25000f
@@ -20,6 +22,7 @@ net.throughputSD = 20f
 #
 workload.sampler.file = ./resources/workload.csv
 #workload.sampler.seed = 321
+workload.sampler.seed.addExpIDToSeed = true
 #workload.lambda = 7f
 workload.lambda = 70f
 #workload.numTransactions = 25200
@@ -39,6 +42,7 @@ worlkoad.targetTransaction = 3
 #
 node.sampler.file = ./resources/nodelist.csv
 node.sampler.seed = {444,222}
+node.sampler.addExpIDToSeed = {0,1}
 node.sampler.seedUpdateTimes = {2500}
 node.createMaliciousNode = false
 node.maliciousHashPower = 900000f

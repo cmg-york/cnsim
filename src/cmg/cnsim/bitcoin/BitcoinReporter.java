@@ -22,10 +22,10 @@ public class BitcoinReporter extends Reporter {
 
 	
 	static {
-		blockLog.add("SimTime,SysTime,NodeID,"
+		blockLog.add("SimID, SimTime,SysTime,NodeID,"
 				+ "BlockID,ParentID,Height,BlockContent,"
 				+ "EvtType,Difficulty,Cycles");
-		structureLog.add("SimTime, SysTime, NodeID, BlockID, ParentBlockID, Height, Content, Place");
+		structureLog.add("SimID, SimTime, SysTime, NodeID, BlockID, ParentBlockID, Height, Content, Place");
 	}
 	
 	
@@ -62,12 +62,14 @@ public class BitcoinReporter extends Reporter {
 	 * @author Sotirios Liaskos
 	 */
 	public static void reportBlockEvent(
+			int simID,
 			long simTime, long sysTime, int nodeID,
 			int blockID, int parentID, int height, String txInvolved,
 			String blockEvt,
 			double difficulty, //Difficulty: the difficulty under which the block was validated.
 			double cycles) { //Cycles: the number of cycles dedicated to validate the block. 
-		blockLog.add(simTime + "," + 
+		blockLog.add(simID + "," +
+				simTime + "," + 
 				sysTime + "," +
 				nodeID + "," +
 				blockID + "," +

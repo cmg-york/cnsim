@@ -47,7 +47,7 @@ class HonestNodeTest {
         Config.init("./tests/BitcoinNode/HonestNodeTestConfig.txt");
         
         // Creating simulation object
-        s = new Simulation();
+        s = new Simulation(1);
 
         // Creating Sampler
         Sampler sampler = new Sampler();
@@ -137,8 +137,8 @@ class HonestNodeTest {
 		//Sending to node block with parent the previous block (-1)
 		n.event_NodeReceivesPropagatedContainer(newBlock(new long[]{6L, 7L, 8L, 9L, 10L}, 1L));
 		expected = new String[]{"BlockID,ParentID,BlockHeight,Transactions",
-								"1,-1,1,{1,2,3,4,5}",
-								"2,1,1,{6,7,8,9,10}"};
+				"2,1,2,{6,7,8,9,10}",				
+				"1,-1,1,{1,2,3,4,5}"};
 		assertArrayEquals(expected, n.getStructure().printStructure());
 
 		

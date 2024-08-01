@@ -98,6 +98,7 @@ public class Blockchain implements IStructure {
 
 				
 				BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
 	            		Simulation.currTime,
 	            		System.currentTimeMillis() - Simulation.sysStartTime,
 	            		b.getCurrentNodeID(),
@@ -125,6 +126,7 @@ public class Blockchain implements IStructure {
 //						b.getContext().cycles);
 
 				BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
 	            		Simulation.currTime,
 	            		System.currentTimeMillis() - Simulation.sysStartTime,
 	            		b.getCurrentNodeID(),
@@ -181,6 +183,7 @@ public class Blockchain implements IStructure {
 //						"Appended On Chain (parentless)", b.getContext().difficulty,b.getContext().cycles);
 
 				BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
 	            		Simulation.currTime,
 	            		System.currentTimeMillis() - Simulation.sysStartTime,
 	            		b.getCurrentNodeID(),
@@ -200,6 +203,7 @@ public class Blockchain implements IStructure {
 //						b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
 //						"Discarding due to chain overlap", b.getContext().difficulty,b.getContext().cycles);
 				BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
 	            		Simulation.currTime,
 	            		System.currentTimeMillis() - Simulation.sysStartTime,
 	            		b.getCurrentNodeID(),
@@ -296,6 +300,7 @@ public class Blockchain implements IStructure {
 //				"Added to Orphans", b.getContext().difficulty,b.getContext().cycles);
 
 		BitcoinReporter.reportBlockEvent(
+				Simulation.currentSimulationID,
         		Simulation.currTime,
         		System.currentTimeMillis() - Simulation.sysStartTime,
         		b.getCurrentNodeID(),
@@ -447,7 +452,7 @@ public class Blockchain implements IStructure {
 			// Check if any block in the blockchain overlaps with the current block
 			// TODO: this must be fixed
 			if (block.overlapsWith(current)) found1 = true;
-			if (block.overlapsWithbyObj(current)) found2 = true;
+			if (block.overlapsWithByObj(current)) found2 = true;
 
 				// Assert to ensure consistency between overlapsWith and overlapsWithbyObj methods
 			assert(!(found1 ^ found2));
@@ -511,7 +516,7 @@ public class Blockchain implements IStructure {
 				par = "" + -1;
 			}
 			//SimTime, SysTime, NodeID, BlockID, ParentID, Height, Content, Place
-			s = Simulation.currTime + "," + realTime + "," +  nodeID + "," +  b.getID() + "," + par + "," + b.getHeight() + "," + b.printIDs(";") + ", blockchain";
+			s = Simulation.currentSimulationID + "," + Simulation.currTime + "," + realTime + "," +  nodeID + "," +  b.getID() + "," + par + "," + b.getHeight() + "," + b.printIDs(";") + ", blockchain";
 			result.add(s);
 		}
 		return (result.toArray(new String[result.size()]));
@@ -543,7 +548,7 @@ public class Blockchain implements IStructure {
 		Long realTime = System.currentTimeMillis() - Simulation.sysStartTime;
 		for (Block b: orphans) {
 			//SimTime, SysTime, NodeID, BlockID, ParentID, Height, Content, Place
-			s = Simulation.currTime + "," + realTime + "," + nodeID + "," +  b.getID() + "," + b.getParent().getID() + ",-1," + b.printIDs(";") + ", orphans";
+			s = Simulation.currentSimulationID + "," + Simulation.currTime + "," + realTime + "," + nodeID + "," +  b.getID() + "," + b.getParent().getID() + ",-1," + b.printIDs(";") + ", orphans";
 			result.add(s);
 		}
 		return (result.toArray(new String[result.size()]));

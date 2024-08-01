@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import cmg.cnsim.engine.Debug;
 import cmg.cnsim.engine.Reporter;
+import cmg.cnsim.engine.Simulation;
 
 /**
  * Represents a set of nodes participating in a network
@@ -114,7 +115,7 @@ public class NodeSet {
 	public void closeNodes() {
 		for (INode n:this.getNodes()) {
 			n.close(n);
-			Reporter.addNode(n.getID(), n.getHashPower(), n.getElectricPower(), n.getElectricityCost(), n.getTotalCycles());
+			Reporter.addNode(Simulation.currentSimulationID, n.getID(), n.getHashPower(), n.getElectricPower(), n.getElectricityCost(), n.getTotalCycles());
 		}
 	}
 	

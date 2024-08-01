@@ -43,6 +43,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
 
     private void startAttack(Block b) {
         BitcoinReporter.reportBlockEvent(
+				Simulation.currentSimulationID,
         		Simulation.currTime,
         		System.currentTimeMillis() - Simulation.sysStartTime,
         		b.getCurrentNodeID(),
@@ -70,6 +71,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         b.setValidationDifficulty(-1.0);
      
         BitcoinReporter.reportBlockEvent(
+				Simulation.currentSimulationID,
         		Simulation.currTime,
         		System.currentTimeMillis() - Simulation.sysStartTime,
         		b.getCurrentNodeID(),
@@ -89,6 +91,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 startAttack(b);
             } else {
                 BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
                 		Simulation.currTime,
                 		System.currentTimeMillis() - Simulation.sysStartTime,
                 		b.getCurrentNodeID(),
@@ -108,6 +111,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             } else {
                 //Discard the block and report the event.
                 BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
                 		Simulation.currTime,
                 		System.currentTimeMillis() - Simulation.sysStartTime,
                 		b.getCurrentNodeID(),
@@ -128,6 +132,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             } else {
             	//reportBlockEvent(b, "Propagated Block Discarded");
                 BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
                 		Simulation.currTime,
                 		System.currentTimeMillis() - Simulation.sysStartTime,
                 		b.getCurrentNodeID(),
@@ -159,6 +164,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             node.completeValidation(node.miningPool, time);
 
             BitcoinReporter.reportBlockEvent(
+					Simulation.currentSimulationID,
             		newBlock.getSimTime_validation(),
             		newBlock.getSysTime_validation() - Simulation.sysStartTime,
             		newBlock.getValidationNodeID(),
@@ -173,6 +179,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             if (!node.blockchain.contains(newBlock)) {
                 //reportBlockEvent(newBlock, newBlock.getContext().blockEvt);
                 BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
                 		newBlock.getSimTime_validation(),
                 		newBlock.getSysTime_validation() - Simulation.sysStartTime,
                 		newBlock.getValidationNodeID(),
@@ -188,6 +195,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 //System.out.println(node.getID()+ " contains " + newBlock.getID() + " in its blockchain in completes validation");
                 //reportBlockEvent(newBlock, "Discarding own Block (ERROR)");
                 BitcoinReporter.reportBlockEvent(
+						Simulation.currentSimulationID,
                 		newBlock.getSimTime_validation(),
                 		newBlock.getSysTime_validation() - Simulation.sysStartTime,
                 		newBlock.getValidationNodeID(),
@@ -219,6 +227,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                     //Report validation
                     //reportBlockEvent(b, b.getContext().blockEvt);
                     BitcoinReporter.reportBlockEvent(
+    						Simulation.currentSimulationID,
                     		b.getSimTime_validation(),
                     		b.getSysTime_validation() - Simulation.sysStartTime,
                     		b.getValidationNodeID(),
@@ -240,6 +249,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                     node.considerMining(Simulation.currTime);
                 } else {
                     BitcoinReporter.reportBlockEvent(
+    						Simulation.currentSimulationID,
                     		b.getSimTime_validation(),
                     		b.getSysTime_validation() - Simulation.sysStartTime,
                     		b.getValidationNodeID(),
@@ -262,6 +272,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 if (!node.blockchain.contains(b)){
                     //reportBlockEvent(b, b.getContext().blockEvt);
                     BitcoinReporter.reportBlockEvent(
+    						Simulation.currentSimulationID,
                     		b.getSimTime_validation(),
                     		b.getSysTime_validation() - Simulation.sysStartTime,
                     		b.getValidationNodeID(),
@@ -284,6 +295,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
                 } else {
                     //reportBlockEvent(b, "Discarding own Block (ERROR)");
                     BitcoinReporter.reportBlockEvent(
+    						Simulation.currentSimulationID,
                     		b.getSimTime_validation(),
                     		b.getSysTime_validation() - Simulation.sysStartTime,
                     		b.getValidationNodeID(),
@@ -312,7 +324,8 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     }
 
     private void reportBlockEvent(Block b, String blockEvt) {
-        BitcoinReporter.reportBlockEvent(b.getContext().simTime, b.getContext().sysTime  - Simulation.sysStartTime, b.getContext().nodeID,
+        BitcoinReporter.reportBlockEvent(
+				Simulation.currentSimulationID,b.getContext().simTime, b.getContext().sysTime  - Simulation.sysStartTime, b.getContext().nodeID,
                 b.getID(),((b.getParent() == null) ? -1 : b.getParent().getID()),b.getHeight(),b.printIDs(";"),
                 blockEvt, b.getContext().difficulty,b.getContext().cycles);
     }
@@ -367,6 +380,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
         publicChainGrowthSinceAttack = node.blockchain.getLongestTip().height - blockchainSizeAtAttackStart;
         if (shouldRevealHiddenChain()) {
             BitcoinReporter.reportBlockEvent(
+					Simulation.currentSimulationID,
             		Simulation.currTime,
             		System.currentTimeMillis() - Simulation.sysStartTime,
             		b.getCurrentNodeID(),

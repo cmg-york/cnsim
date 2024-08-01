@@ -45,6 +45,7 @@ public class Event_ContainerValidation extends Event {
         	status = "_Abandonded";
         }
         Reporter.addEvent(
+        		sim.getSimID(),
         		getEvtID(), 
         		getTime(), 
         		System.currentTimeMillis() - Simulation.sysStartTime, 
