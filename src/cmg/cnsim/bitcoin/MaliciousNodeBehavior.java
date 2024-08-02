@@ -153,7 +153,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
         if (isAttackInProgress) {
             Block newBlock = (Block) t;
-            newBlock.validateBlock(node.miningPool.getGroup(), 
+            newBlock.validateBlock(node.miningPool,
             		Simulation.currTime, 
             		System.currentTimeMillis()- Simulation.sysStartTime, 
             		node.getID(), 
@@ -210,7 +210,7 @@ public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
             checkAndRevealHiddenChain(newBlock);
         } else { //Attack not in progress
             Block b = (Block) t;
-            b.validateBlock(node.miningPool.getGroup(), 
+            b.validateBlock(node.miningPool,
             		Simulation.currTime, 
             		System.currentTimeMillis() - Simulation.sysStartTime, 
             		node.getID(), 

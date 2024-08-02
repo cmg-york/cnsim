@@ -83,7 +83,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
     public void event_NodeCompletesValidation(ITxContainer t, long time) {
         Block b = (Block) t;
         //Add validation information to the block.
-        b.validateBlock(node.miningPool.getGroup(),
+        b.validateBlock(node.miningPool,
                 Simulation.currTime,
                 System.currentTimeMillis() - Simulation.sysStartTime,
                 node.getID(),
