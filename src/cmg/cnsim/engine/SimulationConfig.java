@@ -1,8 +1,11 @@
 package cmg.cnsim.engine;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Holds the configuration settings for the CNSim simulator.
@@ -109,10 +112,15 @@ public class SimulationConfig {
         if (value == null) {
             return null;
         }
-        return java.util.Arrays.stream(value.replaceAll("[{}]", "").split(","))
+        value = value.replaceAll("[{}]", "").trim();
+        if (value.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list for "{}"
+        }
+        return Arrays.stream(value.split(","))
                 .map(String::trim)
+                .filter(s -> !s.isEmpty()) // Skip empty strings
                 .map(Long::parseLong)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     /**
@@ -158,6 +166,6 @@ public class SimulationConfig {
      * @return The output directory path.
      */
     public static String getOutputDirectory() {
-        return getPropertyString("output.directory");
+        return getPropertyString("sim.output.directory");
     }
 }

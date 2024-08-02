@@ -2,6 +2,8 @@ package cmg.cnsim.engine;
 
 import cmg.cnsim.engine.commandline.CommandLineParser;
 
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.io.IOException;
 import java.io.File;
@@ -74,18 +76,82 @@ public class SimulationConfigFactory {
         if (switchTimes != null && !switchTimes.isEmpty() && (nodeSeed == null || nodeSeed.isEmpty())) {
             throw new IllegalArgumentException("Switch times given but no seed list to switch around.");
         }
+
+        // Validate and adjust output directory
+        String outputDir = properties.getProperty("sim.output.directory");
+        if (outputDir == null || outputDir.isEmpty()) {
+            outputDir = "./log/";  // Default if not specified
+        }
+
+        // Ensure the output directory ends with a separator
+        if (!outputDir.endsWith(File.separator)) {
+            outputDir += File.separator;
+        }
+
+        // Validate the output directory name
+        if (!isValidDirectoryName(outputDir)) {
+            throw new IllegalArgumentException("Invalid output directory name: " + outputDir);
+        }
+
+        // Update the property with the validated and adjusted output directory
+        properties.setProperty("sim.output.directory", outputDir);
     }
 
-    /**
-     * Validates that a file exists at the given path.
-     *
-     * @param filePath The path to check.
-     * @param fileDescription A description of the file for error messages.
-     * @throws IOException If the file does not exist.
-     */
+    private static boolean isValidDirectoryName(String dirPath) {
+        try {
+            Paths.get(dirPath);
+            return true;
+        } catch (InvalidPathException | NullPointerException ex) {
+            return false;
+        }
+    }
+
     private static void validateFileExists(String filePath, String fileDescription) throws IOException {
-        if (filePath != null && !new File(filePath).exists()) {
-            throw new IOException(fileDescription + " does not exist: " + filePath);
+        if (filePath == null || filePath.trim().isEmpty()) {
+            throw new IllegalArgumentException(fileDescription + " path is null or empty");
+        }
+
+        try {
+            File file = new File(filePath);
+            String currentDir = new File(".").getCanonicalPath();
+
+            // Remove "./" prefix if present
+            if (filePath.startsWith("./")) {
+                filePath = filePath.substring(2);
+            }
+
+            // If it's a relative path, try different resolutions
+            if (!file.isAbsolute()) {
+                // Try resolving against current directory
+                file = new File(currentDir, filePath);
+
+                // If not found, try with "cnsim/" prefix
+                if (!file.exists()) {
+                    file = new File(currentDir, "cnsim/" + filePath);
+                }
+
+                // If still not found, try with "cnsim/resources/" prefix
+                if (!file.exists()) {
+                    file = new File(currentDir, "cnsim/resources/" + filePath);
+                }
+            }
+
+            file = file.getCanonicalFile();
+            System.out.println("Resolved " + fileDescription + " path: " + file.getAbsolutePath());
+
+            if (!file.exists()) {
+                throw new IOException(fileDescription + " does not exist: " + file.getAbsolutePath());
+            }
+
+            if (!file.isFile()) {
+                throw new IOException(fileDescription + " is not a file: " + file.getAbsolutePath());
+            }
+
+            if (!file.canRead()) {
+                throw new IOException(fileDescription + " is not readable: " + file.getAbsolutePath());
+            }
+        } catch (SecurityException e) {
+            throw new IOException("Security manager denied access to " + fileDescription + ": " + filePath, e);
         }
     }
 }

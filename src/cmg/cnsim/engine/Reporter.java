@@ -35,6 +35,8 @@ public class Reporter {
 	protected static String root = "./log/";
 
 	static {
+		root = SimulationConfig.getOutputDirectory();
+
 		//ID the run
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH.mm.ss");  
 		LocalDateTime now = LocalDateTime.now();
