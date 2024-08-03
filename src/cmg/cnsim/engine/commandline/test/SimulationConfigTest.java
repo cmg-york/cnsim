@@ -11,11 +11,10 @@ import java.util.List;
 
 public class SimulationConfigTest {
 
-    private Properties properties;
+    private Properties properties = new Properties();;
 
     @BeforeEach
     public void setUp() {
-        properties = new Properties();
         properties.setProperty("test.string", "value");
         properties.setProperty("test.int", "42");
         properties.setProperty("test.long", "1234567890");
