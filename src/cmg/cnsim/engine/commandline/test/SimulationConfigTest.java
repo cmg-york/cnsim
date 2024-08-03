@@ -1,6 +1,7 @@
 package cmg.cnsim.engine.commandline.test;
 
 import cmg.cnsim.engine.SimulationConfig;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,7 +11,6 @@ import java.util.List;
 
 public class SimulationConfigTest {
 
-    private SimulationConfig config;
     private Properties properties;
 
     @BeforeEach
@@ -26,77 +26,88 @@ public class SimulationConfigTest {
         SimulationConfig.initProperties(properties);
     }
 
+    @AfterEach
+    public void tearDown(){
+        properties.clear();
+    }
     @Test
     public void testGetString() {
-        assertEquals("value", config.getPropertyString("test.string"));
-        assertNull(config.getPropertyString("non.existent.key"));
+        assertEquals("value", SimulationConfig.getPropertyString("test.string"));
+        assertNull(SimulationConfig.getPropertyString("non.existent.key"));
     }
 
     @Test
     public void testGetInt() {
-        assertEquals(42, config.getPropertyInt("test.int"));
+        assertEquals(42, SimulationConfig.getPropertyInt("test.int"));
     }
 
     @Test
     public void testGetLong() {
-        assertEquals(1234567890L, config.getPropertyLong("test.long"));
+        assertEquals(1234567890L, SimulationConfig.getPropertyLong("test.long"));
     }
 
     @Test
     public void testGetFloat() {
-        assertEquals(3.14f, config.getPropertyFloat("test.float"), 0.001);
+        assertEquals(3.14f, SimulationConfig.getPropertyFloat("test.float"), 0.001);
     }
 
     @Test
     public void testGetBoolean() {
-        assertTrue(config.getPropertyBoolean("test.boolean"));
+        assertTrue(SimulationConfig.getPropertyBoolean("test.boolean"));
     }
 
     @Test
     public void testGetLongList() {
         List<Long> expected = List.of(1L, 2L, 3L, 4L, 5L);
-        assertEquals(expected, config.getPropertyLongList("test.longlist"));
+        assertEquals(expected, SimulationConfig.getPropertyLongList("test.longlist"));
     }
 
     @Test
     public void testHasProperty() {
-        assertTrue(config.hasProperty("test.string"));
-        assertFalse(config.hasProperty("non.existent.key"));
+        assertTrue(SimulationConfig.hasProperty("test.string"));
+        assertFalse(SimulationConfig.hasProperty("non.existent.key"));
     }
 
     @Test
     public void testGetIntWithInvalidValue() {
         properties.setProperty("test.invalid.int", "not an integer");
-        assertThrows(NumberFormatException.class, () -> config.getPropertyInt("test.invalid.int"));
+        SimulationConfig.initProperties(properties);
+        assertThrows(NumberFormatException.class, () -> SimulationConfig.getPropertyInt("test.invalid.int"));
     }
 
     @Test
     public void testGetLongWithInvalidValue() {
         properties.setProperty("test.invalid.long", "not a long");
-        assertThrows(NumberFormatException.class, () -> config.getPropertyLong("test.invalid.long"));
+        SimulationConfig.initProperties(properties);
+        assertThrows(NumberFormatException.class, () -> SimulationConfig.getPropertyLong("test.invalid.long"));
     }
 
     @Test
     public void testGetFloatWithInvalidValue() {
         properties.setProperty("test.invalid.float", "not a float");
-        assertThrows(NumberFormatException.class, () -> config.getPropertyFloat("test.invalid.float"));
+        SimulationConfig.initProperties(properties);
+
+        assertThrows(NumberFormatException.class, () -> SimulationConfig.getPropertyFloat("test.invalid.float"));
     }
 
     @Test
     public void testGetBooleanWithInvalidValue() {
         properties.setProperty("test.invalid.boolean", "not a boolean");
-        assertFalse(config.getPropertyBoolean("test.invalid.boolean"));
+        SimulationConfig.initProperties(properties);
+        assertFalse(SimulationConfig.getPropertyBoolean("test.invalid.boolean"));
     }
 
     @Test
     public void testGetLongListWithInvalidValue() {
         properties.setProperty("test.invalid.longlist", "not a long list");
-        assertThrows(NumberFormatException.class, () -> config.getPropertyLongList("test.invalid.longlist"));
+        SimulationConfig.initProperties(properties);
+        assertThrows(NumberFormatException.class, () -> SimulationConfig.getPropertyLongList("test.invalid.longlist"));
     }
 
     @Test
     public void testGetLongListWithEmptyList() {
         properties.setProperty("test.empty.longlist", "{}");
-        assertTrue(config.getPropertyLongList("test.empty.longlist").isEmpty());
+        SimulationConfig.initProperties(properties);
+        assertTrue(SimulationConfig.getPropertyLongList("test.empty.longlist").isEmpty());
     }
 }

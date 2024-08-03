@@ -40,10 +40,10 @@ public class SimulationConfigFactory {
         if (configFile == null) {
             throw new IllegalArgumentException("Config file is required");
         }
-        validateFileExists(configFile, "Config file");
+        String resolvedConfigFile = validateFileExists(configFile, "Config file");
 
         // Load config file
-        Config.init(configFile);
+        Config.init(resolvedConfigFile);
 
         // Create properties with config file values
         Properties properties = new Properties();
@@ -67,35 +67,57 @@ public class SimulationConfigFactory {
      * @throws IllegalArgumentException If the configuration is invalid.
      */
     private static void validateConfig(Properties properties) throws IOException {
-        validateFileExists(properties.getProperty("workload.sampler.file"), "Workload file");
-        validateFileExists(properties.getProperty("net.sampler.file"), "Network file");
-        validateFileExists(properties.getProperty("node.sampler.file"), "Node file");
+        // Validate file paths and resolve them if relative
+        String resolvedWorkloadFile = validateFileExists(properties, "workload.sampler.file", "Workload file");
+        properties.setProperty("workload.sampler.file", resolvedWorkloadFile);
 
-        String switchTimes = properties.getProperty("node.sampler.seedUpdateTimes");
-        String nodeSeed = properties.getProperty("node.sampler.seed");
+        String resolvedNetworkFile = validateFileExists(properties, "net.sampler.file", "Network file");
+        properties.setProperty("net.sampler.file", resolvedNetworkFile);
 
-        if (switchTimes != null && !switchTimes.isEmpty() && (nodeSeed == null || nodeSeed.isEmpty())) {
-            throw new IllegalArgumentException("Switch times given but no seed list to switch around.");
-        }
+        String resolvedNodeFile = validateFileExists(properties, "node.sampler.file", "Node file");
+        properties.setProperty("node.sampler.file", resolvedNodeFile);
+
+
+
+
+        // Validate dependency between switch times and seed list
+        validatePropertyDependency(properties, "node.sampler.seedUpdateTimes", "node.sampler.seed",
+                "Switch times given but no seed list to switch around.");
+
+
+
 
         // Validate and adjust output directory
-        String outputDir = properties.getProperty("sim.output.directory");
-        if (outputDir == null || outputDir.isEmpty()) {
-            outputDir = "./log/";  // Default if not specified
-        }
-
-        // Ensure the output directory ends with a separator
-        if (!outputDir.endsWith(File.separator)) {
-            outputDir += File.separator;
-        }
-
-        // Validate the output directory name
-        if (!isValidDirectoryName(outputDir)) {
-            throw new IllegalArgumentException("Invalid output directory name: " + outputDir);
-        }
-
-        // Update the property with the validated and adjusted output directory
+        String outputDir = validateDirectory(properties,"sim.output.directory", "./log/");
         properties.setProperty("sim.output.directory", outputDir);
+    }
+
+    private static String validateDirectory(Properties properties, String key, String defaultPath) {
+        String dir = properties.getProperty(key);
+        if (dir == null || dir.isEmpty()) {
+            dir = defaultPath;  // Default if not specified
+        }
+
+        // Ensure the directory ends with a separator
+        if (!dir.endsWith(File.separator)) {
+            dir += File.separator;
+        }
+
+        // Validate the directory name
+        if (!isValidDirectoryName(dir)) {
+            throw new IllegalArgumentException("Invalid directory name: " + dir);
+        }
+
+        return dir;
+    }
+
+    private static void validatePropertyDependency(Properties properties, String key1, String key2, String errorMessage) {
+        String value1 = properties.getProperty(key1);
+        String value2 = properties.getProperty(key2);
+
+        if ((value1 != null && !value1.isEmpty()) && (value2 == null || value2.isEmpty())) {
+            throw new IllegalArgumentException(errorMessage);
+        }
     }
 
     private static boolean isValidDirectoryName(String dirPath) {
@@ -107,7 +129,12 @@ public class SimulationConfigFactory {
         }
     }
 
-    private static void validateFileExists(String filePath, String fileDescription) throws IOException {
+    private static String validateFileExists(Properties properties, String key, String fileDescription) throws IOException {
+        String filePath = properties.getProperty(key);
+        return validateFileExists(filePath, fileDescription);
+    }
+
+    private static String validateFileExists(String filePath, String fileDescription) throws IOException {
         if (filePath == null || filePath.trim().isEmpty()) {
             throw new IllegalArgumentException(fileDescription + " path is null or empty");
         }
@@ -138,19 +165,24 @@ public class SimulationConfigFactory {
             }
 
             file = file.getCanonicalFile();
-            System.out.println("Resolved " + fileDescription + " path: " + file.getAbsolutePath());
+            String resolvedPath = file.getAbsolutePath();
+            System.out.println("Resolved " + fileDescription + " path: " + resolvedPath);
 
             if (!file.exists()) {
-                throw new IOException(fileDescription + " does not exist: " + file.getAbsolutePath());
+                throw new IOException(fileDescription + " does not exist: " + resolvedPath);
             }
 
             if (!file.isFile()) {
-                throw new IOException(fileDescription + " is not a file: " + file.getAbsolutePath());
+                throw new IOException(fileDescription + " is not a file: " + resolvedPath);
             }
 
             if (!file.canRead()) {
-                throw new IOException(fileDescription + " is not readable: " + file.getAbsolutePath());
+                throw new IOException(fileDescription + " is not readable: " + resolvedPath);
             }
+
+            // Return the resolved path
+            return resolvedPath;
+
         } catch (SecurityException e) {
             throw new IOException("Security manager denied access to " + fileDescription + ": " + filePath, e);
         }
