@@ -22,7 +22,7 @@ import java.io.File;
 public class SimulationConfigFactory {
 
     /**
-     * Creates a SimulationConfig object based on the provided command line arguments and config file.
+     * Initialize SimulationConfig with properties based on the provided command line arguments and config file.
      *
      * @param args The command line arguments.
      * @throws IOException If there's an error reading the config file or if required files are missing.
@@ -68,31 +68,41 @@ public class SimulationConfigFactory {
      */
     private static void validateConfig(Properties properties) throws IOException {
         // Validate file paths and resolve them if relative
-        String resolvedWorkloadFile = validateFileExists(properties, "workload.sampler.file", "Workload file");
-        properties.setProperty("workload.sampler.file", resolvedWorkloadFile);
-
-        String resolvedNetworkFile = validateFileExists(properties, "net.sampler.file", "Network file");
-        properties.setProperty("net.sampler.file", resolvedNetworkFile);
-
-        String resolvedNodeFile = validateFileExists(properties, "node.sampler.file", "Node file");
-        properties.setProperty("node.sampler.file", resolvedNodeFile);
-
-
-
+        validateFileExists(properties, "workload.sampler.file", "Workload file");
+        validateFileExists(properties, "net.sampler.file", "Network file");
+        validateFileExists(properties, "node.sampler.file", "Node file");
 
         // Validate dependency between switch times and seed list
         validatePropertyDependency(properties, "node.sampler.seedUpdateTimes", "node.sampler.seed",
                 "Switch times given but no seed list to switch around.");
 
-
-
-
         // Validate and adjust output directory
-        String outputDir = validateDirectory(properties,"sim.output.directory", "./log/");
-        properties.setProperty("sim.output.directory", outputDir);
+        validateDirectory(properties, "sim.output.directory", "./log/");
+
+        // Validate sim.numSimulations
+        validateIntProperty(properties, "sim.numSimulations", 1, 1);
     }
 
-    private static String validateDirectory(Properties properties, String key, String defaultPath) {
+    private static void validateIntProperty(Properties properties, String key, int defaultValue, int minValue) {
+        String value = properties.getProperty(key);
+        int result;
+
+        if (value == null || value.trim().isEmpty()) {
+            result = defaultValue;
+        } else {
+            try {
+                result = Integer.parseInt(value.trim());
+                if (result < minValue) {
+                    throw new IllegalArgumentException(key + " must be at least " + minValue + ", but was " + result);
+                }
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(key + " must be a valid integer, but was '" + value + "'");
+            }
+        }
+        properties.setProperty(key, Long.toString(result));
+    }
+
+    private static void validateDirectory(Properties properties, String key, String defaultPath) {
         String dir = properties.getProperty(key);
         if (dir == null || dir.isEmpty()) {
             dir = defaultPath;  // Default if not specified
@@ -108,7 +118,7 @@ public class SimulationConfigFactory {
             throw new IllegalArgumentException("Invalid directory name: " + dir);
         }
 
-        return dir;
+        properties.setProperty(key, dir);
     }
 
     private static void validatePropertyDependency(Properties properties, String key1, String key2, String errorMessage) {
@@ -129,12 +139,15 @@ public class SimulationConfigFactory {
         }
     }
 
-    private static String validateFileExists(Properties properties, String key, String fileDescription) throws IOException {
-        String filePath = properties.getProperty(key);
-        return validateFileExists(filePath, fileDescription);
+    private static String validateFileExists(String filePath, String fileDescription) throws IOException {
+        return validateFileExistsInternal(null, null, filePath, fileDescription);
     }
 
-    private static String validateFileExists(String filePath, String fileDescription) throws IOException {
+    private static void validateFileExists(Properties properties, String key, String fileDescription) throws IOException {
+        validateFileExistsInternal(properties, key, properties.getProperty(key), fileDescription);
+    }
+
+    private static String validateFileExistsInternal(Properties properties, String key, String filePath, String fileDescription) throws IOException {
         if (filePath == null || filePath.trim().isEmpty()) {
             throw new IllegalArgumentException(fileDescription + " path is null or empty");
         }
@@ -178,6 +191,11 @@ public class SimulationConfigFactory {
 
             if (!file.canRead()) {
                 throw new IOException(fileDescription + " is not readable: " + resolvedPath);
+            }
+
+            // Update the property with the resolved path if properties and key are provided
+            if (properties != null && key != null) {
+                properties.setProperty(key, resolvedPath);
             }
 
             // Return the resolved path
