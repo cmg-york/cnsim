@@ -31,19 +31,37 @@ public class BitcoinMainDriver {
         //print current directory
         System.out.println("Current directory: " + System.getProperty("user.dir"));
 
-        
+
         // Initialize SimulationConfig
         SimulationConfig.initialize(args);
 
+        // Get the number of simulations to run
+        int numSimulations = SimulationConfig.getPropertyInt("sim.numSimulations");
+
+
         // SIM SCOPE STARTS HERE
-                
+        for (int simID = 1; simID <= numSimulations; simID++) {
+            runSingleSimulation(simID);
+        }
+        // SIM SCOPE ENDS HERE
+
+        BitcoinReporter.flushBlockReport();
+        BitcoinReporter.flushStructReport();
+        BitcoinReporter.flushEvtReport();
+        BitcoinReporter.flushNodeReport();
+        BitcoinReporter.flushInputReport();
+        BitcoinReporter.flushNetworkReport();
+        BitcoinReporter.flushConfig();
+    }
+
+    private void runSingleSimulation(int simID) {
         //
         //
         // Creating simulation object
         //
         //
 
-        Simulation s = new Simulation(1);
+        Simulation s = new Simulation(simID);
 
         //
         //
@@ -207,20 +225,6 @@ public class BitcoinMainDriver {
 
         s.getNodeSet().closeNodes();
 
-        
-        // SIM SCOPE ENDS HERE
-        
-        BitcoinReporter.flushBlockReport();
-        BitcoinReporter.flushStructReport();
-        BitcoinReporter.flushEvtReport();
-        BitcoinReporter.flushNodeReport();
-        BitcoinReporter.flushInputReport();
-        BitcoinReporter.flushNetworkReport();
-        BitcoinReporter.flushConfig();
-        
-        
-        
-        
     }
 
 

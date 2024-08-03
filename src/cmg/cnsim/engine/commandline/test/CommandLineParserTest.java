@@ -30,7 +30,7 @@ class CommandLineParserTest {
         assertEquals("workload.txt", properties.getProperty("workload.sampler.file"));
         assertEquals("network.txt", properties.getProperty("net.sampler.file"));
         assertEquals("node.txt", properties.getProperty("node.sampler.file"));
-        assertEquals("output/", properties.getProperty("output.directory"));
+        assertEquals("output/", properties.getProperty("sim.output.directory"));
     }
 
     @Test
@@ -100,7 +100,7 @@ class CommandLineParserTest {
         assertEquals("workload.txt", properties.getProperty("workload.sampler.file"));
         assertEquals("network.txt", properties.getProperty("net.sampler.file"));
         assertEquals("node.txt", properties.getProperty("node.sampler.file"));
-        assertEquals("output/", properties.getProperty("output.directory"));
+        assertEquals("output/", properties.getProperty("sim.output.directory"));
         assertEquals("123456", properties.getProperty("workload.sampler.seed"));
         assertEquals("{1,2,3}", properties.getProperty("node.sampler.seed"));
         assertEquals("{100,200,300}", properties.getProperty("node.sampler.seedUpdateTimes"));
@@ -123,7 +123,7 @@ class CommandLineParserTest {
         assertEquals("workload.txt", properties.getProperty("workload.sampler.file"));
         assertEquals("network.txt", properties.getProperty("net.sampler.file"));
         assertEquals("node.txt", properties.getProperty("node.sampler.file"));
-        assertEquals("output/", properties.getProperty("output.directory"));
+        assertEquals("output/", properties.getProperty("sim.output.directory"));
     }
 
     @Test
