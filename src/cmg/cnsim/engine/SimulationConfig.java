@@ -45,7 +45,8 @@ public class SimulationConfig {
      * @param props The properties containing the configuration settings.
      */
     public static void initProperties(Properties props) {
-        properties = props;
+        properties = new Properties();
+        properties.putAll(props);
     }
 
     /**

@@ -46,7 +46,8 @@ public class SimulationConfigFactory {
         Config.init(configFile);
 
         // Create properties with config file values
-        Properties properties = new Properties(Config.prop);
+        Properties properties = new Properties();
+        properties.putAll(Config.prop);
 
         // Override with command line arguments
         properties.putAll(commandLineProperties);

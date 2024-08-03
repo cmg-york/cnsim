@@ -8,6 +8,7 @@ import java.util.*;
  * <p>
  * This class handles parsing of command line arguments, including:
  * - Config file path (required)
+ * - Number of simulations
  * - Workload file path
  * - Network file path
  * - Node file path
@@ -30,6 +31,14 @@ public final class CommandLineParser {
             aliases = {"-c", "--config"}
     )
     private String configFile;
+
+    @CommandLineOption(
+            key = "sim.numSimulations",
+            description = "Number of simulations (Default 1)",
+            argument = "<long>",
+            aliases = {"-m", "--sims"}
+    )
+    private Long numSimulations;
 
     @CommandLineOption(
             key = "workload.sampler.file",
