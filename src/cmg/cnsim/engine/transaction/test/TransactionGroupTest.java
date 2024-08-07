@@ -167,7 +167,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testRemoveTransaction_nonExistingTransaction() {
-        ArrayList<Transaction> groupBefore = pool.getGroup();
+        List<Transaction> groupBefore = pool.getGroup();
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
 

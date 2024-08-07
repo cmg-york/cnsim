@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class TransactionGroup implements ITxContainer {
 
-    private ArrayList<Transaction> group;
+    private List<Transaction> group;
     protected int groupID;
     protected float totalValue;
     protected float totalSize;
@@ -33,7 +33,7 @@ public class TransactionGroup implements ITxContainer {
      *
      * @param initial An already created ArrayList of transactions
      */
-    public TransactionGroup(ArrayList<Transaction> initial) {
+    public TransactionGroup(List<Transaction> initial) {
         group = initial;
         for (Transaction t : initial) {
             totalValue += t.getValue();
@@ -101,7 +101,7 @@ public class TransactionGroup implements ITxContainer {
      *
      * @param initial An array list of <tt>Transaction</tt> objects, to replace the existing one.
      */
-    public void updateTransactionGroup(ArrayList<Transaction> initial) {
+    public void updateTransactionGroup(List<Transaction> initial) {
         totalValue = 0;
         totalSize = 0;
         group = initial;
@@ -286,7 +286,7 @@ public class TransactionGroup implements ITxContainer {
      *
      * @return An <tt>ArrayList</tt> of <tt>Transaction</tt> objects representing the transactions in the group.
      */
-    public ArrayList<Transaction> getGroup() {
+    public List<Transaction> getGroup() {
         return (group);
     }
 
