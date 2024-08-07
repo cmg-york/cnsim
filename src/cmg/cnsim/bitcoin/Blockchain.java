@@ -424,7 +424,7 @@ public class Blockchain implements IStructure {
 	public boolean contains(Transaction t) {
 		boolean found = false;
 		for (Block b : blockchain) {
-			for (Transaction r:b.getGroup()) {
+			for (Transaction r:b.getTransactions()) {
 				if (r.getID() == t.getID()) found = true;
 			}
 		}

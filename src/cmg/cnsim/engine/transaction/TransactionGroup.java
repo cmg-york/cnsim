@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class TransactionGroup implements ITxContainer {
 
-    private ArrayList<Transaction> group;
+    private List<Transaction> group;
     protected int groupID;
     protected float totalValue;
     protected float totalSize;
@@ -33,7 +33,7 @@ public class TransactionGroup implements ITxContainer {
      *
      * @param initial An already created ArrayList of transactions
      */
-    public TransactionGroup(ArrayList<Transaction> initial) {
+    public TransactionGroup(List<Transaction> initial) {
         group = initial;
         for (Transaction t : initial) {
             totalValue += t.getValue();
@@ -101,7 +101,7 @@ public class TransactionGroup implements ITxContainer {
      *
      * @param initial An array list of <tt>Transaction</tt> objects, to replace the existing one.
      */
-    public void updateTransactionGroup(ArrayList<Transaction> initial) {
+    public void updateTransactionGroup(List<Transaction> initial) {
         totalValue = 0;
         totalSize = 0;
         group = initial;
@@ -148,7 +148,7 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public void extractGroup(TransactionGroup g) {
-        for (Transaction t : g.getGroup()) {
+        for (Transaction t : g.getTransactions()) {
             this.removeTransaction(t);
         }
     }
@@ -169,7 +169,7 @@ public class TransactionGroup implements ITxContainer {
     }
 
     /**
-     * See {@linkplain ITxContainer#contains(int)}.
+     * See {@linkplain ITxContainer#contains(long)}.
      */
     @Override
     public boolean contains(long txID) {
@@ -190,7 +190,7 @@ public class TransactionGroup implements ITxContainer {
      */
     public boolean overlapsWithByObj(TransactionGroup p) {
         boolean result = false;
-        for (Transaction t : p.getGroup()) {
+        for (Transaction t : p.getTransactions()) {
             if (group.contains(t)) {
                 result = true;
                 break;
@@ -208,7 +208,7 @@ public class TransactionGroup implements ITxContainer {
      */
     public boolean overlapsWith(TransactionGroup g) {
         for (Transaction r : group) {
-            for (Transaction t : g.getContent()) {
+            for (Transaction t : g.getTransactions()) {
                 if (t.getID() == r.getID()) {
                     return true;
                 }
@@ -282,20 +282,13 @@ public class TransactionGroup implements ITxContainer {
     }
 
     /**
-     * See {@linkplain ITxContainer#getContent()}.
-     */
-    @Override
-    public Transaction[] getContent() {
-        return group.toArray(new Transaction[0]);
-    }
-
-    /**
      * Return the ArrayList of transactions in the group
      *
      * @return An <tt>ArrayList</tt> of <tt>Transaction</tt> objects representing the transactions in the group.
      */
-    public ArrayList<Transaction> getGroup() {
-        return (group);
+    @Override
+    public List<Transaction> getTransactions() {
+        return group;
     }
 
     /**

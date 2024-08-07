@@ -46,7 +46,7 @@ public class BlockTest {
     }
 
     /**
-     * Tests {@link Block#Block(ArrayList)}.
+     * Tests {@link Block#Block(List)}.
      */
     @Test
     public void testBlockArgConstructor_id() {
@@ -59,11 +59,11 @@ public class BlockTest {
     }
 
     /**
-     * Tests {@link Block#Block(ArrayList)}.
+     * Tests {@link Block#Block(List)}.
      */
     @Test
     public void testBlockArgConstructor_transactionList() {
-        assertEquals(transactions, block.getGroup());
+        assertEquals(transactions, block.getTransactions());
     }
 
     /**
@@ -86,7 +86,7 @@ public class BlockTest {
         block.validateBlock(new TransactionGroup(newTransactions), simTime, sysTime, nodeID, eventType, difficulty, cycles);
         Block.Context newContext = block.getContext();
 
-        assertEquals(newTransactions, block.getGroup());
+        assertEquals(newTransactions, block.getTransactions());
         assertEquals(simTime, block.getSimTime_validation());
         assertEquals(sysTime, block.getSysTime_validation());
         assertEquals(nodeID, block.getCurrentNodeID());

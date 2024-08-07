@@ -111,7 +111,7 @@ public class BitcoinNode extends Node {
 				//It is not mining because it has never OR it has but then abandoned.
 				assert((getNextValidationEvent() == null) || ((getNextValidationEvent() != null) ? getNextValidationEvent().ignoreEvt(): true));
 
-				long interval = scheduleValidationEvent(new Block(miningPool.getGroup()), time);
+				long interval = scheduleValidationEvent(new Block(miningPool.getTransactions()), time);
 				startMining(interval);
 			} else {
 				assert((getNextValidationEvent() != null) && !getNextValidationEvent().ignoreEvt());
