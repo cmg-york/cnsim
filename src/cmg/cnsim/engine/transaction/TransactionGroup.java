@@ -148,7 +148,7 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public void extractGroup(TransactionGroup g) {
-        for (Transaction t : g.getGroup()) {
+        for (Transaction t : g.getTransactions()) {
             this.removeTransaction(t);
         }
     }
@@ -190,7 +190,7 @@ public class TransactionGroup implements ITxContainer {
      */
     public boolean overlapsWithByObj(TransactionGroup p) {
         boolean result = false;
-        for (Transaction t : p.getGroup()) {
+        for (Transaction t : p.getTransactions()) {
             if (group.contains(t)) {
                 result = true;
                 break;
@@ -286,13 +286,9 @@ public class TransactionGroup implements ITxContainer {
      *
      * @return An <tt>ArrayList</tt> of <tt>Transaction</tt> objects representing the transactions in the group.
      */
-    public List<Transaction> getGroup() {
-        return (group);
-    }
-
     @Override
     public List<Transaction> getTransactions() {
-        return null;
+        return group;
     }
 
     /**

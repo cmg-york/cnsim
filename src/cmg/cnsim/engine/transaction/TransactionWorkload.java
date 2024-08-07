@@ -97,7 +97,7 @@ public class TransactionWorkload extends TransactionGroup {
 	}
 
     public List<Transaction> getAllTransactions() {
-    	return getGroup();
+    	return getTransactions();
     }
     //TODO Why did not used get group directly
 	   

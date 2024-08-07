@@ -119,7 +119,7 @@ public class Block extends TransactionGroup implements Cloneable {
             double difficulty,
             double cycles
     ) {
-        super.updateTransactionGroup(newTransList.getGroup());
+        super.updateTransactionGroup(newTransList.getTransactions());
 //    	groupID = getID();
 
         simTime_validation = simTime;

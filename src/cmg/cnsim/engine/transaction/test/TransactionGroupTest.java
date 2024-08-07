@@ -32,7 +32,7 @@ public class TransactionGroupTest {
 
         // Sorts in descending order
         comparator = (Transaction t1, Transaction t2) -> Float.compare(t2.getSize(), t1.getSize());
-        sortedGroup = pool.getGroup().stream()
+        sortedGroup = pool.getTransactions().stream()
                 .sorted(comparator)
                 .toList();
     }
@@ -49,7 +49,7 @@ public class TransactionGroupTest {
         ));
         TransactionGroup newTransactionGroup = new TransactionGroup(newTransactions);
 
-        assertArrayEquals(newTransactions.toArray(), newTransactionGroup.getGroup().toArray());
+        assertArrayEquals(newTransactions.toArray(), newTransactionGroup.getTransactions().toArray());
         assertEquals(Arrays.stream(sizes).sum(), newTransactionGroup.getSize());
         assertEquals(Arrays.stream(values).sum(), newTransactionGroup.getValue());
     }
@@ -69,13 +69,13 @@ public class TransactionGroupTest {
                 new Transaction(5, 64, 101, 2209, 77603)
         )));
 
-        assertTrue(expectedPool.getGroup().size() == newPool1.getGroup().size() && expectedPool.getGroup().size() == newPool2.getGroup().size());
+        assertTrue(expectedPool.getTransactions().size() == newPool1.getTransactions().size() && expectedPool.getTransactions().size() == newPool2.getTransactions().size());
         assertTrue(expectedPool.getSize() == newPool1.getSize() && expectedPool.getSize() == newPool2.getSize());
         assertTrue(expectedPool.getValue() == newPool1.getValue() && expectedPool.getValue() == newPool2.getValue());
-        for (int i = 0; i < expectedPool.getGroup().size(); i++) {
-            Transaction transaction0 = expectedPool.getGroup().get(i);
-            Transaction transaction1 = newPool1.getGroup().get(i);
-            Transaction transaction2 = newPool2.getGroup().get(i);
+        for (int i = 0; i < expectedPool.getTransactions().size(); i++) {
+            Transaction transaction0 = expectedPool.getTransactions().get(i);
+            Transaction transaction1 = newPool1.getTransactions().get(i);
+            Transaction transaction2 = newPool2.getTransactions().get(i);
 
             assertTrue(transaction0.getID() == transaction1.getID() && transaction0.getID() == transaction2.getID());
             assertTrue(transaction0.getCreationTime() == transaction1.getCreationTime() && transaction0.getCreationTime() == transaction2.getCreationTime());
@@ -128,14 +128,14 @@ public class TransactionGroupTest {
 
         pool.updateTransactionGroup(newTransactions);
 
-        assertArrayEquals(newTransactions.toArray(), pool.getGroup().toArray());
+        assertArrayEquals(newTransactions.toArray(), pool.getTransactions().toArray());
         assertEquals(size1 + size2, pool.getSize());
         assertEquals(value1 + value2, pool.getValue());
     }
 
     @Test
     public void testUpdateTransactionGroup_emptyPool() {
-        assertEquals(0, emptyPool.getGroup().size());
+        assertEquals(0, emptyPool.getTransactions().size());
         assertEquals(0, emptyPool.getSize());
         assertEquals(0, emptyPool.getValue());
     }
@@ -155,11 +155,11 @@ public class TransactionGroupTest {
     public void testRemoveTransaction_existingTransaction() {
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
-        Transaction existingTransaction = pool.getGroup().get(1);
+        Transaction existingTransaction = pool.getTransactions().get(1);
 
-        pool.removeTransaction(pool.getGroup().get(1));
+        pool.removeTransaction(pool.getTransactions().get(1));
 
-        assertFalse(pool.getGroup().contains(existingTransaction));
+        assertFalse(pool.getTransactions().contains(existingTransaction));
         assertFalse(pool.contains(existingTransaction));
         assertEquals(sizeBefore - existingTransaction.getSize(), pool.getSize());
         assertEquals(valueBefore - existingTransaction.getValue(), pool.getValue());
@@ -167,14 +167,14 @@ public class TransactionGroupTest {
 
     @Test
     public void testRemoveTransaction_nonExistingTransaction() {
-        List<Transaction> groupBefore = pool.getGroup();
+        List<Transaction> groupBefore = pool.getTransactions();
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
 
         pool.removeTransaction(otherTransaction);
 
-        assertFalse(pool.getGroup().contains(otherTransaction));
-        assertArrayEquals(groupBefore.toArray(), pool.getGroup().toArray());
+        assertFalse(pool.getTransactions().contains(otherTransaction));
+        assertArrayEquals(groupBefore.toArray(), pool.getTransactions().toArray());
         assertEquals(sizeBefore, pool.getSize());
         assertEquals(valueBefore, pool.getValue());
     }
@@ -183,7 +183,7 @@ public class TransactionGroupTest {
     public void testRemoveTransaction_emptyPool() {
         emptyPool.removeTransaction(otherTransaction);
 
-        assertTrue(emptyPool.getGroup().isEmpty());
+        assertTrue(emptyPool.getTransactions().isEmpty());
         assertEquals(0, emptyPool.getSize());
         assertEquals(0, emptyPool.getValue());
     }
@@ -192,13 +192,13 @@ public class TransactionGroupTest {
     public void testRemoveNextTx_nonEmptyPool() {
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
-        int groupSizeBefore = pool.getGroup().size();
-        Transaction nextTransaction = pool.getGroup().getFirst();
+        int groupSizeBefore = pool.getTransactions().size();
+        Transaction nextTransaction = pool.getTransactions().getFirst();
 
         pool.removeNextTx();
 
-        assertFalse(pool.getGroup().contains(nextTransaction));
-        assertEquals(groupSizeBefore - 1, pool.getGroup().size());
+        assertFalse(pool.getTransactions().contains(nextTransaction));
+        assertEquals(groupSizeBefore - 1, pool.getTransactions().size());
         assertEquals(sizeBefore - nextTransaction.getSize(), pool.getSize());
         assertEquals(valueBefore - nextTransaction.getValue(), pool.getValue());
     }
@@ -211,19 +211,19 @@ public class TransactionGroupTest {
     @Test
     public void testExtractGroup_existingTransaction() {
         TransactionGroup targetGroup = new TransactionGroup(new ArrayList<>(Arrays.asList(
-                pool.getGroup().get(0),
-                pool.getGroup().get(1)
+                pool.getTransactions().get(0),
+                pool.getTransactions().get(1)
         )));
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
-        int groupSizeBefore = pool.getGroup().size();
+        int groupSizeBefore = pool.getTransactions().size();
 
         pool.extractGroup(targetGroup);
 
-        for (Transaction targetTransaction : targetGroup.getGroup()) {
-            assertFalse(pool.getGroup().contains(targetTransaction));
+        for (Transaction targetTransaction : targetGroup.getTransactions()) {
+            assertFalse(pool.getTransactions().contains(targetTransaction));
         }
-        assertEquals(groupSizeBefore - targetGroup.getGroup().size(), pool.getGroup().size());
+        assertEquals(groupSizeBefore - targetGroup.getTransactions().size(), pool.getTransactions().size());
         assertEquals(sizeBefore - targetGroup.getSize(), pool.getSize());
         assertEquals(valueBefore - targetGroup.getValue(), pool.getValue());
     }
@@ -235,14 +235,14 @@ public class TransactionGroupTest {
         )));
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
-        int groupSizeBefore = pool.getGroup().size();
+        int groupSizeBefore = pool.getTransactions().size();
 
         pool.extractGroup(targetGroup);
 
-        for (Transaction targetTransaction : targetGroup.getGroup()) {
-            assertFalse(pool.getGroup().contains(targetTransaction));
+        for (Transaction targetTransaction : targetGroup.getTransactions()) {
+            assertFalse(pool.getTransactions().contains(targetTransaction));
         }
-        assertEquals(groupSizeBefore, pool.getGroup().size());
+        assertEquals(groupSizeBefore, pool.getTransactions().size());
         assertEquals(sizeBefore, pool.getSize());
         assertEquals(valueBefore, pool.getValue());
     }
@@ -255,20 +255,20 @@ public class TransactionGroupTest {
 
         emptyPool.extractGroup(targetGroup);
 
-        assertEquals(0, emptyPool.getGroup().size());
+        assertEquals(0, emptyPool.getTransactions().size());
         assertEquals(0, emptyPool.getSize());
         assertEquals(0, emptyPool.getValue());
     }
 
     @Test
     public void testContains_matchByReference() {
-        assertTrue(pool.contains(pool.getGroup().getFirst()));
+        assertTrue(pool.contains(pool.getTransactions().getFirst()));
         assertFalse(pool.contains(otherTransaction));
     }
 
     @Test
     public void testContains_matchById() {
-        assertTrue(pool.contains(new Transaction(pool.getGroup().getFirst().getID())));
+        assertTrue(pool.contains(new Transaction(pool.getTransactions().getFirst().getID())));
         assertFalse(pool.contains(otherTransaction.getID()));
     }
 
@@ -276,7 +276,7 @@ public class TransactionGroupTest {
     public void testOverlapsWithObj_overlappingTransactions() {
         TransactionGroup group = new TransactionGroup(new ArrayList<>(Arrays.asList(
                 new Transaction(),
-                pool.getGroup().getFirst()
+                pool.getTransactions().getFirst()
         )));
 
         assertTrue(pool.overlapsWithByObj(group));
@@ -284,7 +284,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testOverlapsWithObj_nonOverlappingTransactions() {
-        otherTransaction.setID(pool.getGroup().getFirst().getID());
+        otherTransaction.setID(pool.getTransactions().getFirst().getID());
         TransactionGroup group = new TransactionGroup(new ArrayList<>(Arrays.asList(
                 otherTransaction,
                 new Transaction()
@@ -301,7 +301,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testOverlapsWith_overlappingTransactions() {
-        otherTransaction.setID(pool.getGroup().getFirst().getID());
+        otherTransaction.setID(pool.getTransactions().getFirst().getID());
         ArrayList<Transaction> overlappingTransactions = new ArrayList<>(Arrays.asList(
                 otherTransaction,
                 new Transaction(123)
@@ -336,7 +336,7 @@ public class TransactionGroupTest {
 
         TransactionGroup group = pool.getTopN(sizeLimit, comparator);
 
-        assertTrue(group.getGroup().isEmpty());
+        assertTrue(group.getTransactions().isEmpty());
     }
 
     @Test
@@ -349,8 +349,8 @@ public class TransactionGroupTest {
 
         TransactionGroup group = pool.getTopN(sizeLimit, comparator);
 
-        assertEquals(targetIndex, group.getGroup().size());
-        assertArrayEquals(sortedGroup.stream().limit(targetIndex).toArray(), group.getGroup().toArray());
+        assertEquals(targetIndex, group.getTransactions().size());
+        assertArrayEquals(sortedGroup.stream().limit(targetIndex).toArray(), group.getTransactions().toArray());
     }
 
     @Test
