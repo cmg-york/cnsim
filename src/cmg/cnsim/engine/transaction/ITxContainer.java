@@ -1,5 +1,7 @@
 package cmg.cnsim.engine.transaction;
 
+import java.util.List;
+
 /**
  * Defines the main methods that a transaction containing type must include. Examples of ITxCointainers include transaction pools and blocks. 
  * 
@@ -33,11 +35,12 @@ public interface ITxContainer {
 	public float getValue();
 
 	/**
-	 * Return the contents of the container
-	 * @return An array of {@linkplain Transaction} objects.
+	 * Returns a list of transactions contained within this container.
+	 *
+	 * @return a list of transactions
 	 */
-	public Transaction[] getContent();
-		
+	List<Transaction> getTransactions();
+
 	/**
 	 * Returns <tt>true</tt> if <tt>Transaction t</tt> is contained in the container.
 	 * Matching is based on ID.

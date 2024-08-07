@@ -169,7 +169,7 @@ public class TransactionGroup implements ITxContainer {
     }
 
     /**
-     * See {@linkplain ITxContainer#contains(int)}.
+     * See {@linkplain ITxContainer#contains(long)}.
      */
     @Override
     public boolean contains(long txID) {
@@ -208,7 +208,7 @@ public class TransactionGroup implements ITxContainer {
      */
     public boolean overlapsWith(TransactionGroup g) {
         for (Transaction r : group) {
-            for (Transaction t : g.getContent()) {
+            for (Transaction t : g.getTransactions()) {
                 if (t.getID() == r.getID()) {
                     return true;
                 }
@@ -282,20 +282,17 @@ public class TransactionGroup implements ITxContainer {
     }
 
     /**
-     * See {@linkplain ITxContainer#getContent()}.
-     */
-    @Override
-    public Transaction[] getContent() {
-        return group.toArray(new Transaction[0]);
-    }
-
-    /**
      * Return the ArrayList of transactions in the group
      *
      * @return An <tt>ArrayList</tt> of <tt>Transaction</tt> objects representing the transactions in the group.
      */
     public ArrayList<Transaction> getGroup() {
         return (group);
+    }
+
+    @Override
+    public List<Transaction> getTransactions() {
+        return null;
     }
 
     /**
