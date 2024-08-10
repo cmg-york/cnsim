@@ -14,16 +14,15 @@
         - [Step 6 (Optional): Make Bash script to run JAR](#step-6-optional-make-bash-script-to-run-jar)
     - [How to use jpackage](#how-to-use-jpackage)
         - [Example for `dmg` on macOS](#example-for-dmg-on-macos)
-    - [Installer/Package Signing](#installerpackage-signing)
+        - [Installer/Package Signing](#installerpackage-signing)
+    - [References](#references)
+
 
 There are 2 common ways to distribute Java applications:
 1. Make a JAR file (and optionally a shell script), package them into a zip file, then share the zip.
 2. Make a JAR file, then use `jpackage` to create native installers/packages (`.dmg`, `.exe`, `.msi`, and so on) for Java applications, bundling the application, its dependencies, and a Java Runtime Environment (JRE) into a single package. Share this installer to give end users a natural installation experience on their platform. 
 
-[YouTube Video on jpackage here.](https://www.youtube.com/watch?v=-6q_MKtPL3o) This video does mention `javapackager` and
-it is now deprecated. `jpackage` is a packaging tool introduced in Java 14 to replace `javapackager`.
-
-[Inside Java Podcast on jpackage here.](https://youtu.be/qu6yBo0eZYI?si=AhMWgAP1jnEll6Um&t=89)
+`jpackage` is a packaging tool introduced in Java 14 and later.
 
 ### Pros and Cons
 
@@ -295,5 +294,11 @@ cnsim.app/Contents/MacOS/cnsim -c config.txt --ns "{1,2}"
 
 ---
 
-### Installer/Package Signing
+#### Installer/Package Signing
 (Work In Progress)
+
+### References
+1. [YouTube Video on jpackage](https://www.youtube.com/watch?v=-6q_MKtPL3o) - This video discusses `jpackage` and its usage, replacing the now-deprecated `javapackager`.
+2. [Inside Java Podcast on jpackage](https://youtu.be/qu6yBo0eZYI?si=AhMWgAP1jnEll6Um&t=89) - An insightful podcast episode that delves into the details of `jpackage`.
+3. [Oracle Documentation on JAR Files](https://docs.oracle.com/cd/E19957-01/816-6167-10/jar.htm#428842) - Official Oracle documentation on JAR file creation and management.
+4. [Oracle Documentation on jarsigner](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/jarsigner.html) - Official Oracle documentation on how to sign JAR files using `jarsigner`.
