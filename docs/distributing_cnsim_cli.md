@@ -13,13 +13,16 @@
         - [Step 5 (Optional): Make Bash script to run JAR](#step-5-optional-make-bash-script-to-run-jar)
     - [How to use jpackage](#how-to-use-jpackage)
         - [Example for `dmg` on MacOS](#example-for-dmg-on-macos)
+    
   
 There are 2 common ways to distribute Java applications:
 1. Make a JAR file (and optionally a shell script), package them into a zip file, then share the zip.
-2. Make a JAR file, then use `jpackage` to create native installers (`.dmg`, `.exe`, `.msi`, and so on) and packages (`app-image`)  for Java applications, bundling the application, its dependencies, and a Java Runtime Environment (JRE) into a single package.
+2. Make a JAR file, then use `jpackage` to create native installers/packages (`.dmg`, `.exe`, `.msi`, and so on) for Java applications, bundling the application, its dependencies, and a Java Runtime Environment (JRE) into a single package. Share this installer to give end users a natural installation experience on their platform. 
 
 [YouTube Video on jpackage here.](https://www.youtube.com/watch?v=-6q_MKtPL3o) This video does mention `javapackager` and
 it is now deprecated. `jpackage` is a packaging tool introduced in Java 14 to replace `javapackager`.
+
+[Inside Java Podcast on jpackage here.](https://youtu.be/qu6yBo0eZYI?si=AhMWgAP1jnEll6Um&t=89)
 
 ### Pros and Cons
 
@@ -193,19 +196,19 @@ jpackage --input input-dir \
 
 The `--type` option specifies the format of the installer or application bundle you want to create. Here are the common options:
 
-| `--type` Option Args | Description                                                                                                                                                                     | Platforms          |
-|:---------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
-| `app-image`          | Creates an application image that can be run directly without installing it. This is a directory structure containing your application and the necessary runtime.               | Cross-platform     |
-| `dmg`                | Creates a macOS Disk Image (.dmg) file, commonly used for distributing macOS applications. The user can mount the `.dmg` and drag the application to their Applications folder. | macOS              |
-| `pkg`                | Creates a macOS Installer Package (.pkg) file, which provides a standard installation process on macOS.                                                                         | macOS              |
-| `exe`                | Creates a Windows executable installer (.exe) that can be used to install the application on Windows machines.                                                                  | Windows            |
-| `msi`                | Creates a Windows Installer Package (.msi) file, used to install, maintain, and remove software on Windows systems.                                                             | Windows            |
+| `--type` Option Args | Description                                                                                                                                                                     | Platforms            |
+|:---------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|
+| `app-image`          | Creates an application image that can be run directly without installing it. This is a directory structure containing your application and the necessary runtime.               | Cross-platform       |
+| `dmg`                | Creates a macOS Disk Image (.dmg) file, commonly used for distributing macOS applications. The user can mount the `.dmg` and drag the application to their Applications folder. | macOS                |
+| `pkg`                | Creates a macOS Installer Package (.pkg) file, which provides a standard installation process on macOS.                                                                         | macOS                |
+| `exe`                | Creates a Windows executable installer (.exe) that can be used to install the application on Windows machines.                                                                  | Windows              |
+| `msi`                | Creates a Windows Installer Package (.msi) file, used to install, maintain, and remove software on Windows systems.                                                             | Windows              |
 | `deb`                | Creates a Debian package (.deb), which is used for installing applications on Debian-based Linux distributions like Ubuntu.                                                     | Linux (Debian-based) |
-| `rpm`                | Creates an RPM package (.rpm), used for installing applications on RPM-based Linux distributions like Fedora and CentOS.                                                        | Linux (RPM-based)  |
+| `rpm`                | Creates an RPM package (.rpm), used for installing applications on RPM-based Linux distributions like Fedora and CentOS.                                                        | Linux (RPM-based)    |
 
 ---
 
-#### Example for `dmg` on MacOS:
+#### Example for `dmg` on macOS:
 
 Set up `input-dir`
 
