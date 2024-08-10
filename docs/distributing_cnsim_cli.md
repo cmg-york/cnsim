@@ -9,12 +9,13 @@
         - [Step 1: Compile `.java` files](#step-1-compile-java-files)
         - [Step 2: Make a manifest file](#step-2-make-a-manifest-file)
         - [Step 3: Create a JAR file](#step-3-create-a-jar-file)
-        - [Step 4: Run JAR file](#step-4-run-jar-file)
-        - [Step 5 (Optional): Make Bash script to run JAR](#step-5-optional-make-bash-script-to-run-jar)
+        - [Step 4: Sign the JAR file](#step-4-sign-the-jar-file)
+        - [Step 5: Run JAR file](#step-5-run-jar-file)
+        - [Step 6 (Optional): Make Bash script to run JAR](#step-6-optional-make-bash-script-to-run-jar)
     - [How to use jpackage](#how-to-use-jpackage)
-        - [Example for `dmg` on MacOS](#example-for-dmg-on-macos)
-    
-  
+        - [Example for `dmg` on macOS](#example-for-dmg-on-macos)
+    - [Installer/Package Signing](#installerpackage-signing)
+
 There are 2 common ways to distribute Java applications:
 1. Make a JAR file (and optionally a shell script), package them into a zip file, then share the zip.
 2. Make a JAR file, then use `jpackage` to create native installers/packages (`.dmg`, `.exe`, `.msi`, and so on) for Java applications, bundling the application, its dependencies, and a Java Runtime Environment (JRE) into a single package. Share this installer to give end users a natural installation experience on their platform. 
@@ -130,7 +131,10 @@ cmg/cnsim/bitcoin/BitcoinReporter.class
 ...
 ```
 
-#### Step 4: Run JAR file
+#### Step 4: Sign the JAR file
+(Work In Progress)
+
+#### Step 5: Run JAR file
 
 Run `bitcoin-simulator.jar` with same CLI args as in an IDE.
 
@@ -139,7 +143,7 @@ _Note: Will need to have a compatible Java version_
 java -jar bitcoin-simulator.jar -c config.txt
 ```
 
-#### Step 5 (Optional): Make Bash script to run JAR
+#### Step 6 (Optional): Make Bash script to run JAR
 
 Make `cnsim.sh`:
 ```bash
@@ -288,3 +292,8 @@ by single or double quotations, `"{...}"` or `'{...}'`_
 ```bash
 cnsim.app/Contents/MacOS/cnsim -c config.txt --ns "{1,2}"
 ```
+
+---
+
+### Installer/Package Signing
+(Work In Progress)
