@@ -222,24 +222,40 @@ public final class CommandLineParser {
     public void printUsage() {
         System.out.println("Usage: cnsim [options]");
         System.out.println("Options:");
+
+        // Determine the maximum length of the option strings
+        int maxOptionLength = 0;
         for (Field field : getClass().getDeclaredFields()) {
             CommandLineOption annotation = field.getAnnotation(CommandLineOption.class);
             if (annotation != null) {
-                System.out.println(getUsageString(annotation));
+                String optionString = getOptionString(annotation);
+                maxOptionLength = Math.max(maxOptionLength, optionString.length());
             }
         }
-        System.out.println("  -h, --help\t\tPrint this help message");
+
+        // Print the options with aligned descriptions
+        for (Field field : getClass().getDeclaredFields()) {
+            CommandLineOption annotation = field.getAnnotation(CommandLineOption.class);
+            if (annotation != null) {
+                String optionString = getOptionString(annotation);
+                String description = annotation.description() + " - " + annotation.key();
+                if (annotation.required()) {
+                    description += " (required)";
+                }
+                System.out.printf("  %-"+maxOptionLength+"s  %s%n", optionString, description);
+            }
+        }
+
+        System.out.printf("  %-"+maxOptionLength+"s  %s%n", "-h, --help", "Print this help message");
     }
 
-    private String getUsageString(CommandLineOption option) {
+    private String getOptionString(CommandLineOption option) {
         StringBuilder sb = new StringBuilder();
-        sb.append("  ");
         if (option.aliases().length > 0) {
             sb.append(String.join(", ", option.aliases()));
         }
-        sb.append(" " + option.argument()).append("\t\t").append(option.description() + " - " + option.key());
-        if (option.required()) {
-            sb.append(" (required)");
+        if (!option.argument().isEmpty()) {
+            sb.append(" ").append(option.argument());
         }
         return sb.toString();
     }
