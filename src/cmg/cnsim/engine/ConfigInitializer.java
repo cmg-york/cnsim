@@ -2,27 +2,29 @@ package cmg.cnsim.engine;
 
 import cmg.cnsim.engine.commandline.CommandLineParser;
 
-import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.io.IOException;
 import java.io.File;
+import java.nio.file.*;
+
 
 /**
- * Builds a SimulationConfig by combining command line arguments and configuration file settings.
+ * Initialize Config by combining command line arguments and configuration file settings.
  * <p>
  * This class is responsible for:
  * - Loading the configuration file
  * - Overriding config file settings with command line arguments
  * - Validating the resulting configuration
- * - Creating a SimulationConfig object
  * <p>
  * Command line arguments always take priority over config file settings.
  */
 public class ConfigInitializer {
 
     /**
-     * Initialize SimulationConfig with properties based on the provided command line arguments and config file.
+     * Initialize Config with properties based on the provided command line arguments and config file.
      *
      * @param args The command line arguments.
      * @throws IOException If there's an error reading the config file or if required files are missing.
@@ -146,63 +148,67 @@ public class ConfigInitializer {
     private static void validateFileExists(Properties properties, String key, String fileDescription) throws IOException {
         validateFileExistsInternal(properties, key, properties.getProperty(key), fileDescription);
     }
-
     private static String validateFileExistsInternal(Properties properties, String key, String filePath, String fileDescription) throws IOException {
         if (filePath == null || filePath.trim().isEmpty()) {
             throw new IllegalArgumentException(fileDescription + " path is null or empty");
         }
 
-        try {
-            File file = new File(filePath);
-            String currentDir = new File(".").getCanonicalPath();
+        System.out.println("Searching for file: " + filePath);
+//        System.out.println("Current working directory: " + System.getProperty("user.dir"));
 
-            // Remove "./" prefix if present
-            if (filePath.startsWith("./")) {
-                filePath = filePath.substring(2);
+        Path currentDir = Paths.get(".").toAbsolutePath().normalize();
+
+        List<Path> baseDirs = new ArrayList<>(Arrays.asList(
+                currentDir,
+                currentDir.resolve("resources"),
+                currentDir.getParent(),
+                currentDir.getParent().resolve("resources")
+        ));
+
+        // Add cnsim-specific directories
+        baseDirs.add(currentDir.resolve("cnsim"));
+        baseDirs.add(currentDir.resolve("cnsim").resolve("resources"));
+        baseDirs.add(currentDir.getParent().resolve("cnsim"));
+        baseDirs.add(currentDir.getParent().resolve("cnsim").resolve("resources"));
+
+        Path filePathObj = Paths.get(filePath);
+        Path resolvedPath = null;
+
+//        System.out.println("Searching in the following directories:");
+        for (Path baseDir : baseDirs) {
+            Path candidate = baseDir.resolve(filePathObj).normalize().toAbsolutePath();
+//            System.out.println("Checking: " + candidate);
+
+            if (Files.isRegularFile(candidate) && Files.isReadable(candidate)) {
+                resolvedPath = candidate;
+//                System.out.println("File found at: " + resolvedPath);
+                break;
             }
-
-            // If it's a relative path, try different resolutions
-            if (!file.isAbsolute()) {
-                // Try resolving against current directory
-                file = new File(currentDir, filePath);
-
-                // If not found, try with "cnsim/" prefix
-                if (!file.exists()) {
-                    file = new File(currentDir, "cnsim/" + filePath);
-                }
-
-                // If still not found, try with "cnsim/resources/" prefix
-                if (!file.exists()) {
-                    file = new File(currentDir, "cnsim/resources/" + filePath);
-                }
-            }
-
-            file = file.getCanonicalFile();
-            String resolvedPath = file.getAbsolutePath();
-            System.out.println("Resolved " + fileDescription + " path: " + resolvedPath);
-
-            if (!file.exists()) {
-                throw new IOException(fileDescription + " does not exist: " + resolvedPath);
-            }
-
-            if (!file.isFile()) {
-                throw new IOException(fileDescription + " is not a file: " + resolvedPath);
-            }
-
-            if (!file.canRead()) {
-                throw new IOException(fileDescription + " is not readable: " + resolvedPath);
-            }
-
-            // Update the property with the resolved path if properties and key are provided
-            if (properties != null && key != null) {
-                properties.setProperty(key, resolvedPath);
-            }
-
-            // Return the resolved path
-            return resolvedPath;
-
-        } catch (SecurityException e) {
-            throw new IOException("Security manager denied access to " + fileDescription + ": " + filePath, e);
         }
+
+        if (resolvedPath == null) {
+            throw new IOException(fileDescription + " not found or not accessible: " + filePath);
+        }
+
+        File file = resolvedPath.toFile();
+        if (!file.exists()) {
+            throw new IOException(fileDescription + " does not exist: " + resolvedPath);
+        }
+        if (!file.isFile()) {
+            throw new IOException(fileDescription + " is not a file: " + resolvedPath);
+        }
+        if (!file.canRead()) {
+            throw new IOException(fileDescription + " is not readable: " + resolvedPath);
+        }
+
+        String resolvedPathString = resolvedPath.toString();
+        System.out.println("Resolved " + fileDescription + " path: " + resolvedPathString);
+
+        if (properties != null && key != null) {
+            properties.setProperty(key, resolvedPathString);
+        }
+
+        return resolvedPathString;
     }
+
 }
