@@ -32,11 +32,16 @@ public class BitcoinMainDriver {
         System.out.println("Current directory: " + System.getProperty("user.dir"));
 
 
-        // Initialize SimulationConfig
-        SimulationConfig.initialize(args);
+        // Initialize Config
+        try{
+            ConfigInitializer.initialize(args);
+        } catch (IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
 
         // Get the number of simulations to run
-        int numSimulations = SimulationConfig.getPropertyInt("sim.numSimulations");
+        int numSimulations = Config.getPropertyInt("sim.numSimulations");
 
 
         // SIM SCOPE STARTS HERE
@@ -82,9 +87,9 @@ public class BitcoinMainDriver {
         //
         try {
             sampler.setNodeSampler(new NodeSamplerFactory().getSampler(
-                    SimulationConfig.getPropertyString("node.sampler.file"),
-                    SimulationConfig.getPropertyString("node.sampler.seed"),
-                    SimulationConfig.getPropertyString("node.sampler.seedUpdateTimes"),
+                    Config.getPropertyString("node.sampler.file"),
+                    Config.getPropertyString("node.sampler.seed"),
+                    Config.getPropertyString("node.sampler.seedUpdateTimes"),
                     sampler,
                     s
             ));
@@ -94,7 +99,7 @@ public class BitcoinMainDriver {
 
         //Develop sampler 2: Network Sampler
         //
-        sampler.setNetworkSampler(new NetworkSamplerFactory().getNetworkSampler(sampler,SimulationConfig.getPropertyLong("net.sampler.seed")));
+        sampler.setNetworkSampler(new NetworkSamplerFactory().getNetworkSampler(sampler,Config.getPropertyLong("net.sampler.seed")));
 
 
         //Develop sampler 3: Transaction Sampler
@@ -102,8 +107,8 @@ public class BitcoinMainDriver {
         try {
             sampler.setTransactionSampler(
                     new TransactionSamplerFactory().getSampler(
-                            SimulationConfig.getPropertyString("workload.sampler.file"),
-                            (SimulationConfig.hasProperty("workload.sampler.seed") ? SimulationConfig.getPropertyLong("workload.sampler.seed") : null),
+                            Config.getPropertyString("workload.sampler.file"),
+                            (Config.hasProperty("workload.sampler.seed") ? Config.getPropertyLong("workload.sampler.seed") : null),
                             sampler));
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +126,7 @@ public class BitcoinMainDriver {
         Debug.p("Nodeset created");
 
         // Adding nodes
-        ns.addNodes(SimulationConfig.getPropertyInt("net.numOfNodes"));
+        ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
         Debug.p("Nodes added");
 
         //
@@ -133,7 +138,7 @@ public class BitcoinMainDriver {
         //Define network.
         //If a file exists it will be file-based, otherwise, just create a standard network.
         AbstractNetwork net = null;
-        String netFilePath = SimulationConfig.getPropertyString("net.sampler.file");
+        String netFilePath = Config.getPropertyString("net.sampler.file");
         if (netFilePath != null) {
             try {
                 Debug.p("Creating file-based network.");
@@ -167,7 +172,7 @@ public class BitcoinMainDriver {
         // Transaction workload
         TransactionWorkload ts = new TransactionWorkload(sampler);
         try {
-            ts.appendTransactions(SimulationConfig.getPropertyLong("workload.numTransactions"));
+            ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -187,7 +192,7 @@ public class BitcoinMainDriver {
 
         // Assign a target transaction for malicious behavior
         Transaction targetTransaction = null;
-        if (SimulationConfig.getPropertyBoolean("node.createMaliciousNode")) {
+        if (Config.getPropertyBoolean("node.createMaliciousNode")) {
             targetTransaction = getTargetTransactionFromUser(ts.getAllTransactions());
         }
         for (INode node : ns.getNodes()) {

@@ -29,7 +29,7 @@ public class SimulationConfig {
      */
     public static void initialize(String[] args) {
         try {
-            SimulationConfigFactory.create(args);
+            ConfigInitializer.initialize(args);
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("Error setting up simulation");
             e.printStackTrace();

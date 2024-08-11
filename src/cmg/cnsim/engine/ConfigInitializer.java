@@ -19,7 +19,7 @@ import java.io.File;
  * <p>
  * Command line arguments always take priority over config file settings.
  */
-public class SimulationConfigFactory {
+public class ConfigInitializer {
 
     /**
      * Initialize SimulationConfig with properties based on the provided command line arguments and config file.
@@ -28,7 +28,7 @@ public class SimulationConfigFactory {
      * @throws IOException If there's an error reading the config file or if required files are missing.
      * @throws IllegalArgumentException If the configuration is invalid.
      */
-    public static void create(String[] args) throws IOException {
+    public static void initialize(String[] args) throws IOException {
         CommandLineParser parser = new CommandLineParser();
         Properties commandLineProperties = parser.parse(args);
 
@@ -55,8 +55,8 @@ public class SimulationConfigFactory {
         // Perform validations
         validateConfig(properties);
 
-        // Initialize SimulationConfig with the properties
-        SimulationConfig.initProperties(properties);
+        // Initialize Config prop with the properties
+        Config.prop.putAll(properties);
     }
 
     /**

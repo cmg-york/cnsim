@@ -1,7 +1,7 @@
 package cmg.cnsim.engine.commandline.test;
 
+import cmg.cnsim.engine.ConfigInitializer;
 import cmg.cnsim.engine.SimulationConfig;
-import cmg.cnsim.engine.SimulationConfigFactory;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ public class SimulationConfigFactoryTest {
     @Order(1)
     public void testCreateWithValidConfig() throws IOException {
         String[] args = {"-c", configPath.toString()};
-        SimulationConfigFactory.create(args);
+        ConfigInitializer.initialize(args);
 
         assertEquals(workloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
         assertEquals(networkPath.toString(), SimulationConfig.getPropertyString("net.sampler.file"));
@@ -92,7 +92,7 @@ public class SimulationConfigFactoryTest {
                 "--ns", "{1,2,3}",
                 "--st", "{100,200,300}"
         };
-        SimulationConfigFactory.create(args);
+        ConfigInitializer.initialize(args);
 
         assertEquals(workloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
         assertEquals(networkPath.toString(), SimulationConfig.getPropertyString("net.sampler.file"));
@@ -104,7 +104,7 @@ public class SimulationConfigFactoryTest {
     @Test
     public void testCreateWithMissingConfigFile() {
         String[] args = {"-c", testResourcesPath.resolve("non_existent_config.txt").toString()};
-        assertThrows(IOException.class, () -> SimulationConfigFactory.create(args));
+        assertThrows(IOException.class, () -> ConfigInitializer.initialize(args));
     }
 
     @Test
@@ -121,7 +121,7 @@ public class SimulationConfigFactoryTest {
                     "--es", "456"
             };
 
-            SimulationConfigFactory.create(args);
+            ConfigInitializer.initialize(args);
 
             assertEquals(newWorkloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
             assertEquals("123", SimulationConfig.getPropertyString("workload.sampler.seed"));
@@ -137,7 +137,7 @@ public class SimulationConfigFactoryTest {
     public void testValidateConfigWithMissingFile() throws IOException {
         Files.delete(workloadPath);
         String[] args = {"-c", configPath.toString()};
-        assertThrows(IOException.class, () -> SimulationConfigFactory.create(args));
+        assertThrows(IOException.class, () -> ConfigInitializer.initialize(args));
     }
 
     @Test
@@ -150,6 +150,6 @@ public class SimulationConfigFactoryTest {
         }
 
         String[] args = {"-c", configPath.toString()};
-        assertThrows(IllegalArgumentException.class, () -> SimulationConfigFactory.create(args));
+        assertThrows(IllegalArgumentException.class, () -> ConfigInitializer.initialize(args));
     }
 }
