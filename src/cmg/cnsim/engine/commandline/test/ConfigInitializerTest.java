@@ -1,7 +1,7 @@
 package cmg.cnsim.engine.commandline.test;
 
+import cmg.cnsim.engine.Config;
 import cmg.cnsim.engine.ConfigInitializer;
-import cmg.cnsim.engine.SimulationConfig;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +19,7 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(OrderAnnotation.class)
-public class SimulationConfigFactoryTest {
+public class ConfigInitializerTest {
 
     private static final String TEST_RESOURCES_DIR = "test_resources";
     private static final String CONFIG_NAME = "config.txt";
@@ -77,12 +76,12 @@ public class SimulationConfigFactoryTest {
         String[] args = {"-c", configPath.toString()};
         ConfigInitializer.initialize(args);
 
-        assertEquals(workloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
-        assertEquals(networkPath.toString(), SimulationConfig.getPropertyString("net.sampler.file"));
-        assertEquals(nodePath.toString(), SimulationConfig.getPropertyString("node.sampler.file"));
+        assertEquals(workloadPath.toString(), Config.getPropertyString("workload.sampler.file"));
+        assertEquals(networkPath.toString(), Config.getPropertyString("net.sampler.file"));
+        assertEquals(nodePath.toString(), Config.getPropertyString("node.sampler.file"));
 
         // Ensure these are not set
-        assertNull(SimulationConfig.getPropertyString("node.sampler.seedUpdateTimes"));
+        assertNull(Config.getPropertyString("node.sampler.seedUpdateTimes"));
     }
 
     @Test
@@ -94,11 +93,11 @@ public class SimulationConfigFactoryTest {
         };
         ConfigInitializer.initialize(args);
 
-        assertEquals(workloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
-        assertEquals(networkPath.toString(), SimulationConfig.getPropertyString("net.sampler.file"));
-        assertEquals(nodePath.toString(), SimulationConfig.getPropertyString("node.sampler.file"));
-        assertEquals("{1,2,3}", SimulationConfig.getPropertyString("node.sampler.seed"));
-        assertEquals("{100,200,300}", SimulationConfig.getPropertyString("node.sampler.seedUpdateTimes"));
+        assertEquals(workloadPath.toString(), Config.getPropertyString("workload.sampler.file"));
+        assertEquals(networkPath.toString(), Config.getPropertyString("net.sampler.file"));
+        assertEquals(nodePath.toString(), Config.getPropertyString("node.sampler.file"));
+        assertEquals("{1,2,3}", Config.getPropertyString("node.sampler.seed"));
+        assertEquals("{100,200,300}", Config.getPropertyString("node.sampler.seedUpdateTimes"));
     }
 
     @Test
@@ -123,11 +122,11 @@ public class SimulationConfigFactoryTest {
 
             ConfigInitializer.initialize(args);
 
-            assertEquals(newWorkloadPath.toString(), SimulationConfig.getPropertyString("workload.sampler.file"));
-            assertEquals("123", SimulationConfig.getPropertyString("workload.sampler.seed"));
-            assertEquals("{1,2}", SimulationConfig.getPropertyString("node.sampler.seed"));
-            assertEquals("{10,20}", SimulationConfig.getPropertyString("node.sampler.seedUpdateTimes"));
-            assertEquals("456", SimulationConfig.getPropertyString("net.sampler.seed"));
+            assertEquals(newWorkloadPath.toString(), Config.getPropertyString("workload.sampler.file"));
+            assertEquals("123", Config.getPropertyString("workload.sampler.seed"));
+            assertEquals("{1,2}", Config.getPropertyString("node.sampler.seed"));
+            assertEquals("{10,20}", Config.getPropertyString("node.sampler.seedUpdateTimes"));
+            assertEquals("456", Config.getPropertyString("net.sampler.seed"));
         } finally {
             Files.deleteIfExists(newWorkloadPath);
         }
