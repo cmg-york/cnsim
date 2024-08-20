@@ -35,7 +35,7 @@ public class Reporter {
 	protected static String root = "./log/";
 
 	static {
-		root = SimulationConfig.getOutputDirectory();
+		root = Config.getPropertyString("sim.output.directory");
 
 		//ID the run
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH.mm.ss");  
