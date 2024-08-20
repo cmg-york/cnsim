@@ -2,13 +2,10 @@ package cmg.cnsim.engine.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cmg.cnsim.engine.Config;
-import static cmg.cnsim.engine.Config.parseStringToArray;
 
 public class ConfigTest {
 
@@ -35,9 +32,6 @@ public class ConfigTest {
         long[] expected = {45, 52, 67, 85, 93};
         long[] actual = Config.parseStringToArray(i);
         assertArrayEquals(expected, actual);
-        System.out.print("Actual output: ");
-        for (long num : actual) { System.out.print(num + " ");
-        }
     }
 
     @Test
@@ -47,6 +41,46 @@ public class ConfigTest {
         String i = "{5, 34, 97, 102, !}";
         Exception numberFormatException = assertThrows(IllegalArgumentException.class, () -> Config.parseStringToArray(i));
         System.out.println("Exception: " + numberFormatException.getMessage());
+    }
+
+    // Check the method behaviour when the input string is malformed
+    // due to a missing opening curly brace "{" with 4 different scenarios
+    //
+    // Scenario 4 does not throw an exception as expected
+    // TODO: look into this further and fix
+
+    @Test
+    public void testParseStringToArray_MissingOpeningBrace() {
+        String[] input = {
+                "6, 7, 8}", // scenario 1
+                "2, 3, 4, 5, 6}", // scenario 2
+                "5, 34, 97, 102, 1030}", // scenario 3
+                "202, 203, 204}"}; // scenario 4
+        for (String i : input) {
+            IllegalArgumentException openBracketException = assertThrows(IllegalArgumentException.class, () -> Config.parseStringToArray(i));
+            System.out.println("Exception: " + i + " " + openBracketException.getMessage());
+        }
+    }
+
+    // Check the method behaviour when the input string is malformed
+    // due to a missing closing curly brace "}" with 4 different scenarios
+    //
+    // Scenarios 3 and 4 do not throw exceptions as expected
+    // TODO: look into this further and fix
+
+    @Test
+    public void testParseStringToArray_MissingClosingBrace() {
+        // Test case with missing closing brace "}" with 4 different scenarios
+        String[] input = {
+                "{6, 7, 8", // scenario 1
+                "{2, 3, 4, 5, 6", // scenario 2
+                "{5, 34, 97, 102, 1030", // scenario 3
+                "{202, 203, 204"}; // scenario 4
+
+        for (String i : input) {
+            IllegalArgumentException closedBracketException = assertThrows(IllegalArgumentException.class, () -> Config.parseStringToArray(i));
+            System.out.println("Exception: " + i + " " + closedBracketException.getMessage());
+        }
     }
 
     // Existing implementation does not throw an IllegalArgumentException for invalid inputs.
@@ -68,7 +102,7 @@ public class ConfigTest {
     }
 
     @Test
-    public void testParseStringToArray_InputStringEmptyCase2 () {
+    public void testParseStringToArray_InputStringEmptyCase2() {
         String i = "{}";
         long[] expected = new long[0];
         long[] actual;
@@ -76,10 +110,28 @@ public class ConfigTest {
         assertArrayEquals(expected, actual);
     }
 
-    //@Test
-    //public void testParseStringToArray_IDsPredefinedLimit () {
-    // testing if any transaction IDs are greater than workload.numTransactions }
-}
+    @Test
+    public void testConfigTxtNumTransactionsRetrieval() {
+        // Check whether the retrieved value from config.txt matches the expected value
+        Config.init("./resources/config.txt"); // initialize the configuration file
+        int numTransactions = Config.getPropertyInt("workload.numTransactions"); // retrieve numTransactions
+        // Assert that the value matches the expected value of 100 workload.numTransactions as per config.txt
+        assertEquals(100, numTransactions);
+    }
 
+    //TODO update implementation to include a check for exceeding workload.numTransactions
+
+    @Test
+    public void testParseStringToArray_IDsExceedLimits() {
+        Config.init("./resources/config.txt");
+        int numTransactions = Config.getPropertyInt("workload.numTransactions");
+
+        // One of the IDs exceeds the max allowed value
+        String i = "{9, 15, " + (numTransactions + 1) + "}";
+
+        Exception IDsExceedingLimitException = assertThrows(IllegalArgumentException.class, () -> Config.parseStringToArray(i));
+        System.out.println("Exception: " + IDsExceedingLimitException.getMessage());
+    }
+}
 
 
