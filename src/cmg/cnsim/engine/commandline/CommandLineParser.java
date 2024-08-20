@@ -56,7 +56,7 @@ public final class CommandLineParser {
     private String nodeFile;
 
     @CommandLineOption(
-            key = "output.directory",
+            key = "sim.output.directory",
             description = "Output directory path",
             argument = "<directory>",
             aliases = "--out"
