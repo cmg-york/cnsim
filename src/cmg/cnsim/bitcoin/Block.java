@@ -4,7 +4,7 @@ import cmg.cnsim.engine.node.Node;
 import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionGroup;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -87,7 +87,7 @@ public class Block extends TransactionGroup implements Cloneable {
      *
      * @param initial The initial list of {@link Transaction} objects.
      */
-    public Block(ArrayList<Transaction> initial) {
+    public Block(List<Transaction> initial) {
         super(initial);
         context = new Context();
         groupID = getNextID();
@@ -119,7 +119,7 @@ public class Block extends TransactionGroup implements Cloneable {
             double difficulty,
             double cycles
     ) {
-        super.updateTransactionGroup(newTransList.getGroup());
+        super.updateTransactionGroup(newTransList.getTransactions());
 //    	groupID = getID();
 
         simTime_validation = simTime;

@@ -30,8 +30,7 @@ public class Transaction {
 	    if(size < 0)
 	    	throw new ArithmeticException("Trying to create new transation with Size < 0");
 	    this.size = size;
-	    this.nodeID = -1;
-	}
+    }
 	
 	/**
 	 * Constructor 
@@ -69,7 +68,7 @@ public class Transaction {
 	 * Constructor for given ID. Time, value and size must be initialized with setters.
 	 * @param id The id of the transaction.
 	 */
-	public Transaction(int id) {
+	public Transaction(long id) {
 		super();
 		this.setID(id);
 	}
@@ -130,7 +129,7 @@ public class Transaction {
 	 * Set the unique ID of the transaction.
 	 * @param ID The ID of the transaction.
 	 */
-	public void setID(int ID) {
+	public void setID(long ID) {
 	    this.ID = ID;
 	}
 

@@ -1,9 +1,10 @@
 package cmg.cnsim.engine.transaction;
 
-import cmg.cnsim.engine.AbstractSampler;
 import cmg.cnsim.engine.Sampler;
 
 import java.util.ArrayList;
+import java.util.List;
+
 public class TransactionWorkload extends TransactionGroup {
 
     private Sampler sampler;
@@ -95,8 +96,8 @@ public class TransactionWorkload extends TransactionGroup {
 		return rtx;
 	}
 
-    public ArrayList<Transaction> getAllTransactions() {
-    	return getGroup();
+    public List<Transaction> getAllTransactions() {
+    	return getTransactions();
     }
     //TODO Why did not used get group directly
 	   

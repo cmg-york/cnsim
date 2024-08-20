@@ -137,7 +137,7 @@ public class Simulation {
 	 */
 	public void schedule(TransactionWorkload ts) {
         Event_NewTransactionArrival e;
-		for (Transaction t : ts.getGroup()) {
+		for (Transaction t : ts.getTransactions()) {
 			if (t.getNodeID() == -1) {
 				e = new Event_NewTransactionArrival(t, this.net.getNodeSet().pickRandomNode(), t.getCreationTime());
 			} else {
