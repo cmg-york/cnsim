@@ -1,8 +1,8 @@
 package ca.yorku.cmg.cnsim.engine;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import ca.yorku.cmg.cnsim.ResourceLoader;
+
+import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -52,7 +52,9 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 	public void LoadTransactionWorkload(boolean hasHeaders) throws Exception {
 		int lineCount = 0;
 		String line;
-		try (BufferedReader br = new BufferedReader(new FileReader(transactionsFilePath))) {
+		try (InputStream stream = ResourceLoader.getResourceAsStream(transactionsFilePath)) {
+			BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+
 			while ((line = br.readLine()) != null) {
 				lineCount++;
 				String[] values = line.split(",");

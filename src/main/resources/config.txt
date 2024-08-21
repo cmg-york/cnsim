@@ -10,7 +10,7 @@ sim.output.directory = ./log/
 
 #Network-specific parameters
 #
-net.sampler.file = ./resources/net.csv
+net.sampler.file = net.csv
 net.sampler.seed = 123
 net.sampler.seed.addExpIDToSeed = true
 net.numOfNodes = 5
@@ -21,7 +21,7 @@ net.throughputSD = 20f
 
 # Workload Parameters
 #
-workload.sampler.file = ./resources/workload.csv
+workload.sampler.file = workload.csv
 #workload.sampler.seed = 321
 workload.sampler.seed.addExpIDToSeed = true
 #workload.lambda = 7f
@@ -41,7 +41,7 @@ worlkoad.targetTransaction = 3
 
 # Node Parameters
 #
-node.sampler.file = ./resources/nodelist.csv
+node.sampler.file = nodelist.csv
 node.sampler.seed = {444,222}
 node.sampler.addExpIDToSeed = {0,1}
 node.sampler.seedUpdateTimes = {2500}

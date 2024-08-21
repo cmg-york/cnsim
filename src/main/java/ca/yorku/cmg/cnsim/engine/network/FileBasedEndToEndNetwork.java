@@ -1,16 +1,15 @@
 package ca.yorku.cmg.cnsim.engine.network;
 
 
+import ca.yorku.cmg.cnsim.ResourceLoader;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class FileBasedEndToEndNetwork extends AbstractNetwork {
 
 	private String networkFilePath;
-	
+
     public FileBasedEndToEndNetwork(NodeSet ns, String filename) throws Exception {
         super(ns);
         networkFilePath = filename;
@@ -28,11 +27,13 @@ public class FileBasedEndToEndNetwork extends AbstractNetwork {
     public void LoadFromFile() throws Exception {
     	LoadFromFile(true);
     }
-    
+
     public void LoadFromFile(boolean hasHeaders) throws Exception {
     	int lineCount = 0;
         //read the file from file path
-        try(BufferedReader br = new BufferedReader(new FileReader(networkFilePath))) {
+        try(InputStream stream = ResourceLoader.getResourceAsStream(networkFilePath)) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+
             String line;
             while ((line = br.readLine()) != null) {
             	lineCount++;

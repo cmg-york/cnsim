@@ -1,8 +1,8 @@
 package ca.yorku.cmg.cnsim.engine;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import ca.yorku.cmg.cnsim.ResourceLoader;
+
+import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -29,7 +29,9 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 	
 	public void LoadNodeConfig(boolean hasHeaders) {
 		int lineCount = 0;
-		try (BufferedReader br = new BufferedReader(new FileReader(nodesFilePath))) {
+		try (InputStream stream = ResourceLoader.getResourceAsStream(nodesFilePath)) {
+			BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+
 			String line;
 			while ((line = br.readLine()) != null) {
 				lineCount++;

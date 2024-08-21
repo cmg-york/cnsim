@@ -1,7 +1,9 @@
 package ca.yorku.cmg.cnsim.engine;
 
+import ca.yorku.cmg.cnsim.ResourceLoader;
 import ca.yorku.cmg.cnsim.engine.commandline.CommandLineParser;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,10 +44,12 @@ public class ConfigInitializer {
         if (configFile == null) {
             throw new IllegalArgumentException("Config file is required");
         }
-        String resolvedConfigFile = validateFileExists(configFile, "Config file");
+//        String resolvedConfigFile = validateFileExists(configFile, "Config file");
+        loadPropertiesFromFile(Config.prop, configFile);
+        Config.initialized = true;
 
         // Load config file
-        Config.init(resolvedConfigFile);
+//        Config.init(resolvedConfigFile);
 
         // Create properties with config file values
         Properties properties = new Properties();
@@ -70,9 +74,9 @@ public class ConfigInitializer {
      */
     private static void validateConfig(Properties properties) throws IOException {
         // Validate file paths and resolve them if relative
-        validateFileExists(properties, "workload.sampler.file", "Workload file");
-        validateFileExists(properties, "net.sampler.file", "Network file");
-        validateFileExists(properties, "node.sampler.file", "Node file");
+        loadPropertiesFromFile(properties, properties.getProperty("workload.sampler.file"));
+        loadPropertiesFromFile(properties, properties.getProperty("net.sampler.file"));
+        loadPropertiesFromFile(properties, properties.getProperty("node.sampler.file"));
 
         // Validate dependency between switch times and seed list
         validatePropertyDependency(properties, "node.sampler.seedUpdateTimes", "node.sampler.seed",
@@ -211,4 +215,13 @@ public class ConfigInitializer {
         return resolvedPathString;
     }
 
+    public static void loadPropertiesFromFile(Properties properties, String fileName) {
+        try (InputStream stream = ResourceLoader.getResourceAsStream(fileName)) {
+            if (stream != null) {
+                properties.load(stream);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
