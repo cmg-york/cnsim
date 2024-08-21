@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConfigInitializerTest {
 
     private static final String TEST_RESOURCES_DIR = "test_resources";
-    private static final String CONFIG_NAME = "config.txt";
+    private static final String CONFIG_NAME = "simulation.properties";
     private static final String WORKLOAD_NAME = "workload.txt";
     private static final String NETWORK_NAME = "network.txt";
     private static final String NODE_NAME = "node.txt";

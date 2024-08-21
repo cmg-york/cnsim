@@ -23,11 +23,11 @@ class CommandLineParserTest {
 
     @Test
     void testParseWithValidArguments() {
-        String[] args = {"-c", "config.txt", "--wl", "workload.txt", "--net", "network.txt", "--node", "node.txt", "--out", "output/"};
+        String[] args = {"-c", "simulation.properties", "--wl", "workload.txt", "--net", "network.txt", "--node", "node.txt", "--out", "output/"};
         Properties properties = parser.parse(args);
 
         assertNotNull(properties);
-        assertEquals("config.txt", properties.getProperty("config.file"));
+        assertEquals("simulation.properties", properties.getProperty("config.file"));
         assertEquals("workload.txt", properties.getProperty("workload.sampler.file"));
         assertEquals("network.txt", properties.getProperty("net.sampler.file"));
         assertEquals("node.txt", properties.getProperty("node.sampler.file"));
@@ -42,35 +42,35 @@ class CommandLineParserTest {
 
     @Test
     void testParseWithMissingArgumentValue() {
-        String[] args = {"-c", "config.txt", "--wl"};
+        String[] args = {"-c", "simulation.properties", "--wl"};
         assertThrows(IllegalArgumentException.class, () -> parser.parse(args));
     }
 
     @Test
     void testParseWithUnknownOption() {
-        String[] args = {"-c", "config.txt", "--unknown", "value"};
+        String[] args = {"-c", "simulation.properties", "--unknown", "value"};
         assertThrows(IllegalArgumentException.class, () -> parser.parse(args));
     }
 
     @Test
     void testParseWithInvalidLong() {
-        String[] args = {"-c", "config.txt", "--ws", "notALong"};
+        String[] args = {"-c", "simulation.properties", "--ws", "notALong"};
         assertThrows(IllegalArgumentException.class, () -> parser.parse(args));
     }
 
     @Test
     void testParseWithInvalidLongList() {
-        String[] args = {"-c", "config.txt", "--ns", "{1,2,notALong}"};
+        String[] args = {"-c", "simulation.properties", "--ns", "{1,2,notALong}"};
         assertThrows(IllegalArgumentException.class, () -> parser.parse(args));
     }
 
     @Test
     void testParseWithOnlyConfigFile() {
-        String[] args = {"-c", "config.txt"};
+        String[] args = {"-c", "simulation.properties"};
         Properties properties = parser.parse(args);
 
         assertNotNull(properties);
-        assertEquals("config.txt", properties.getProperty("config.file"));
+        assertEquals("simulation.properties", properties.getProperty("config.file"));
         assertNull(properties.getProperty("workload.sampler.file"));
         assertNull(properties.getProperty("net.sampler.file"));
         assertNull(properties.getProperty("node.sampler.file"));
@@ -84,7 +84,7 @@ class CommandLineParserTest {
     @Test
     void testParseWithAllOptions() {
         String[] args = {
-                "-c", "config.txt",
+                "-c", "simulation.properties",
                 "--wl", "workload.txt",
                 "--net", "network.txt",
                 "--node", "node.txt",
@@ -97,7 +97,7 @@ class CommandLineParserTest {
         Properties properties = parser.parse(args);
 
         assertNotNull(properties);
-        assertEquals("config.txt", properties.getProperty("config.file"));
+        assertEquals("simulation.properties", properties.getProperty("config.file"));
         assertEquals("workload.txt", properties.getProperty("workload.sampler.file"));
         assertEquals("network.txt", properties.getProperty("net.sampler.file"));
         assertEquals("node.txt", properties.getProperty("node.sampler.file"));
@@ -112,7 +112,7 @@ class CommandLineParserTest {
     void testParseWithMixedOrderOptions() {
         String[] args = {
                 "--out", "output/",
-                "-c", "config.txt",
+                "-c", "simulation.properties",
                 "--node", "node.txt",
                 "--wl", "workload.txt",
                 "--net", "network.txt"
@@ -120,7 +120,7 @@ class CommandLineParserTest {
         Properties properties = parser.parse(args);
 
         assertNotNull(properties);
-        assertEquals("config.txt", properties.getProperty("config.file"));
+        assertEquals("simulation.properties", properties.getProperty("config.file"));
         assertEquals("workload.txt", properties.getProperty("workload.sampler.file"));
         assertEquals("network.txt", properties.getProperty("net.sampler.file"));
         assertEquals("node.txt", properties.getProperty("node.sampler.file"));
@@ -129,11 +129,11 @@ class CommandLineParserTest {
 
     @Test
     void testParseWithLongConfigOption() {
-        String[] args = {"--config", "config.txt"};
+        String[] args = {"--config", "simulation.properties"};
         Properties properties = parser.parse(args);
 
         assertNotNull(properties);
-        assertEquals("config.txt", properties.getProperty("config.file"));
+        assertEquals("simulation.properties", properties.getProperty("config.file"));
     }
 
     @Test

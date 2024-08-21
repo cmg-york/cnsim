@@ -72,7 +72,7 @@ public class RandomEndToEndNetwork extends AbstractNetwork {
 	 *
 	 *
 	 * fid a way to update net.nodes in memmory from config file
-	 * think about exceptions too(size of files differs from "config.txt")
+	 * think about exceptions too(size of files differs from "simulation.properties")
 	 *
 	 *
 	 *

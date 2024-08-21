@@ -26,7 +26,7 @@
 //
 //    @BeforeEach
 //    void setUp() throws Exception {
-//        Config.init("./CNSim/tests/BitcoinNode/Case 1 - config.txt");
+//        Config.init("./CNSim/tests/BitcoinNode/Case 1 - simulation.properties");
 //        sampler = new FileBasedSampler("./CNSim/resources/transactions.csv", "./CNSim/resources/nodes.csv");
 //    }
 //

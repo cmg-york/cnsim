@@ -30,7 +30,7 @@
 //
 //	@BeforeEach
 //	void setUp() throws Exception {
-//		Config.init("./CNSim/tests/BitcoinNode/Case 1 - config.txt");
+//		Config.init("./CNSim/tests/BitcoinNode/Case 1 - simulation.properties");
 //
 //		//Creating sampler
 //		sampler = new StandardSampler();
@@ -356,7 +356,7 @@
 //	@Test
 //	void testDoubleSpendingAttack() throws Exception{
 //
-//		Config.init("./CNSim/tests/BitcoinNode/Case 1 - config.txt");
+//		Config.init("./CNSim/tests/BitcoinNode/Case 1 - simulation.properties");
 //		sampler = new FileBasedSampler("./CNSim/tests/BitcoinNode/DoubleSpending - workload.csv", "./CNSim/resources/nodes.csv");
 //		Simulation s = new Simulation(sampler);
 //		AbstractNodeFactory nf = new BitcoinNodeFactory("Honest", s);
