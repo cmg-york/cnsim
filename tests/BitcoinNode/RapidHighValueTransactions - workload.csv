@@ -1,6 +1,0 @@
-ID,Time,Value,Size,Node,Value to Size Ratio,Comment
-1,1,300,400,1,0.75,High value transaction
-2,2,350,300,1,1.166666667,Another high value transaction
-3,3,400,500,1,0.8,Yet another high value transaction
-4,4,450,600,1,0.75,Continuing high value transactions
-5,5,500,700,1,0.714285714,High value transaction streak continues
