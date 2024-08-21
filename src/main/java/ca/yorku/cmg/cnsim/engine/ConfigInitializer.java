@@ -3,15 +3,12 @@ package ca.yorku.cmg.cnsim.engine;
 import ca.yorku.cmg.cnsim.ResourceLoader;
 import ca.yorku.cmg.cnsim.engine.commandline.CommandLineParser;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.io.IOException;
 import java.io.File;
-import java.nio.file.*;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
+import java.util.Properties;
 
 /**
  * Initialize Config by combining command line arguments and configuration file settings.
@@ -44,12 +41,10 @@ public class ConfigInitializer {
         if (configFile == null) {
             throw new IllegalArgumentException("Config file is required");
         }
-//        String resolvedConfigFile = validateFileExists(configFile, "Config file");
-        loadPropertiesFromFile(Config.prop, configFile);
-        Config.initialized = true;
 
         // Load config file
-//        Config.init(resolvedConfigFile);
+        loadPropertiesFromFile(Config.prop, configFile);
+        Config.initialized = true;
 
         // Create properties with config file values
         Properties properties = new Properties();
@@ -69,10 +64,9 @@ public class ConfigInitializer {
      * Validates the combined configuration.
      *
      * @param properties The properties to validate.
-     * @throws IOException If required files do not exist.
      * @throws IllegalArgumentException If the configuration is invalid.
      */
-    private static void validateConfig(Properties properties) throws IOException {
+    private static void validateConfig(Properties properties) {
         // Validate file paths and resolve them if relative
         loadPropertiesFromFile(properties, properties.getProperty("workload.sampler.file"));
         loadPropertiesFromFile(properties, properties.getProperty("net.sampler.file"));
@@ -145,83 +139,13 @@ public class ConfigInitializer {
         }
     }
 
-    private static String validateFileExists(String filePath, String fileDescription) throws IOException {
-        return validateFileExistsInternal(null, null, filePath, fileDescription);
-    }
-
-    private static void validateFileExists(Properties properties, String key, String fileDescription) throws IOException {
-        validateFileExistsInternal(properties, key, properties.getProperty(key), fileDescription);
-    }
-    private static String validateFileExistsInternal(Properties properties, String key, String filePath, String fileDescription) throws IOException {
-        if (filePath == null || filePath.trim().isEmpty()) {
-            throw new IllegalArgumentException(fileDescription + " path is null or empty");
-        }
-
-        System.out.println("Searching for file: " + filePath);
-//        System.out.println("Current working directory: " + System.getProperty("user.dir"));
-
-        Path currentDir = Paths.get(".").toAbsolutePath().normalize();
-
-        List<Path> baseDirs = new ArrayList<>(Arrays.asList(
-                currentDir,
-                currentDir.resolve("resources"),
-                currentDir.getParent(),
-                currentDir.getParent().resolve("resources")
-        ));
-
-        // Add cnsim-specific directories
-        baseDirs.add(currentDir.resolve("cnsim"));
-        baseDirs.add(currentDir.resolve("cnsim").resolve("resources"));
-        baseDirs.add(currentDir.getParent().resolve("cnsim"));
-        baseDirs.add(currentDir.getParent().resolve("cnsim").resolve("resources"));
-
-        Path filePathObj = Paths.get(filePath);
-        Path resolvedPath = null;
-
-//        System.out.println("Searching in the following directories:");
-        for (Path baseDir : baseDirs) {
-            Path candidate = baseDir.resolve(filePathObj).normalize().toAbsolutePath();
-//            System.out.println("Checking: " + candidate);
-
-            if (Files.isRegularFile(candidate) && Files.isReadable(candidate)) {
-                resolvedPath = candidate;
-//                System.out.println("File found at: " + resolvedPath);
-                break;
-            }
-        }
-
-        if (resolvedPath == null) {
-            throw new IOException(fileDescription + " not found or not accessible: " + filePath);
-        }
-
-        File file = resolvedPath.toFile();
-        if (!file.exists()) {
-            throw new IOException(fileDescription + " does not exist: " + resolvedPath);
-        }
-        if (!file.isFile()) {
-            throw new IOException(fileDescription + " is not a file: " + resolvedPath);
-        }
-        if (!file.canRead()) {
-            throw new IOException(fileDescription + " is not readable: " + resolvedPath);
-        }
-
-        String resolvedPathString = resolvedPath.toString();
-        System.out.println("Resolved " + fileDescription + " path: " + resolvedPathString);
-
-        if (properties != null && key != null) {
-            properties.setProperty(key, resolvedPathString);
-        }
-
-        return resolvedPathString;
-    }
-
     public static void loadPropertiesFromFile(Properties properties, String fileName) {
         try (InputStream stream = ResourceLoader.getResourceAsStream(fileName)) {
             if (stream != null) {
                 properties.load(stream);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 }
