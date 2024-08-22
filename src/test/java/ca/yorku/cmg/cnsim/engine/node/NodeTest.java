@@ -3,6 +3,8 @@ package ca.yorku.cmg.cnsim.engine.node;
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class NodeTest {
 
     @Test
@@ -12,7 +14,7 @@ public class NodeTest {
 
         int expectedID = 1;
         int actualID = node.getID();
-        Assert.assertEquals(expectedID, actualID);
+        assertEquals(expectedID, actualID);
     }
 
     @Test
@@ -22,7 +24,7 @@ public class NodeTest {
         float expectedHashPower = 10.0f;
         node.setHashPower(expectedHashPower);
         float actualHashPower = node.getHashPower();
-        Assert.assertEquals(expectedHashPower, actualHashPower, 0.001);
+        assertEquals(expectedHashPower, actualHashPower, 0.001);
     }
 
     @Test
@@ -32,7 +34,7 @@ public class NodeTest {
         float expectedElectricityCost = 0.5f;
         node.setElectricityCost(expectedElectricityCost);
         float actualElectricityCost = node.getElectricityCost();
-        Assert.assertEquals(expectedElectricityCost, actualElectricityCost, 0.001);
+        assertEquals(expectedElectricityCost, actualElectricityCost, 0.001);
     }
 
     @Test
@@ -41,15 +43,15 @@ public class NodeTest {
         Node node = new NodeStub(sim);
 
         // Initially, node should not be mining
-        Assert.assertFalse(node.isMining());
+        assertFalse(node.isMining());
 
         // Start mining and verify the state
         node.startMining();
-        Assert.assertTrue(node.isMining());
+        assertTrue(node.isMining());
 
         // Stop mining and verify the state
         node.stopMining();
-        Assert.assertFalse(node.isMining());
+        assertFalse(node.isMining());
     }
 
     // Add more test cases for other methods as needed
