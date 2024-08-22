@@ -111,7 +111,7 @@ public class ConfigTest {
     @Test
     public void testConfigTxtNumTransactionsRetrieval() {
         // Check whether the retrieved value from simulation.properties matches the expected value
-        Config.init("./resources/simulation.properties"); // initialize the configuration file
+        Config.init("simulation.properties"); // initialize the configuration file
         int numTransactions = Config.getPropertyInt("workload.numTransactions"); // retrieve numTransactions
         // Assert that the value matches the expected value of 100 workload.numTransactions as per simulation.properties
         assertEquals(100, numTransactions);
@@ -121,7 +121,7 @@ public class ConfigTest {
 
     @Test
     public void testParseStringToArray_IDsExceedLimits() {
-        Config.init("./resources/simulation.properties");
+        Config.init("simulation.properties");
         int numTransactions = Config.getPropertyInt("workload.numTransactions");
 
         // One of the IDs exceeds the max allowed value
