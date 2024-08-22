@@ -1,6 +1,5 @@
-package ca.yorku.cmg.cnsim.engine.commandline.test;
+package ca.yorku.cmg.cnsim.engine.commandline;
 
-import ca.yorku.cmg.cnsim.engine.commandline.CommandLineParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

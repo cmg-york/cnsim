@@ -1,6 +1,5 @@
-package ca.yorku.cmg.cnsim.bitcoin.test;
+package ca.yorku.cmg.cnsim.bitcoin;
 
-import ca.yorku.cmg.cnsim.bitcoin.MaliciousNodeBehavior;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

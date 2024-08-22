@@ -1,7 +1,5 @@
-package ca.yorku.cmg.cnsim.engine.transaction.test;
+package ca.yorku.cmg.cnsim.engine.transaction;
 
-import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
-import ca.yorku.cmg.cnsim.engine.transaction.TransactionGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

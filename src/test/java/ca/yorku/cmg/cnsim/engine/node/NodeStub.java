@@ -1,9 +1,7 @@
-package ca.yorku.cmg.cnsim.engine.node.test;
+package ca.yorku.cmg.cnsim.engine.node;
 
 import ca.yorku.cmg.cnsim.engine.IStructure;
 import ca.yorku.cmg.cnsim.engine.Simulation;
-import ca.yorku.cmg.cnsim.engine.node.INode;
-import ca.yorku.cmg.cnsim.engine.node.Node;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 

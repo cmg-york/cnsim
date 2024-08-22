@@ -1,7 +1,5 @@
-package ca.yorku.cmg.cnsim.engine.network.test;
+package ca.yorku.cmg.cnsim.engine.network;
 
-import ca.yorku.cmg.cnsim.engine.network.AbstractNetwork;
-import ca.yorku.cmg.cnsim.engine.network.RandomEndToEndNetwork;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

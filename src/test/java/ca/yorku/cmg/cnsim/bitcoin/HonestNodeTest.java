@@ -1,8 +1,5 @@
-package ca.yorku.cmg.cnsim.bitcoin.test;
+package ca.yorku.cmg.cnsim.bitcoin;
 
-import ca.yorku.cmg.cnsim.bitcoin.BitcoinNode;
-import ca.yorku.cmg.cnsim.bitcoin.BitcoinNodeFactory;
-import ca.yorku.cmg.cnsim.bitcoin.Block;
 import ca.yorku.cmg.cnsim.engine.*;
 import ca.yorku.cmg.cnsim.engine.network.AbstractNetwork;
 import ca.yorku.cmg.cnsim.engine.network.FileBasedEndToEndNetwork;

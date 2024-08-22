@@ -1,4 +1,4 @@
-package ca.yorku.cmg.cnsim.engine.commandline.test;
+package ca.yorku.cmg.cnsim.engine.commandline;
 
 import ca.yorku.cmg.cnsim.engine.Config;
 import ca.yorku.cmg.cnsim.engine.ConfigInitializer;

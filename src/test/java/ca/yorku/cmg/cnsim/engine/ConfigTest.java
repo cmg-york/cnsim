@@ -1,11 +1,9 @@
-package ca.yorku.cmg.cnsim.engine.test;
-
-import static org.junit.jupiter.api.Assertions.*;
+package ca.yorku.cmg.cnsim.engine;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.yorku.cmg.cnsim.engine.Config;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigTest {
 
