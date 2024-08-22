@@ -1,8 +1,10 @@
 package ca.yorku.cmg.cnsim.engine.transaction;
 
+import ca.yorku.cmg.cnsim.ResourceLoader;
+
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -70,7 +72,7 @@ public class TransactionGroup implements ITxContainer {
         float size;
         int nodeID;
 
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        BufferedReader br = new BufferedReader(new InputStreamReader(ResourceLoader.getResourceAsStream(fileName)));
         while ((l = br.readLine()) != null) {
             if (hasHeader) {
                 hasHeader = false;

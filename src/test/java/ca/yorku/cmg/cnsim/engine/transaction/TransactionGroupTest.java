@@ -54,8 +54,8 @@ public class TransactionGroupTest {
 
     @Test
     public void testTransactionGroupFileConstructor_validInput() throws IOException {
-        String pathWithoutHeader = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_validInputWithoutHeader.txt";
-        String pathWithHeader = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_validInputWithHeader.txt";
+        String pathWithoutHeader = "transaction-group/TransactionGroup_validInputWithoutHeader.txt";
+        String pathWithHeader = "transaction-group/TransactionGroup_validInputWithHeader.txt";
 
         TransactionGroup newPool1 = new TransactionGroup(pathWithoutHeader, false);
         TransactionGroup newPool2 = new TransactionGroup(pathWithHeader, true);
@@ -85,31 +85,31 @@ public class TransactionGroupTest {
 
     @Test
     public void testTransactionGroupFileConstructor_checkTxIdStart() {
-        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTxIdStart.txt";
+        String path = "transaction-group/TransactionGroup_checkTxIdStart.txt";
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
     public void testTransactionGroupFileConstructor_checkTxIdIncrement() {
-        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTxIdIncrement.txt";
+        String path = "transaction-group/TransactionGroup_checkTxIdIncrement.txt";
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
     public void testTransactionGroupFileConstructor_checkTxIdIncreasing() {
-        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTxIdIncreasing.txt";
+        String path = "transaction-group/TransactionGroup_checkTxIdIncreasing.txt";
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
     public void testTransactionGroupFileConstructor_checkTimePositive() {
-        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTimePositive.txt";
+        String path = "transaction-group/TransactionGroup_checkTimePositive.txt";
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
     public void testTransactionGroupFileConstructor_checkTimeIncreasing() {
-        String path = "src/cmg/cnsim/engine/transaction/test/text/TransactionGroup_checkTimeIncreasing.txt";
+        String path = "transaction-group/TransactionGroup_checkTimeIncreasing.txt";
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
