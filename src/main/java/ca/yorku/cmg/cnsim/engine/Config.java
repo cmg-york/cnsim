@@ -1,6 +1,7 @@
 package ca.yorku.cmg.cnsim.engine;
 
-import java.io.FileInputStream;
+import ca.yorku.cmg.cnsim.ResourceLoader;
+
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -9,7 +10,7 @@ public class Config {
     static boolean initialized = false;
     
     public static void init(String propFileName) {
-        try (InputStream inputStream = new FileInputStream(propFileName)) {
+        try (InputStream inputStream = ResourceLoader.getResourceAsStream(propFileName)) {
         	prop.load(inputStream);
         	initialized = true;
         } catch (Exception e) {
@@ -18,7 +19,7 @@ public class Config {
             System.exit(-1);
         }
     }
-    
+
     public static void chk(String propertyKey) throws Exception {
     	if (!initialized) {
     		throw new Exception("Error: configuration file uninitialized.");

@@ -30,7 +30,7 @@ class HonestNodeTest {
 	
 	@BeforeEach
 	void setUp() throws Exception {
-        Config.init("./tests/BitcoinNode/HonestNodeTestConfig.txt");
+        Config.init("honest-node-test-simulation.properties");
         
         // Creating simulation object
         s = new Simulation(1);
