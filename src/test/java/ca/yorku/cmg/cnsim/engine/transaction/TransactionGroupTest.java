@@ -2,6 +2,8 @@ package ca.yorku.cmg.cnsim.engine.transaction;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.util.*;
@@ -83,33 +85,15 @@ public class TransactionGroupTest {
         }
     }
 
-    @Test
-    public void testTransactionGroupFileConstructor_checkTxIdStart() {
-        String path = "transaction-group/TransactionGroup_checkTxIdStart.txt";
-        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
-    }
-
-    @Test
-    public void testTransactionGroupFileConstructor_checkTxIdIncrement() {
-        String path = "transaction-group/TransactionGroup_checkTxIdIncrement.txt";
-        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
-    }
-
-    @Test
-    public void testTransactionGroupFileConstructor_checkTxIdIncreasing() {
-        String path = "transaction-group/TransactionGroup_checkTxIdIncreasing.txt";
-        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
-    }
-
-    @Test
-    public void testTransactionGroupFileConstructor_checkTimePositive() {
-        String path = "transaction-group/TransactionGroup_checkTimePositive.txt";
-        assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
-    }
-
-    @Test
-    public void testTransactionGroupFileConstructor_checkTimeIncreasing() {
-        String path = "transaction-group/TransactionGroup_checkTimeIncreasing.txt";
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "transaction-group/TransactionGroup_checkTxIdStart.txt",
+            "transaction-group/TransactionGroup_checkTxIdIncrement.txt",
+            "transaction-group/TransactionGroup_checkTxIdIncreasing.txt",
+            "transaction-group/TransactionGroup_checkTimePositive.txt",
+            "transaction-group/TransactionGroup_checkTimeIncreasing.txt",
+    })
+    public void testTransactionGroupFileConstructor_invalidInput(String path) {
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
