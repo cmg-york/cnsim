@@ -8,13 +8,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BitcoinDifficultyUtility {
-	// specified rounding precision TODO double check bitcoin rounding policy
+	// specified rounding precision TODO verify that bitcoin uses same rounding policy
 	private static MathContext rounding = new MathContext(64, RoundingMode.HALF_EVEN);
 
 	// max value of 64 hex digits (i.e. the search space of hash values)
 	public static final BigDecimal MAX_HASH_VALUE = new BigDecimal(new BigInteger("F".repeat(64), 16));
 
 	// hex representation of initial target (i.e. max allowable value of hash - defines the success space)
+	// TODO verify initial target for mining pools, use whichever is more accurate
 	private static final String INITIAL_TARGET_STR = "00000000FFFF0000000000000000000000000000000000000000000000000000";
 
 	// initial target (target for difficulty of 1) that all difficulties are scaled for
@@ -22,7 +23,9 @@ public class BitcoinDifficultyUtility {
 
 	// equivalent CNSIM difficulty for the initial bitcoin target (search space/success space)
 	public static final double CNSIM_INITIAL_DIFFICULTY = 1.0/INITIAL_TARGET.divide(MAX_HASH_VALUE, rounding).doubleValue();
-
+	
+	// six conversions: difficulty <-> CNSIM, bdiff <-> CNSIM, pdiff <-> CNSIM
+	
 	/**
 	 * Converts from Bitcoin difficulty to CNSIM difficulty. 
 	 * Note that when BTC difficulty is given directly, simply scale the converted 
@@ -62,6 +65,17 @@ public class BitcoinDifficultyUtility {
 	public static double packedTargetToCNSIM(String bits) {
 		return BTCToCNSIM(packedTargetToBTCDifficulty(bits).doubleValue());
 	}
+	
+	/**
+	 * Convenience function to directly convert a CNSIM difficulty to the 
+	 * equivalent packed bitcoin target value (bdiff).
+	 * 
+	 * @param CNSIMDiff The given CNSIM difficulty level.
+	 * @return The equivalent bitcoin packed target value.
+	 */
+	public static String CNSIMToPackedTarget(double CNSIMDiff) {
+		return BTCDifficultyToPackedTarget(new BigDecimal(CNSIMToBTC(CNSIMDiff)));
+	}
 
 	/**
 	 * Often, bitcoin difficulty is not given directly, but implicitly through
@@ -86,6 +100,8 @@ public class BitcoinDifficultyUtility {
 	public static String CNSIMToPoolTarget(double CNSIMDiff) {
 		return BTCDifficultyToPoolTarget(new BigDecimal(CNSIMToBTC(CNSIMDiff)));
 	}
+	
+	
 
 	// HELPER FUNCTIONS - conversions between packed/pool targets and BTC difficulty
 
@@ -94,7 +110,7 @@ public class BitcoinDifficultyUtility {
 	 * Format of packed target is 8 hex digits, with the first two digits the index,
 	 * and the remaining 6 digits representing the coefficient.
 	 * 
-	 * The target is calculated as: coefficient * 2^(8 * (target - 3)), with the leading
+	 * The target is calculated as: coefficient * 2^(8 * (index - 3)), with the leading
 	 * digits being padded with zeroes. In other words, adding 1 to the value of the 
 	 * index places another two trailing hex zeroes to the target.
 	 * 
@@ -121,7 +137,7 @@ public class BitcoinDifficultyUtility {
 			throw new IllegalArgumentException("Negative target value!");
 		}
 
-		// calculate actual value of target
+		// calculate actual value of target, noting that:
 		// 2^(8 * (target - 3)) = 2^(4 * 2 * (target - 3)) = (2^4)^(2 * target - 6)
 		int numZeroes = 2 * index.intValue() - 6;
 		BigInteger multiplier = new BigInteger("16").pow(numZeroes);
@@ -171,14 +187,15 @@ public class BitcoinDifficultyUtility {
 		// difficulty is a scaling factor on the initial target
 		BigInteger scaledTarget = INITIAL_TARGET.divide(difficulty, rounding).toBigInteger();
 		
-		String targetStr = String.format("0x%64s", scaledTarget.toString(16)).replace(" ", "0");
+		String targetStr = String.format("0x%64S", scaledTarget.toString(16)).replace(" ", "0");
 		
 		return targetStr;
 	}
 	
-	// TODO requires exact difficulty, should redesign to generate closest packed target 
+	// TODO verify that this matches actual BTC behaviour
 	/**
-	 * From the bitcoin difficulty, generates the equivalent packed target string.
+	 * From the given bitcoin difficulty, generates the packed target string that
+	 * is closest to the specified difficulty.
 	 * 
 	 * @param difficulty The given level of bitcoin difficulty.
 	 * @return The packed target string implied by the given difficulty.
@@ -187,17 +204,38 @@ public class BitcoinDifficultyUtility {
 		// first get full target string
 		String fullTarget = BTCDifficultyToPoolTarget(difficulty);
 		
-		// calculate index value from number of trailing zero pairs
-		int numPairs = 0;
-		while(fullTarget.substring(61-numPairs*2, 63-numPairs*2).equals("00")) {
-			++numPairs;
+		// find six most significant hex digits, noting the leading zeroes
+		Pattern packedPattern = Pattern.compile("^(0[xX])?(0+)([1-9a-fA-F][0-9a-fA-F]{5})[0-9a-fA-F]+$");
+		Matcher packedMatch = packedPattern.matcher(fullTarget);
+		if(!packedMatch.find()) {
+			throw new IllegalArgumentException(
+					String.format("Difficulty %s corresponds to invalid target value: %s%n", difficulty, fullTarget));
 		}
-		String indexStr = String.format("%02x", numPairs + 3);
 		
-		// next five digits should be the coefficient
-		String coefficientStr = fullTarget.substring(56-numPairs*2, 61-numPairs*2);
+		int leadingZeroes = packedMatch.group(2).length();
+		String coefficient = packedMatch.group(3);
 		
-		String targetStr = String.format("0x%s%s", indexStr, coefficientStr);
+		// generate correct values for the index and coefficient strings, based on count of leading 0s
+		int index;
+		String indexStr;
+		
+		// if it is impossible to correctly place coefficient due to number of leading 0s
+		// (due to index shifting by 2 zeroes at a time) give up a digit to right shift coefficient 
+		if((58 - leadingZeroes) % 2 != 0) {
+			// right shift in coefficient and increase the index 
+			// net effect of one left shift on value, but losing a digit of precision
+			index = (59 - leadingZeroes)/2 + 3;
+			coefficient = String.format("0%S", coefficient.substring(0, 5));
+		}else {
+			index = (58 - leadingZeroes)/2 + 3;
+			
+		}
+		
+		// convert to hex
+		indexStr = String.format("%02X", index);
+		
+		// construct combined packed target string
+		String targetStr = String.format("0x%S%S", indexStr, coefficient);
 		
 		return targetStr;
 	}

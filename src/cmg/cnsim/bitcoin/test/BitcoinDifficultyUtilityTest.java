@@ -3,6 +3,7 @@ package cmg.cnsim.bitcoin.test;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.math.BigInteger;
 import java.util.Random;
 
 import cmg.cnsim.bitcoin.BitcoinDifficultyUtility;
@@ -14,6 +15,7 @@ public class BitcoinDifficultyUtilityTest {
 	// divided by 00000000FFFF0000000000000000000000000000000000000000000000000000
 	// using online calculators, this value is roughly 4.29503×10^9
 	private static final double CNSIM_INITIAL_DIFF = 4295030000.0;
+	// necessary to compensate for limited precision
 	private static final double ERROR_BAND = 10000.0;
 	private static final int MAX_BTC_DIFF = Integer.MAX_VALUE - 1;
 	private static final int NUM_TRIALS = 10000;
@@ -57,6 +59,21 @@ public class BitcoinDifficultyUtilityTest {
 		}
 	}
 	
-	// TODO: test for edge cases, such as floating point underflow
-	// TODO: test for construction of target strings
+	// Note on floating point underflow: IEEE754 specifies double-precision floating points as 
+	// 1 bit sign, 11 bits exponent, 52 bits significand (+1 implicit set bit), as well as 
+	// perserving certain exponent values for special values. This means that we get underflow
+	// at values smaller in magnitude than +/- 2 * 2^-((2^10)-1), which should NOT affect difficulty.
+	@Test
+	public void testUnderflow() {
+		// convert difficulty to pool value, then consider smallest possible change in pool difficulty
+		String BTCDiff = BitcoinDifficultyUtility.CNSIMToPoolTarget(CNSIM_INITIAL_DIFF);
+		BigInteger pool = new BigInteger(BTCDiff.substring(2), 16);
+		pool.subtract(new BigInteger("1", 16));
+		
+		// precision of doubles should be able to handle smallest possible change in difficulty, 
+		// since 1/16^64 = (2^-4)^64 = 2^-256, which is much larger than 2^-((2^10)-1) = 2^-1023
+		double newDiff = BitcoinDifficultyUtility.poolTargetToCNSIM(pool.toString().substring(2));
+
+		assertNotEquals(CNSIM_INITIAL_DIFF, newDiff);
+	}
 }
