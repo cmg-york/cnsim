@@ -1,4 +1,4 @@
-package cmg.cnsim.engine;
+package ca.yorku.cmg.cnsim.engine;
 
 public class NetworkSampler {
 
