@@ -20,8 +20,7 @@ public class BitcoinMainDriver {
     public static void main(String[] args) {
         //run simulation with the given configuration for n times
         BitcoinMainDriver b = new BitcoinMainDriver();
-//        b.run(args);
-        b.run(new String[]{"-c", "simulation.properties"});
+        b.run(args);
     }
 
 
