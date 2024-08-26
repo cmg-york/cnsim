@@ -1,0 +1,63 @@
+########## Java ##########
+
+## Maven
+target/
+
+## IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+## Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+## NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+## VS Code
+.vscode/
+
+## Mac OS
+.DS_Store
+
+## Simulation Artifacts
+log/
+
+########## Python ##########
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Virtual environment (visible)
+env/
+venv/
+virtualenv/
+myenv/
+pyenv/
+ENV/
+
+# Virtual environment (hidden)
+.env/
+.venv/
+.virtualenv/
+.myenv/
+.pyenv/
+.ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
