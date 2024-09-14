@@ -19,19 +19,51 @@ public class Simulation {
 
 	public static long currTime;
 	public static long sysStartTime;
+	public static long sysEndTime;
 	public static int currentSimulationID = 1;
 
 	
 	private int simID;
-	
+		
 	private final EventTimeComparator comp = new EventTimeComparator();
 	protected PriorityQueue<Event> queue = new PriorityQueue<>(comp);
 	
-
-
 	private AbstractNetwork net;
 	//protected AbstractSampler sampler;
 	protected Sampler sampler;
+
+		
+	private long latestKnownEventTime = 0;
+	private long numEventsScheduled = 0;
+	private long numEventsProcessed = 0;
+	
+	public long getLatestKnownEventTime() {
+		return latestKnownEventTime;
+	}
+
+	public long getNumEventsScheduled() {
+		return numEventsScheduled;
+	}
+
+	public long getNumEventsProcessed() {
+		return numEventsProcessed;
+	}
+
+
+	public String getStatistics() {
+		String s;
+		s = "    Total Simulation Time: " + currTime + " (ms)\n";
+		s = s + "    Total Real Time: " + (sysEndTime - sysStartTime) + " (ms)\n";
+		s = s + "    Speed-up factor: " + currTime/(sysEndTime - sysStartTime) + "\n";
+		s = s + "    Total Events Scheduled: " + numEventsScheduled + "\n";
+		s = s + "    Total Events Processed: " + numEventsProcessed + "\n";
+		return(s);
+	}
+	
+
+
+	
+	
 
 
 	public Simulation(int simID) {
@@ -123,6 +155,10 @@ public class Simulation {
 	 * @param e The Event object to be scheduled.
 	 */
 	public void schedule(Event e) {
+		if (e.getTime() > this.latestKnownEventTime) {
+			this.latestKnownEventTime = e.getTime();
+		}
+		numEventsScheduled++;
 	    queue.add(e);
 	}
 
@@ -169,8 +205,10 @@ public class Simulation {
 	    Event e;
 	    while (!queue.isEmpty()){
 	        e = queue.poll(); //it removes the last element of the queue
+	        numEventsProcessed++;
             Simulation.currTime = e.getTime();
             e.happen(this);
 	    }
+		sysEndTime = System.currentTimeMillis();
 	}
 }

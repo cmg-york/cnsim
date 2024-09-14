@@ -5,15 +5,16 @@ import java.util.Random;
 public class StandardNodeSampler extends AbstractNodeSampler {
     SeedManager seedManager;
     Random random;
+    int simID;
 
     public StandardNodeSampler(Sampler s) {
     	this.sampler = s;
     	random = new Random();
     }
 	
-    public StandardNodeSampler(Sampler s, long[] seedArray) {
+    public StandardNodeSampler(Sampler s, long[] seedArray, boolean[] flagArray, Simulation sim) {
     	this(s);
-    	seedManager = new SeedManager(seedArray);
+    	seedManager = new SeedManager(seedArray,flagArray,sim.getSimID());
     	seedManager.updateSeed(random);
     }
 	

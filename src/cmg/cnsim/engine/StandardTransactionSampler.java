@@ -10,8 +10,8 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
     }
 	
     
-    public StandardTransactionSampler(Sampler s, long seed) {
-    	super.random.setSeed(seed);
+    public StandardTransactionSampler(Sampler s, long seed, boolean updateFlag, int simID) {
+    	super.random.setSeed(seed + (updateFlag ? simID :0));
     	this.sampler = s;
     }
 	

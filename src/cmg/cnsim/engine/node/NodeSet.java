@@ -3,8 +3,8 @@ package cmg.cnsim.engine.node;
 import java.util.ArrayList;
 
 import cmg.cnsim.engine.Debug;
-import cmg.cnsim.engine.Reporter;
 import cmg.cnsim.engine.Simulation;
+import cmg.cnsim.engine.reporter.Reporter;
 
 /**
  * Represents a set of nodes participating in a network
@@ -29,13 +29,10 @@ public class NodeSet {
 	}
 	
 	
-	// P r i n t i n g
-	/**
-	 * Manipulating the set
-	 * @deprecated 
-	 */
-	public void _______________Set_Manipulation() {}
-	
+	public void setNodeFactory(AbstractNodeFactory nf) {
+		this.nodeFactory = nf;
+	}
+
 	
 	/**
 	 * Adds a new node to the NodeSet using the configured node factory.

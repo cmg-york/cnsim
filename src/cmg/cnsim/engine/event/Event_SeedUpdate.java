@@ -1,8 +1,8 @@
 package cmg.cnsim.engine.event;
 
 import cmg.cnsim.engine.IMultiSowable;
-import cmg.cnsim.engine.Reporter;
 import cmg.cnsim.engine.Simulation;
+import cmg.cnsim.engine.reporter.Reporter;
 
 
 public class Event_SeedUpdate extends Event {

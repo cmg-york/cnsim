@@ -5,6 +5,7 @@ import cmg.cnsim.engine.Debug;
 import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.node.AbstractNodeFactory;
 import cmg.cnsim.engine.node.INode;
+import cmg.cnsim.engine.node.NodeSet;
 
 /**
  * A factory for various kinds of blockchain nodes.
@@ -15,9 +16,7 @@ import cmg.cnsim.engine.node.INode;
 public class BitcoinNodeFactory extends AbstractNodeFactory {
 
 	String defaultNodeType;
-	private boolean maliciousNodeCreated = false;
-	private final boolean createMaliciousNode;
-	private final double maliciousHashPower;
+	NodeSet refNs;
 
 	/**
 	 * Create a new factory of a specific type (e.g., Honest, Malicious, etc.) based on the sampler embedded in <tt>Simulator sim</tt>.
@@ -29,16 +28,16 @@ public class BitcoinNodeFactory extends AbstractNodeFactory {
 		this.defaultNodeType = defaultNodeType;
 		this.sim = sim;
 		this.sampler = sim.getSampler();
-		this.createMaliciousNode = Config.getPropertyBoolean("node.createMaliciousNode");
-		//check if node.maliciousHashPower is set in the config file
-		if (Config.hasProperty("node.maliciousHashPower")) {
-			this.maliciousHashPower = Config.getPropertyDouble("node.maliciousHashPower");
-		} else {
-			this.maliciousHashPower = 0.0;
-		}
-
 	}
 
+	public BitcoinNodeFactory(String defaultNodeType, Simulation sim, NodeSet refNs){
+		this.defaultNodeType = defaultNodeType;
+		this.sim = sim;
+		this.sampler = sim.getSampler();
+		this.refNs = refNs;
+	}
+	
+	
 	/**
 	 * Create a new node based on the factory.
 	 */
@@ -53,21 +52,37 @@ public class BitcoinNodeFactory extends AbstractNodeFactory {
 		node.setElectricityCost(sampler.getNodeSampler().getNextNodeElectricityCost());
 		node.setSimulation(sim);
 		
-		// Determine and set the appropriate behavior strategy
+		// Determine and set the appropriate behavior strategy and update hashpower
+		float nodeHashPower;
 		NodeBehaviorStrategy strategy;
-		if (this.createMaliciousNode && !this.maliciousNodeCreated) {
+		if (this.defaultNodeType.equals("Malicious")) {
 			strategy = new MaliciousNodeBehavior(node);
-			if (this.maliciousHashPower != 0.0) {node.setHashPower((float) this.maliciousHashPower);}
-			this.maliciousNodeCreated = true; // Mark that the malicious node has been created
+			boolean powerByRatio = Config.getPropertyBoolean("node.maliciousPowerByRatio");
+			if (powerByRatio) {
+				if (this.refNs == null) {
+					throw new Exception("Malicious power by ratio requested but reference honest nodeset not provided.");
+				} else {
+					float powerRatio = Config.getPropertyFloat("node.maliciousRatio");
+					nodeHashPower = powerRatio/(1-powerRatio) * refNs.getTotalHonestHP();
+				}
+			} else { //absolute power
+				nodeHashPower = Config.getPropertyFloat("node.maliciousHashPower");
+			}
+			
+			if (nodeHashPower == -1) {
+				throw new Exception("Error creating malicious node.");
+			} else {
+				node.setHashPower((float) nodeHashPower);
+			}
+			
+			//Set target transaction
+			int targetTx[] = Config.parseStringToIntArray(Config.getPropertyString("workload.sampleTransaction"));
+			((MaliciousNodeBehavior) strategy).setTargetTransaction(targetTx[0]);
+			
 		} else {
 			strategy = new HonestNodeBehavior(node);
 		}
-
-		// Set the behavior strategy on the node
 		node.setBehaviorStrategy(strategy);
-		//node.setHashPower(Config.getPropertyFloat("node.maliciousHashPower"));
-
-		// Return the fully initialized node
 		return node;
 	}
 }

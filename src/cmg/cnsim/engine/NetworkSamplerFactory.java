@@ -1,11 +1,11 @@
 package cmg.cnsim.engine;
 
 public class NetworkSamplerFactory {
-	public AbstractNetworkSampler getNetworkSampler(Sampler outerSampler, Long seed) {
+	public AbstractNetworkSampler getNetworkSampler(Long seed, boolean seedFlag, Sampler outerSampler, Simulation sim) {
 		AbstractNetworkSampler netSampler;
 		netSampler = new StandardNetworkSampler(outerSampler);
 		if (seed != null) {
-			netSampler.setSeed(seed);
+			netSampler.setSeed(seed + (seedFlag ? sim.getSimID() : 0));
 		}
 		return(netSampler);
     }

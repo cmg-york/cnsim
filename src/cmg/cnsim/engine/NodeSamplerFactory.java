@@ -9,6 +9,7 @@ public class NodeSamplerFactory {
 			String path,
 			String seedChain,
 			String changeTimes,
+			String updateFlags,
 			Sampler sampler,
 			Simulation sim
 			) throws Exception {
@@ -20,6 +21,7 @@ public class NodeSamplerFactory {
 		
         boolean hasNodeSeeds = false;
         long seeds[] = null;
+        boolean flags[] = null;
         if ((seedChain != null && !seedChain.isEmpty())) {
         	seeds = Config.parseStringToArray(seedChain);
         	hasNodeSeeds = true;
@@ -29,7 +31,8 @@ public class NodeSamplerFactory {
         long switchTimes[] = null;
         if ((seedChain != null && !seedChain.isEmpty())) {
         	hasSwitchTimes = true;
-        	switchTimes = Config.parseStringToArray(Config.getPropertyString("node.sampler.seedUpdateTimes"));
+        	switchTimes = Config.parseStringToArray(changeTimes);
+        	flags = Config.parseStringToBoolean(updateFlags);
         }
 
 
@@ -39,13 +42,13 @@ public class NodeSamplerFactory {
         
         if (hasPath) {
         	if (hasNodeSeeds) {
-        		nodeSampler = new FileBasedNodeSampler(path, new StandardNodeSampler(sampler,seeds));
+        		nodeSampler = new FileBasedNodeSampler(path, new StandardNodeSampler(sampler,seeds,flags,sim));
         	} else {
         		nodeSampler = new FileBasedNodeSampler(path, new StandardNodeSampler(sampler));
         	}
         } else {
         	if (hasNodeSeeds) {
-        		nodeSampler = new StandardNodeSampler(sampler,seeds);
+        		nodeSampler = new StandardNodeSampler(sampler,seeds,flags,sim);
         	} else {
         		nodeSampler = new StandardNodeSampler(sampler);
         	}
@@ -58,7 +61,7 @@ public class NodeSamplerFactory {
     		} else {
     	        //Schedule seed change events
     	        for (int i = 0; i < switchTimes.length; i++) {
-    	        	Debug.p("Scheduling sampler with chain [...] to swich to next seed at " + switchTimes[i]);
+    	        	Debug.p("    Scheduling sampler with chain [...] to swich to next seed at " + switchTimes[i]);
     	            sim.schedule(new Event_SeedUpdate(nodeSampler, switchTimes[i]));
     	        }
     		}

@@ -70,9 +70,9 @@ public class ConfigInitializer {
      */
     private static void validateConfig(Properties properties) throws IOException {
         // Validate file paths and resolve them if relative
-        validateFileExists(properties, "workload.sampler.file", "Workload file");
-        validateFileExists(properties, "net.sampler.file", "Network file");
-        validateFileExists(properties, "node.sampler.file", "Node file");
+        //validateFileExists(properties, "workload.sampler.file", "Workload file");
+        //validateFileExists(properties, "net.sampler.file", "Network file");
+        //validateFileExists(properties, "node.sampler.file", "Node file");
 
         // Validate dependency between switch times and seed list
         validatePropertyDependency(properties, "node.sampler.seedUpdateTimes", "node.sampler.seed",
@@ -153,7 +153,7 @@ public class ConfigInitializer {
             throw new IllegalArgumentException(fileDescription + " path is null or empty");
         }
 
-        System.out.println("Searching for file: " + filePath);
+//        System.out.println("Searching for file: " + filePath);
 //        System.out.println("Current working directory: " + System.getProperty("user.dir"));
 
         Path currentDir = Paths.get(".").toAbsolutePath().normalize();
@@ -202,7 +202,7 @@ public class ConfigInitializer {
         }
 
         String resolvedPathString = resolvedPath.toString();
-        System.out.println("Resolved " + fileDescription + " path: " + resolvedPathString);
+ //       System.out.println("Resolved " + fileDescription + " path: " + resolvedPathString);
 
         if (properties != null && key != null) {
             properties.setProperty(key, resolvedPathString);

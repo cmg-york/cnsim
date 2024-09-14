@@ -1,9 +1,9 @@
 package cmg.cnsim.engine.network;
 
 import cmg.cnsim.engine.Config;
-import cmg.cnsim.engine.Reporter;
 import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.node.NodeSet;
+import cmg.cnsim.engine.reporter.Reporter;
 
 /**
  * Generic network structure.

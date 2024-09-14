@@ -72,6 +72,16 @@ public abstract class Node implements INode {
 
 
 	/**
+	 * Resets the next available ID to 1. To be used for moving to the next experiment.
+	 * @author Sotirios Liaskos
+	 */
+	public static void resetCurrID() {
+	    currID = 1;
+	}
+	
+	
+	
+	/**
 	 * Gets the ID of the node.
 	 * @return The ID of the node.
 	 */
@@ -266,6 +276,13 @@ public abstract class Node implements INode {
 		if ( (!pool.getTransactions().isEmpty()) && (removeThis != null) )
 			pool.getTransactions().remove(removeThis);
 	}
+
+	public void removeFromPool(int removeThis) {
+		if ( (!pool.getTransactions().isEmpty()) && (removeThis >= 0) )
+			//pool.getTransactions().remove(removeThis);
+			pool.removeTransaction(removeThis);
+	}
+
 	
 	/**
 	 * Propagates the specified transaction container to other nodes in the simulation.

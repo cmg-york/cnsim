@@ -1,0 +1,160 @@
+---
+title: "Finality Calculations"
+author: "Sotirios Liaskos"
+format: html
+editor: visual
+---
+
+## Theory
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+We consider time $t_f$ at which an event arrives at the node of the network. Consider a horizon of analysis $t_h>t_f$. We perform $K$ simulations all starting from point $t_f$. For each simulation $i\in K$ we set predicate $believes_i(n,f,t) = 1$ (otherwise $0$) iff $f$ is considered valid by $n$ at time $t$.
+
+### Node Specific Analysis
+
+Let $pl_{t_f}(n,f,t_h)$ be the probability at time of arrival $t_f$ that $f$ will eventually be final at the end of a horizon $t_h$. An estimation of this probability is given by:
+
+\\\[\\hat{pl\_{t_f}}(n,f,t_h) = mean\_{i\\in K}(believes_i(n,f,t_h))\\\]
+
+In other words, starting from time $t_f$ we spin $K$ parallel worlds (simulations) in which we observe the network operate until time $t_h$. At that time we measure whether the node continues to believe $f$. Then, $\hat{pl_{t_f}}(n,f,t_h)$ describes the proportion of parallel worlds originating from $t_f$ in which the $f$ is believed in $t_h$.
+
+### Network Specific Analysis
+
+To perform the same estimation for the entire network, an over all nodes in the network needs to precede aggregation over simulations. Thus, $conf_i(f,t_h)$ simply represents the degree to which in world $i$ the external observers of the network may be confident that fact $f$ is valid at time $t_h$. To calculate from individual believes values we may simply average:
+
+\\\[\\displaystyle{conf_i(f,t_h) = mean\_{n\\in N}(believes_i(n,f,t_h))}\\\]
+
+Hence, as above, the following is an estimation of the confidence of the external observers at time $t_f$ that, at time $t_h$, $f$ will be considered valid by the network.
+
+\\\[\\hat{conf\_{K}}(f,t_h) = mean\_{i\\in K} (\\hat{conf_i}(f,t_h) )\\\]
+
+Observe also that $conf_i(f,t_h$)\$ constitute i.i.d (independent identically distributed) values from some unknown distribution. In the absence of assumptions about the exact distribution, bootstrapping can be used to offer us confidence intervals.
+
+A use case for the above is to consider the interval $[t_f,t_H]$, where $t_H$ is a maximum horizon. Given an acceptable finality threshold $c$, find the $t_h$ at which $conf_i(f,t)>c, \forall t. t_h \le t\le t_H$, that is confidence surpasses the threshold and remains higher perpetually.
+
+## Example
+
+The routine below performs `numSims` simulations of a PoW network consisting of `numNodes` nodes with a given time horizon `horizon` and a proportion of malicious vs. honest power given in `powerShare`. Each time step can be seen as a round of leader election (i.e., block proposal), whereby an honest or a malicious node proposes a block but imediatelly transmits it. The malicious node is aimed at attacking $f$ (which is assumed to be introduced in the block prior to the start of the simulation) by building a chain that does not include it. Nodes consider $f$ valid if the honest chain is longer than the malicious chain at the horizon. A small noise factor `lossProb` is introduced reflecting the probability that a node does not receive at all a propagated block.
+
+```{r}
+
+library(tidyverse)
+library(nptest)
+
+boot.lower <- function(x,y){
+  npbs <- np.boot(x = x, statistic = y)
+  return(npbs$bca[2,1])
+}
+
+boot.upper <- function(x,y){
+  npbs <- np.boot(x = x, statistic = y)
+  return(npbs$bca[2,2])
+}
+
+simulate <- function(powerShare = c(30,70),
+                     malicious = c(TRUE,FALSE),
+                     horizon = 100,
+                     numNodes = 10,
+                     numSims = 100,
+                     lossProb = 0.3) {
+# Proportion of malicious nodes
+
+  rands = runif(horizon)
+  result = tribble(~Simulation,~Time,~Node,~Believes)
+  
+  pb = txtProgressBar(min = 0, max = numSims, initial = 0,style = 3)
+  
+  for (s in 1:numSims) {
+    setTxtProgressBar(pb,s)
+    # One simulation run
+    honestChainLength = rep(0,numNodes)
+    maliciousChainLength = rep(0,numNodes)
+    
+    mal = sample(malicious,horizon,replace= TRUE,prob = powerShare)
+    
+    for (t in 1:length(mal)){ # every time step
+      for (node in 1:numNodes) {
+        if (runif(1) >= lossProb) {
+          if (mal[t] == 1) {
+             maliciousChainLength[node] =
+               maliciousChainLength[node] + 1 
+          } else {
+            honestChainLength[node] = 
+              honestChainLength[node] + 1
+          }
+        }
+        if (honestChainLength[node] <
+            maliciousChainLength[node]) {
+          b = 0
+        } else {
+          b = 1
+        }
+        
+        result = result %>% add_row(Simulation = s,
+                           Time = t,
+                           Node = node,
+                           Believes = b)
+      }
+    }
+  }
+  close(pb)
+  #Aggregate over network
+  net = result %>% group_by(Simulation,Time) %>% summarise(conf = mean(Believes)) 
+  #Aggregate over simulations
+  confs = net %>% group_by(Time) %>% 
+    summarise(avgConf = mean(conf), sd = sd(conf), medConf = median(conf), lwr = boot.lower(conf,mean),upr = boot.upper(conf,mean), VaR = quantile(conf,0.05))
+  return(list(raw = result,confs = confs))
+}
+
+```
+
+The following is a run for 100 sims, 30 time steps and 10 nodes.
+
+```{r eval=FALSE}
+hor = 30
+sims = 100
+n = 10
+
+out0 = simulate(powerShare = c(0.1,0.9), numNodes = n, horizon = hor, numSims = sims)
+out1 = simulate(numNodes = n, horizon = hor, numSims = sims)
+out2 = simulate(powerShare = c(0.4,0.6), numNodes = n, horizon = hor, numSims = sims)
+out3 = simulate(powerShare = c(0.5,0.5), numNodes = n, horizon = hor, numSims = sims)
+out4 = simulate(powerShare = c(0.6,0.4), numNodes = n, horizon = hor, numSims = sims)
+out5 = simulate(powerShare = c(0.7,0.3), numNodes = n, horizon = hor, numSims = sims)
+
+out0$confs$Condition = "10/90"
+out1$confs$Condition = "30/70"
+out2$confs$Condition = "40/60"
+out3$confs$Condition = "50/50"
+out4$confs$Condition = "60/40"
+out5$confs$Condition = "70/30"
+
+o = rbind(out0$confs,out1$confs,out2$confs,out3$confs,out4$confs,out5$confs)
+
+o$Condition = factor(o$Condition)
+
+saveRDS(o,"data-1000.rds")
+
+```
+
+In the graphs the y axis represents the confidence that at $t_f$, $f$ is considered final assuming time horizons represented by the x axis.
+
+```{r echo=FALSE}
+o <- readRDS("data.rds")
+
+ggplot(data = o, aes(x = Time, y=avgConf)) + geom_line(aes(color = Condition)) + geom_ribbon(aes(ymin=lwr,ymax=upr,fill = Condition),alpha=0.1) + ylab("Confidence") + ggtitle(label = "Confidence in f over time (mean and 95% CI)") + geom_hline(yintercept = 0.8)
+
+```
+
+In the above graph, assume that a merchant is prepared to accept a payment $f$ as final -- hence allowing them to submit their product --when confidence is 0.8. Depending on the assumed weight of the adversarial power, they can estimate how long they should wait before their confidence level is surpassed perpetually.
+
+A risk-based analysis can be performed by calculating a low percentile of network-wide confidence over all histories.
+
+```{r echo=FALSE}
+ggplot(data = o, aes(x = Time, y=VaR)) + geom_line(aes(color = Condition)) + ylab("Confidence") + ggtitle(label = "Confidence in f over time (5th percentile)") + geom_hline(yintercept = 0.8)
+```
+
+Can the comparison of conditions extend to the comparison of different networks and protocols?

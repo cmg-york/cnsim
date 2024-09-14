@@ -2,6 +2,7 @@ package cmg.cnsim.engine;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class Config {
@@ -157,6 +158,30 @@ public class Config {
         return result;
     }
 	
+    
+    
+    public static boolean[] parseStringToBoolean(String input) {
+        // Remove the curly braces and split the string by commas
+        String trimmed = input.substring(1, input.length() - 1);
+        String[] parts = trimmed.split(",");
+
+        // Create an array to store the booleans
+        boolean[] result = new boolean[parts.length];
+
+        // Parse each part to a boolean and store it in the array
+        for (int i = 0; i < parts.length; i++) {
+            result[i] = Boolean.parseBoolean(parts[i].trim());
+        }
+
+        return result;
+    }
+    
+    
+    public static int[] parseStringToIntArray(String input) {
+    	return (Arrays.stream(parseStringToArray(input)).
+    			mapToInt(i -> (int) i).toArray());
+    }
+    
 
     public static void printProperties() {
         for (Object key: prop.keySet()) {

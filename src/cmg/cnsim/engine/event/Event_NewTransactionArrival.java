@@ -1,8 +1,8 @@
 package cmg.cnsim.engine.event;
 
-import cmg.cnsim.engine.Reporter;
 import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.node.INode;
+import cmg.cnsim.engine.reporter.Reporter;
 import cmg.cnsim.engine.transaction.Transaction;
 
 

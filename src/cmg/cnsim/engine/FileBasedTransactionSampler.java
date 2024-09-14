@@ -78,10 +78,10 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 		if (hasHeaders) lineCount--;
 		if (lineCount < requiredTransactionLines) {
 			if (alternativeSampler == null) {
-				throw new Exception("The transaction file does not contain enough lines as per configuration file. Required: "
+				throw new Exception("    The transaction file does not contain enough lines as per configuration file. Required: "
 						+ requiredTransactionLines + ", Found: " + lineCount + ". Define alternative sampler for the additional intervals or update config file.");
 			} else {
-				System.out.println("The transaction file does not contain enough lines as per configuration file. Required: "
+				System.out.println("    The transaction file does not contain enough lines as per configuration file. Required: "
 						+ requiredTransactionLines + ", Found: " + lineCount + ". Additional arrrivals to be drawn from alternative sampler.");
 			}
 		} else if (lineCount > requiredTransactionLines) {

@@ -1,4 +1,4 @@
-package cmg.cnsim.engine;
+package cmg.cnsim.engine.reporter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import cmg.cnsim.engine.Config;
 import cmg.cnsim.engine.node.Node;
 import cmg.cnsim.engine.transaction.Transaction;
 

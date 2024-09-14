@@ -81,6 +81,16 @@ public class Transaction {
 	    return(currID++);
 	}
 	
+	
+	/**
+	 * Resets the next available ID to 1. To be used for moving to the next experiment.
+	 * @author Sotirios Liaskos
+	 */
+	public static void resetCurrID() {
+	    currID = 1;
+	}
+		
+	
 	/**
 	 * Returns the simulation time the transaction was created.
 	 * @return The simulation time the transaction was created.

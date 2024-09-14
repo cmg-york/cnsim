@@ -53,10 +53,10 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 		}
 		if (hasHeaders) lineCount--;
 		if (lineCount < requiredNodeLines) {
-						System.out.println("The nodes file does not contain enough lines as per configuration file. Required: "
+						System.out.println("    The nodes file does not contain enough lines as per configuration file. Required: "
 						+ requiredNodeLines + ", Found: " + lineCount + ". Additional nodes to be drawn from alternative sampler.");
 		} else if (lineCount > requiredNodeLines) {
-			System.out.println("Warning: Nodes file contains more lines than required nodes as per configuration file. Required: "
+			System.out.println("    Warning: Nodes file contains more lines than required nodes as per configuration file. Required: "
 					+ requiredNodeLines + ", Found: " + lineCount);
 		}
 	}

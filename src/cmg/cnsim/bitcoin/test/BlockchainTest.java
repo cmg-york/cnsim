@@ -27,7 +27,8 @@ class BlockchainTest {
     @BeforeEach
     void setUp() {
         blockchain = new Blockchain();
-        Block.currID = 1;
+        //Block.currID = 1;
+        Block.setCurrID(1);
     }
 
     /**

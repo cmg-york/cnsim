@@ -1,22 +1,28 @@
 package cmg.cnsim.bitcoin;
 
-import cmg.cnsim.engine.*;
-import cmg.cnsim.engine.event.Event_SeedUpdate;
-import cmg.cnsim.engine.commandline.CommandLineParser;
+import java.io.IOException;
+import java.util.List;
+import java.util.Scanner;
+
+import cmg.cnsim.engine.Config;
+import cmg.cnsim.engine.ConfigInitializer;
+import cmg.cnsim.engine.Debug;
+import cmg.cnsim.engine.NetworkSamplerFactory;
+import cmg.cnsim.engine.NodeSamplerFactory;
+import cmg.cnsim.engine.Profiling;
+import cmg.cnsim.engine.Sampler;
+import cmg.cnsim.engine.Simulation;
+import cmg.cnsim.engine.TransactionSamplerFactory;
 import cmg.cnsim.engine.network.AbstractNetwork;
 import cmg.cnsim.engine.network.FileBasedEndToEndNetwork;
 import cmg.cnsim.engine.network.RandomEndToEndNetwork;
 import cmg.cnsim.engine.node.AbstractNodeFactory;
 import cmg.cnsim.engine.node.INode;
+import cmg.cnsim.engine.node.Node;
 import cmg.cnsim.engine.node.NodeSet;
+import cmg.cnsim.engine.reporter.ReportEventFactory;
 import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionWorkload;
-
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
 
 
 public class BitcoinMainDriver {
@@ -30,9 +36,17 @@ public class BitcoinMainDriver {
 
     private void run(String[] args) {
         //print current directory
-        System.out.println("Current directory: " + System.getProperty("user.dir"));
+
+        System.out.println("CNSim ver");
+        
+        
+        System.out.println("  * Setting up environment:");
+
+    	System.out.println("    Current directory: " + System.getProperty("user.dir"));
 
 
+    	
+    	System.out.println("    Initializing Configurator");
         // Initialize Config
         try{
             ConfigInitializer.initialize(args);
@@ -50,13 +64,15 @@ public class BitcoinMainDriver {
             runSingleSimulation(simID);
         }
         // SIM SCOPE ENDS HERE
-
+        
+        
         BitcoinReporter.flushBlockReport();
         BitcoinReporter.flushStructReport();
         BitcoinReporter.flushEvtReport();
         BitcoinReporter.flushNodeReport();
         BitcoinReporter.flushInputReport();
         BitcoinReporter.flushNetworkReport();
+        BitcoinReporter.flushBeliefReport();
         BitcoinReporter.flushConfig();
     }
 
@@ -66,7 +82,7 @@ public class BitcoinMainDriver {
         // Creating simulation object
         //
         //
-
+    	System.out.println("\n  * Setting up simulation #" + simID);
         Simulation s = new Simulation(simID);
 
         //
@@ -74,6 +90,7 @@ public class BitcoinMainDriver {
         // Creating Sampler
         //
         //
+    	System.out.println("    Creating and setting Sampler container for Sim #" + simID);
         Sampler sampler = new Sampler();
 
         //
@@ -86,11 +103,13 @@ public class BitcoinMainDriver {
 
         //Develop sampler 1: Node Sampler
         //
+    	System.out.println("    Creating and setting Node Sampler for Sim #" + simID);
         try {
             sampler.setNodeSampler(new NodeSamplerFactory().getSampler(
                     Config.getPropertyString("node.sampler.file"),
                     Config.getPropertyString("node.sampler.seed"),
                     Config.getPropertyString("node.sampler.seedUpdateTimes"),
+                    Config.getPropertyString("node.sampler.updateSeedFlags"),
                     sampler,
                     s
             ));
@@ -100,36 +119,45 @@ public class BitcoinMainDriver {
 
         //Develop sampler 2: Network Sampler
         //
-        sampler.setNetworkSampler(new NetworkSamplerFactory().getNetworkSampler(sampler,Config.getPropertyLong("net.sampler.seed")));
+        System.out.println("    Creating and setting NetworkSampler for Sim #" + simID);
+        sampler.setNetworkSampler(new NetworkSamplerFactory().
+        		getNetworkSampler(
+        				(Config.hasProperty("net.sampler.seed") ? Config.getPropertyLong("net.sampler.seed") : null),
+                        (Config.hasProperty("net.sampler.seed.updateSeed") ? Config.getPropertyBoolean("net.sampler.seed.updateSeed") : null),
+                        sampler,
+                        s));
 
 
         //Develop sampler 3: Transaction Sampler
         //
+        System.out.println("    Creating and setting Transaction Sampler for Sim #" + simID);
         try {
             sampler.setTransactionSampler(
                     new TransactionSamplerFactory().getSampler(
                             Config.getPropertyString("workload.sampler.file"),
                             (Config.hasProperty("workload.sampler.seed") ? Config.getPropertyLong("workload.sampler.seed") : null),
-                            sampler));
+                            (Config.hasProperty("workload.sampler.seed.updateSeed") ? Config.getPropertyBoolean("workload.sampler.seed.updateSeed") : null),
+                            sampler,
+                            s));
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         //
         //
         // Creating the nodes
         //
         //
-
+        System.out.println("    Creating and adding Nodes for Sim #" + simID);
         AbstractNodeFactory nf = new BitcoinNodeFactory("Honest", s);
         NodeSet ns = new NodeSet(nf);
-        Debug.p("Nodeset created");
+        ns.addNodes(Config.getPropertyInt("net.numOfHonestNodes"));
 
-        // Adding nodes
-        ns.addNodes(Config.getPropertyInt("net.numOfNodes"));
-        Debug.p("Nodes added");
+        ns.setNodeFactory(new BitcoinNodeFactory("Malicious", s, ns));
+        ns.addNodes(Config.getPropertyInt("net.numOfMaliciousNodes"));
 
+        
+        
         //
         //
         // Creating the network
@@ -138,11 +166,12 @@ public class BitcoinMainDriver {
 
         //Define network.
         //If a file exists it will be file-based, otherwise, just create a standard network.
+        System.out.println("    Creating Network for Sim #" + simID);
         AbstractNetwork net = null;
         String netFilePath = Config.getPropertyString("net.sampler.file");
         if (netFilePath != null) {
             try {
-                Debug.p("Creating file-based network.");
+                Debug.p("    Creating file-based network.");
                 net = new FileBasedEndToEndNetwork(ns, netFilePath);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -150,19 +179,14 @@ public class BitcoinMainDriver {
         } else {
             try {
                 net = new RandomEndToEndNetwork(ns, sampler);
-                Debug.p("Creating random network.");
+                Debug.p("     Creating random network.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-
-
-
         s.setNetwork(net);
         //n.printNetwork();
-
-
 
         //
         //
@@ -171,6 +195,7 @@ public class BitcoinMainDriver {
         //
 
         // Transaction workload
+        System.out.println("    Creating and Scheduling Workload for Sim #" + simID);
         TransactionWorkload ts = new TransactionWorkload(sampler);
         try {
             ts.appendTransactions(Config.getPropertyLong("workload.numTransactions"));
@@ -187,10 +212,12 @@ public class BitcoinMainDriver {
         //Schedule the workload
         s.schedule(ts);
 
+        
+        //Schedule reporting events
+        ReportEventFactory r = new ReportEventFactory();
+        r.scheduleBeliefReports_Interval(1000000, s, 210000000);
 
-
-
-
+        /*
         // Assign a target transaction for malicious behavior
         Transaction targetTransaction = null;
         if (Config.getPropertyBoolean("node.createMaliciousNode")) {
@@ -204,7 +231,7 @@ public class BitcoinMainDriver {
                 }
             }
         }
-
+		*/
 
         //
         //
@@ -212,25 +239,39 @@ public class BitcoinMainDriver {
         //
         //
 
-
+        System.out.println("\n  * Running Simulation #" + simID);
         Profiling.simBeginningTime = System.currentTimeMillis();
         s.run();
-        long realTime = (System.currentTimeMillis() - Profiling.simBeginningTime); // in Milli-Sec
-        System.out.print("\n");
-        System.out.println("Real time(ms): " + realTime);
-        System.out.println("Simulation time(ms): " + Simulation.currTime);
-
+        //long realTime = (System.currentTimeMillis() - Profiling.simBeginningTime); // in Milli-Sec
+        //System.out.print("\n");
+        //System.out.println("    Real time(ms): " + realTime);
+        //System.out.println("    Simulation time(ms): " + Simulation.currTime);
 
 
         //
+        // Print some simulatoin stats
         //
-        // Clean-up and generate reports
-        //
-        //
+        
+        System.out.println(s.getStatistics());
 
-
+        //
+        //
+        // Clean-up
+        //
+        //
         s.getNodeSet().closeNodes();
 
+        
+        //
+        //
+        // Reset Statics
+        //
+        //
+        Node.resetCurrID();
+        Transaction.resetCurrID();
+        Block.resetCurrID();
+        
+        
     }
 
 

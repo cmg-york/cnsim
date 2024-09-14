@@ -2,10 +2,10 @@ package cmg.cnsim.bitcoin;
 
 import cmg.cnsim.engine.Config;
 import cmg.cnsim.engine.IStructure;
-import cmg.cnsim.engine.Reporter;
 import cmg.cnsim.engine.Simulation;
 import cmg.cnsim.engine.node.INode;
 import cmg.cnsim.engine.node.Node;
+import cmg.cnsim.engine.reporter.Reporter;
 import cmg.cnsim.engine.transaction.ITxContainer;
 import cmg.cnsim.engine.transaction.Transaction;
 import cmg.cnsim.engine.transaction.TransactionGroup;

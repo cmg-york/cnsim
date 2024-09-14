@@ -132,6 +132,22 @@ public class TransactionGroup implements ITxContainer {
         totalValue -= t.getValue();
     }
 
+
+    /**
+     * Like removeTransaction(Transaction) but with ID as an argument. 
+     * See {@linkplain ITxContainer#removeTransaction(Transaction)}.
+     * @param txID
+     */
+    public void removeTransaction(int txID) {
+        Transaction t = getTransactionById((int) txID);
+        if (!group.contains(t)) return;
+        group.remove(t);
+        totalSize -= t.getSize();
+        totalValue -= t.getValue();
+    }
+    
+    
+    
     /**
      * See {@linkplain ITxContainer#removeNextTx()}.
      */
@@ -301,6 +317,16 @@ public class TransactionGroup implements ITxContainer {
         return group.get(index);
     }
 
+    public Transaction getTransactionById(int txID) {
+        for (Transaction r : group) {
+            if (r.getID() == txID) {
+            	return (r);
+            }
+        }
+    	return null;
+    }
+    
+    
     ////////// Print Group //////////
 
     /**
