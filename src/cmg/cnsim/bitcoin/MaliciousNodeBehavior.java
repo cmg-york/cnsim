@@ -7,7 +7,8 @@ import cmg.cnsim.engine.transaction.Transaction;
 import java.util.ArrayList;
 
 public class MaliciousNodeBehavior implements NodeBehaviorStrategy {
-    //private static final int MIN_CHAIN_LENGTH = 6;
+    //TODO: Make these parameterizable
+	//private static final int MIN_CHAIN_LENGTH = 6;
 	private static final int MIN_CHAIN_LENGTH = 2;
     private static final int MAX_CHAIN_LENGTH = 15;
 
