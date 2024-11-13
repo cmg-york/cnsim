@@ -1,0 +1,23 @@
+-encoding
+'UTF-8'
+-protected
+--release
+21
+-sourcepath
+'F:/0. ProtonDrive/Other computers/DESKTOP-PR117J6/Software/Blockchain/cnsim-repo/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2024. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'F:/0. ProtonDrive/Other computers/DESKTOP-PR117J6/Software/Blockchain/cnsim-repo/docs/apidocs'
+-docencoding
+'UTF-8'
+-Xdoclint:all,-missing
+-doctitle
+'cnsim 0.0.1-SNAPSHOT API'
+-use
+-version
+-windowtitle
+'cnsim 0.0.1-SNAPSHOT API'

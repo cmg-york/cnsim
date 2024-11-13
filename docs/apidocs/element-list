@@ -1,0 +1,9 @@
+ca.yorku.cmg.cnsim.bitcoin
+ca.yorku.cmg.cnsim.engine
+ca.yorku.cmg.cnsim.engine.commandline
+ca.yorku.cmg.cnsim.engine.event
+ca.yorku.cmg.cnsim.engine.message
+ca.yorku.cmg.cnsim.engine.network
+ca.yorku.cmg.cnsim.engine.node
+ca.yorku.cmg.cnsim.engine.reporter
+ca.yorku.cmg.cnsim.engine.transaction
