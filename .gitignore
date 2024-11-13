@@ -1,4 +1,8 @@
+# .gitignore for Maven project
+target/
+.idea/
+.classpath
+.project
+*.iml
+*.log
 /bin/
-/log/
-/ERASEME/
-.Rproj.user
