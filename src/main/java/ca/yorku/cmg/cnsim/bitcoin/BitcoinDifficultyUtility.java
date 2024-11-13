@@ -1,4 +1,4 @@
-package ca.yorku.ca.cmg.cnsim.bitcoin;
+package ca.yorku.cmg.cnsim.bitcoin;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

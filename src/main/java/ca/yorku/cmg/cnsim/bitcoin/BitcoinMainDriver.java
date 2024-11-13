@@ -1,4 +1,4 @@
-package ca.yorku.ca.cmg.cnsim.bitcoin;
+package ca.yorku.cmg.cnsim.bitcoin;
 
 import java.io.IOException;
 import java.util.List;

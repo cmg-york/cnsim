@@ -1,4 +1,4 @@
-package ca.yorku.ca.cmg.cnsim.bitcoin;
+package ca.yorku.cmg.cnsim.bitcoin;
 
 import ca.yorku.cmg.cnsim.engine.Config;
 import ca.yorku.cmg.cnsim.engine.IStructure;
