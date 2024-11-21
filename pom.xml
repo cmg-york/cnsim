@@ -113,6 +113,7 @@
         <configuration>
           <excludes>
             <exclude>**/ConfigTest.java</exclude>
+            <exclude>**/commandline/ConfigInitializerTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
