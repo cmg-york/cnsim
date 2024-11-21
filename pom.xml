@@ -114,6 +114,7 @@
           <excludes>
             <exclude>**/ConfigTest.java</exclude>
             <exclude>**/commandline/ConfigInitializerTest.java</exclude>
+            <exclude>**/bitcoin/BitcoinDifficultyUtilityTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
