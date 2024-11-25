@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.*;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.net.URISyntaxException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TransactionGroupTest {
@@ -55,9 +59,9 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testTransactionGroupFileConstructor_validInput() throws IOException {
-        String pathWithoutHeader = getClass().getClassLoader().getResource("text/TransactionGroup_validInputWithoutHeader.txt").getPath();
-        String pathWithHeader = getClass().getClassLoader().getResource("text/TransactionGroup_validInputWithHeader.txt").getPath();
+    public void testTransactionGroupFileConstructor_validInput() throws IOException, URISyntaxException{
+        String pathWithoutHeader = Paths.get(getClass().getClassLoader().getResource("text/TransactionGroup_validInputWithoutHeader.txt").toURI()).toString();
+        String pathWithHeader = Paths.get(getClass().getClassLoader().getResource("text/TransactionGroup_validInputWithHeader.txt").toURI()).toString();
 
         TransactionGroup newPool1 = new TransactionGroup(pathWithoutHeader, false);
         TransactionGroup newPool2 = new TransactionGroup(pathWithHeader, true);
@@ -86,32 +90,32 @@ public class TransactionGroupTest {
     }
 
     @Test
-    public void testTransactionGroupFileConstructor_checkTxIdStart() {
-        String path = getClass().getClassLoader().getResource("text/TransactionGroup_checkTxIdStart.txt").getPath();
+    public void testTransactionGroupFileConstructor_checkTxIdStart() throws URISyntaxException {
+        String path = Paths.get(getClass().getClassLoader().getResource("text/TransactionGroup_checkTxIdStart.txt").toURI()).toString();
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
-    public void testTransactionGroupFileConstructor_checkTxIdIncrement() {
-        String path = getClass().getClassLoader().getResource("text/TransactionGroup_checkTxIdIncrement.txt").getPath();
+    public void testTransactionGroupFileConstructor_checkTxIdIncrement() throws URISyntaxException {
+        String path = Paths.get(getClass().getClassLoader().getResource("text/TransactionGroup_checkTxIdIncrement.txt").toURI()).toString();
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
-    public void testTransactionGroupFileConstructor_checkTxIdIncreasing() {
-        String path = getClass().getClassLoader().getResource("text/TransactionGroup_checkTxIdIncreasing.txt").getPath();
+    public void testTransactionGroupFileConstructor_checkTxIdIncreasing() throws URISyntaxException {
+        String path = Paths.get(getClass().getClassLoader().getResource("text/TransactionGroup_checkTxIdIncreasing.txt").toURI()).toString();
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
-    public void testTransactionGroupFileConstructor_checkTimePositive() {
-        String path = getClass().getClassLoader().getResource("text/TransactionGroup_checkTimePositive.txt").getPath();
+    public void testTransactionGroupFileConstructor_checkTimePositive() throws URISyntaxException {
+        String path = Paths.get(getClass().getClassLoader().getResource("text/TransactionGroup_checkTimePositive.txt").toURI()).toString();
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
     @Test
-    public void testTransactionGroupFileConstructor_checkTimeIncreasing() {
-        String path = getClass().getClassLoader().getResource("text/TransactionGroup_checkTimeIncreasing.txt").getPath();
+    public void testTransactionGroupFileConstructor_checkTimeIncreasing() throws URISyntaxException {
+        String path = Paths.get(getClass().getClassLoader().getResource("text/TransactionGroup_checkTimeIncreasing.txt").toURI()).toString();
         assertThrows(IllegalArgumentException.class, () -> new TransactionGroup(path, false));
     }
 
