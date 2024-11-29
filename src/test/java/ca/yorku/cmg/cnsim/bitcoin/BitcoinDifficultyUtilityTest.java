@@ -1,6 +1,7 @@
 // java.lang.IllegalArgumentException: Invalid target value!
 package ca.yorku.cmg.cnsim.bitcoin;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +15,7 @@ public class BitcoinDifficultyUtilityTest {
 	// out of FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF possible hash values
 	// so the equivalent CNSIM difficulty should be FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 	// divided by 00000000FFFF0000000000000000000000000000000000000000000000000000
-	// using online calculators, this value is roughly 4.29503�10^9
+	// using online calculators, this value is roughly 4.29503*10^9
 	private static final double CNSIM_INITIAL_DIFF = 4295030000.0;
 	// necessary to compensate for limited precision
 	private static final double ERROR_BAND = 10000.0;
@@ -61,10 +62,11 @@ public class BitcoinDifficultyUtilityTest {
 	}
 
 	// Note on floating point underflow: IEEE754 specifies double-precision floating points as
-	// 1 bit sign, 11 bits exponent, 52 bits significand (+1 implicit set bit), as well as
-	// perserving certain exponent values for special values. This means that we get underflow
+	// 1 bit sign, 11 bits exponent, 52 bits significant (+1 implicit set bit), as well as
+	// preserving certain exponent values for special values. This means that we get underflow
 	// at values smaller in magnitude than +/- 2 * 2^-((2^10)-1), which should NOT affect difficulty.
 	@Test
+	@Tag("exclude")
 	public void testUnderflow() {
 		// convert difficulty to pool value, then consider smallest possible change in pool difficulty
 		String BTCDiff = BitcoinDifficultyUtility.CNSIMToPoolTarget(CNSIM_INITIAL_DIFF);

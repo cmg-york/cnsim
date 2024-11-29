@@ -42,13 +42,13 @@ public class NodeSamplerFactory {
         
         if (hasPath) {
         	if (hasNodeSeeds) {
-        		nodeSampler = new FileBasedNodeSampler(path, new StandardNodeSampler(sampler,seeds,flags,sim));
+        		nodeSampler = new FileBasedNodeSampler(path, new StandardNodeSampler(sampler,seeds,flags,sim.getSimID()));
         	} else {
         		nodeSampler = new FileBasedNodeSampler(path, new StandardNodeSampler(sampler));
         	}
         } else {
         	if (hasNodeSeeds) {
-        		nodeSampler = new StandardNodeSampler(sampler,seeds,flags,sim);
+        		nodeSampler = new StandardNodeSampler(sampler,seeds,flags,sim.getSimID());
         	} else {
         		nodeSampler = new StandardNodeSampler(sampler);
         	}

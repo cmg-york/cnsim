@@ -38,7 +38,24 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
      */
     @Override
     public long getNextTransactionSize() {
-        return(long) (sampler.getGaussian(txSizeMean, txSizeSD, random));
+    	long result; 
+    	long minSize = 10;
+    	
+    	int maxTries = 100;
+    	int tries = 0;
+    	
+    	
+    	do {
+    		result = (long) sampler.getGaussian(txSizeMean, txSizeSD, random);
+    		tries++;
+    	} while ((result < minSize) && (tries < maxTries));
+    	
+    	if (tries == maxTries) {
+    		System.err.println("Failed to generate appropriate transaction size after " + tries + " tries. Please check workload.txSizeMean and workload.txSizeSD.");
+    		System.exit(-1);
+    	}
+    	
+        return(result);
     }
     
     /**

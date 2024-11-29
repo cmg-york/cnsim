@@ -5,6 +5,7 @@ import ca.yorku.cmg.cnsim.engine.IStructure;
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
+import ca.yorku.cmg.cnsim.engine.transaction.TransactionGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -311,6 +312,24 @@ public class Blockchain implements IStructure {
                 b.getValidationDifficulty(),
                 b.getValidationCycles());	
 	}
+	
+	
+	/**
+	 * Gathers all transactions that reside in orphan Blocks
+	 * 
+	 * @return A transaction group that contains all transactions contained in the list of orphans.
+	 */
+	public TransactionGroup getAllOrphanTransactions() {
+		TransactionGroup allOrphTxs = new TransactionGroup();
+		for (Block orphan : orphans) {
+            for (Transaction ts: orphan.getTransactions()) {
+            	allOrphTxs.addTransaction(ts);
+            }
+        }
+		return (allOrphTxs);
+	}
+	
+	
 	
 	/**
 	 * @deprecated

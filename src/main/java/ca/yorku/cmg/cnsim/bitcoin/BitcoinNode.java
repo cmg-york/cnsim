@@ -141,9 +141,7 @@ public class BitcoinNode extends Node {
 		miningPool  = pool.getTopN(Config.getPropertyLong("bitcoin.maxBlockSize"), new TxValuePerSizeComparator());
 	}
 
-	public void _______________OtherFunctions() {}
-
-
+	
 	protected void transactionReceipt(Transaction t, long time) {
 		addTransactionToPool(t);
 		reconstructMiningPool();
@@ -168,7 +166,7 @@ public class BitcoinNode extends Node {
 
 	@Override
 	public void event_NodeReceivesPropagatedContainer(ITxContainer t) {
-			behaviorStrategy.event_NodeReceivesPropagatedContainer(t);
+		behaviorStrategy.event_NodeReceivesPropagatedContainer(t);
 	}
 
 

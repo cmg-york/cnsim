@@ -1,5 +1,6 @@
 package ca.yorku.cmg.cnsim.engine.event;
 
+import ca.yorku.cmg.cnsim.engine.ProgressBar;
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
@@ -14,7 +15,8 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 public class Event_NewTransactionArrival extends Event {
     private Transaction transaction;
     private INode node;
-
+    
+    public static int totalqueuedTransactions = 0;
     
     /**
      * Constructs a new Event_NewTransactionArrival.
@@ -40,6 +42,7 @@ public class Event_NewTransactionArrival extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesClientTransaction(transaction, getTime());
+        //System.out.println();
         Reporter.addEvent(
         		sim.getSimID(),
         		getEvtID(), 
@@ -54,5 +57,8 @@ public class Event_NewTransactionArrival extends Event {
         		transaction.getSize(), 
         		transaction.getValue(),
         		getTime());
+        
+        ProgressBar.printProgress((int) transaction.getID(),Event_NewTransactionArrival.totalqueuedTransactions,4);
+        
     }
 }

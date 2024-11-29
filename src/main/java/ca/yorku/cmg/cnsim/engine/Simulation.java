@@ -62,9 +62,6 @@ public class Simulation {
 	
 
 
-	
-	
-
 
 	public Simulation(int simID) {
 		this.simID = simID;
@@ -181,6 +178,7 @@ public class Simulation {
 			}
 	        this.schedule(e);
 		}
+		Event_NewTransactionArrival.totalqueuedTransactions += ts.getCount();
 	}
 
 	

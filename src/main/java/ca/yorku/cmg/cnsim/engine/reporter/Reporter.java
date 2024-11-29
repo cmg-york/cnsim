@@ -30,6 +30,7 @@ public class Reporter {
 	protected static ArrayList<String> nodeLog = new ArrayList<String>();
 	protected static ArrayList<String> netLog = new ArrayList<String>();
 	protected static ArrayList<String> beliefLog = new ArrayList<String>();
+	protected static ArrayList<String> errorLog = new ArrayList<String>();
 
 	protected static String runId;
 	protected static String path;
@@ -165,6 +166,14 @@ public class Reporter {
 	}
 	
 	
+	/**
+	 * Adds an entry to the error log.   
+	 * @param errorMsg The custom error message.
+	 */
+	public static void addErrorEntry(String errorMsg) {
+		errorLog.add(errorMsg);
+	}
+	
 	
 	
 	
@@ -259,6 +268,23 @@ public class Reporter {
 		} 
 	}
 	
+	
+	/**
+	 * Save reporter's error log to file. File name is "ErrorLog - [Simulation Date Time].csv"
+	 * @author Sotirios Liaskos
+	 */
+	public static void flushErrorReport() {
+		FileWriter writer;
+		try {
+			writer = new FileWriter(path + "ErrorLog - " + runId + ".txt");
+			for(String str: errorLog) {
+				  writer.write(str + System.lineSeparator());
+				}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
 	
 	
 	

@@ -2,18 +2,41 @@ package ca.yorku.cmg.cnsim.engine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
 import java.util.Random;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-class StandardSamplerTest {
-	private StandardSampler s;
+import ca.yorku.cmg.cnsim.bitcoin.BitcoinDifficultyUtility;
+import ca.yorku.cmg.cnsim.engine.StandardNodeSampler;
+import ca.yorku.cmg.cnsim.engine.Sampler;
+
+class StandardNodeSamplerTest {
+	private StandardNodeSampler s;
+	private Sampler s0;
 	
 	@BeforeEach
 	void setUp() throws Exception {
-		s = new StandardSampler();
+		String[] args = {"-c", "src/test/resources/application.properties"};
+		long[] seedArray = {123};
+		boolean[] flagArray = {false};	
+		
+
+		System.out.print("Current directory" + System.getProperty("user.dir"));
+		
+        try{
+            ConfigInitializer.initialize(args);
+        } catch (IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
+		
+		s0 = new Sampler();
+
+		s = new StandardNodeSampler(s0, seedArray.clone(), flagArray.clone(), 1);
 	}
 
 	@AfterEach
@@ -23,7 +46,7 @@ class StandardSamplerTest {
 	@Test
 	void testGetNextMiningIntervalTrials() {
 		
-		Random r = new Random();
+		Random r = s.getRandom();
 
 		
 		/**  
@@ -116,7 +139,7 @@ class StandardSamplerTest {
 		 * So on average solves the puzzle in 1 second, i.e. 1000 mseconds
 		 */
 		
-		s.setSeed(1);
+		//s.setSeed(1);
 		s.setCurrentDifficulty(difficulty);
 		
 		double totalMillis = 0;
@@ -150,23 +173,42 @@ class StandardSamplerTest {
 		//fail("Not yet implemented");
 	}
 
-	@Test 
-	void testArrivalInterval() {
+	
+	@Test
+	//@Tag("exclude")
+	void testGetNextMiningIntervalRealistic() {
 		
-		float lambda = 4; //Tx/sec
-		
-		/**
-		 * 4 Transactions per second means 1 (sec)/4 = 0.25 seconds interval.
-		 * Hence 250 msec.
+		/** 
+		 * The time to validate ("solve the puzzle") is simply the expected number of trials, 
+		 * divided by the search capability of the node in trials per second.
+		 * Here the parameter is GTrials / second (billion trials per second).
+		 * The result is in miliseconds.
+		 * 
+		 * In this test we try with realistic data from Bitcoin sources:
+		 * 2024-11-25 parameters:
+		 * 	Difficulty: 102.29 T (in Bitcoin terms) = 102.29 E12 = 1.0229 e14
+		 *  Hash Rate: 706791930.063 TH/sec = 706791930.063 E12 (H/sec) = 706,791,930,063 (GH/sec) = 7.06791930063E11 (GH/sec) 
+		 *  Expected confirmation time: 9.15 minutes
+		 *  
+		 *  
 		 */
 		
-		float interv = 0;
-		float rounds;
+		double difficulty = BitcoinDifficultyUtility.BTCToCNSIM(1.0229E14);
+		double hashpower = 7.06791930063E11; //Giga-trials per second
+		
+		
+		s.setCurrentDifficulty(difficulty);
+		
+		double totalMillis = 0;
+		int rounds;
 		for (rounds=1;rounds<=1000;rounds++) {
-			s.setTxArrivalIntervalRate(lambda);
-			interv += s.getNextTransactionArrivalInterval();
+			totalMillis += s.getNextMiningInterval(hashpower);
 		}
-		System.out.println("Average interval:" + ((float) interv)/((float) rounds));
-		assertEquals(250,((float) interv)/((float) rounds),50);
+		System.out.println("Average time to success: " + ((float) totalMillis)/((float) rounds));
+		System.out.println("..........   in seconds: " + ((float) totalMillis)/((float) rounds)/(60000) + " sec");
+		//60 seconds/minute x 1000 miliseconds/second x 9.15 minutes
+		// give or take 2 minutes =60 seconds/minute x 1000 miliseconds/second x 2 minutes
+		assertEquals(1000*60*9.15,((float) totalMillis)/((float) rounds),1000*60*9.15);
 	}
+	
 }

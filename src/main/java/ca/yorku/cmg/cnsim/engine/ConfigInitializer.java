@@ -153,9 +153,6 @@ public class ConfigInitializer {
             throw new IllegalArgumentException(fileDescription + " path is null or empty");
         }
 
-//        System.out.println("Searching for file: " + filePath);
-//        System.out.println("Current working directory: " + System.getProperty("user.dir"));
-
         Path currentDir = Paths.get(".").toAbsolutePath().normalize();
 
         List<Path> baseDirs = new ArrayList<>(Arrays.asList(

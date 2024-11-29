@@ -106,15 +106,22 @@
     
     
 <plugins>
+	    <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-compiler-plugin</artifactId>
+	        <version>3.10.1</version>
+	        <configuration>
+	        </configuration>
+	    </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.2</version>
         <configuration>
+          <!--<forkCount>0</forkCount>-->
+          <excludedGroups>exclude</excludedGroups>
           <excludes>
-            <exclude>**/ConfigTest.java</exclude>
             <exclude>**/commandline/ConfigInitializerTest.java</exclude>
-            <exclude>**/bitcoin/BitcoinDifficultyUtilityTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>

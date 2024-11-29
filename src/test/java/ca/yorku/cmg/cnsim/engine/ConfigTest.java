@@ -3,6 +3,7 @@ package ca.yorku.cmg.cnsim.engine;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import ca.yorku.cmg.cnsim.engine.Config;
@@ -113,17 +114,17 @@ public class ConfigTest {
     @Test
     public void testConfigTxtNumTransactionsRetrieval() {
         // Check whether the retrieved value from config.txt matches the expected value
-        Config.init("./resources/config.txt"); // initialize the configuration file
+        Config.init("src/test/resources/application.properties"); // initialize the configuration file
         int numTransactions = Config.getPropertyInt("workload.numTransactions"); // retrieve numTransactions
         // Assert that the value matches the expected value of 100 workload.numTransactions as per config.txt
         assertEquals(100, numTransactions);
     }
 
     //TODO update implementation to include a check for exceeding workload.numTransactions
-
     @Test
+    @Tag("exclude")
     public void testParseStringToArray_IDsExceedLimits() {
-        Config.init("./resources/config.txt");
+        Config.init("src/test/resources/application.properties");
         int numTransactions = Config.getPropertyInt("workload.numTransactions");
 
         // One of the IDs exceeds the max allowed value

@@ -1,0 +1,67 @@
+---
+title: "Bitcoin experimental configurations and workloads"
+format: html
+editor: visual
+---
+
+# Standard Bitcoin Network
+
+The first simulation is that of the Bitcoin network with properties as exhibited at a specific arbitrary date namely `2024-11-25`. We begin by collecting macroscopic information about the network at that day using open-source resources.
+
+## Overview
+
+We simulate Bitcoin assuming 30 nodes for a duration of 1 hour. Each node is a stand-in for a greater number of nodes; e.g., a pool. The node has the power of the sum of the powers of the nodes it represents. We are interested in 1 hour of simulation.
+
+## Difficulty and hashpowers
+
+Difficulty is fetched from [CoinWarz](https://www.coinwarz.com/mining/bitcoin/difficulty-chart) and at the time of fetching it (`2024-11-25`) is `102.29T`. We need to convert this Bitcoin-specific difficulty to CNSim difficulty (search space/success space) using the `BitcoinDIfficulyUtility.java` routine `BTCToCNSIM(double BTCDiff)`. The result seen below is given as a parameter:
+
+```{}       
+pow.difficulty = 4.3933637821322E+23
+```
+
+The hashpower of the network estimated on `2024-11-25` is `859.34M TH/s`, according to [YCharts](https://ycharts.com/indicators/bitcoin_network_hash_rate). This is `8.5934e+20 H/s`. For simplicity we assume that this is shared among our 30 nodes, so each has an average power `2.8644667e+19 H/S`. We further assume a `10%` coefficient of variation (CV) so the standard deviation will be `2.8644667e+18 H/S`. Note that, with this way of splitting the hashpowers, summing up the individual hashpowers will likely deviate from the original total hashpower measurement.
+
+```{}       
+pow.hashPowerMean = 2.8644667e+19
+pow.hashPowerSD = 2.8644667e+18
+```
+
+## Workload design
+
+The arrival rate obtained from [Blockchain.com](https://www.blockchain.com/explorer/charts/transactions-per-second) for the date in question is $\lambda$ = `6.494 tx/sec`. That will mean a total of `23,378` transactions included in the workload. According to the same source the average transaction fee is `$3.366 USD` with `1 BTC = $93,003.21 USD`, hence `3.366/93,003.21 = 0.00003619229 BTC = 3.619229E-5 BTC = 3,619.23 SATS`. We will again assume a CV of `10%` for fees.
+
+In addition we learn from [Bitcoin Visuals](https://bitcoinvisuals.com/chain-tx-size) that the average transaction size is `460 bytes`. The web-site offers also the 90th, 50th, 10th percentiles to be `491`, `225`, and `181` bytes. Although the distribution appears to be a long-tail one, we make the simplifying assumption of normality around the median. We will then calculate the standard deviation as follows.
+
+```{R}
+mean <- 225    # Given mean (average)
+p10 <- 181     # 10th percentile
+p90 <- 491     # 90th percentile
+
+# Calculate standard deviation
+z10 <- qnorm(0.1)  # Z-score for 10th percentile
+z90 <- qnorm(0.9)  # Z-score for 90th percentile
+sigma <- (p90 - p10) / (z90 - z10)
+
+sigma
+```
+
+Hence the following is the transaction configuration:
+
+```{}       
+workload.lambda = 6.494f
+...
+workload.txSizeMean = 225f
+workload.txSizeSD = 120.9471f
+workload.txFeeValueMean = 3,619.23f
+workload.txFeeValueSD = 369.19f
+```
+
+## Network and Bandwidth
+
+We finally assume an average `25MBps` end-to-end bandwidth between any two nodes with a CV of `10%`. Hence:
+
+```{}   
+net.throughputMean = 25000f
+net.throughputSD = 2500f
+```

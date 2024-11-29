@@ -38,9 +38,6 @@ class RandomEndToEndNetworkTest {
 		 */
 		System.out.println("Propagation time: " + n.getPropagationTime(50000000, 1000000));
 		assertEquals(160, n.getPropagationTime(50000000, 1000000));
-
-		
-		
 		
 	}
 

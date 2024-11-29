@@ -60,6 +60,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         } else {
             //Discard the block and report the event.
             //reportBlockEvent(b, "Propagated Block Discarded");
+        	BitcoinReporter.addErrorEntry("Node::event_NodeReceivesPropagatedContainer: NodeBlock " + b.getID() + " containing " + b.printIDs(",") + " received through propagation is found to overlap with structure.");
             b.setLastBlockEvent("ERROR: propagated Block already exists");
         	BitcoinReporter.reportBlockEvent(
 					Simulation.currentSimulationID,
@@ -125,7 +126,7 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
 				e.printStackTrace();
 			}
         } else {
-            //reportBlockEvent(b, "Discarding own Block (ERROR)");
+        	BitcoinReporter.addErrorEntry("Node::event_NodeCompletesValidation: Block " + b.getID() + " containing " + b.printIDs(",") + " just validated is found to overlap with structure. This shouldn't happen as the node always updates its miningpool.");
             BitcoinReporter.reportBlockEvent(
 					Simulation.currentSimulationID,
             		b.getSimTime_validation(),
@@ -161,7 +162,6 @@ public class HonestNodeBehavior implements NodeBehaviorStrategy {
         node.blockchain.addToStructure(b);
         //Remove block transactions from pool.
         node.getPool().extractGroup(b);
-        //node.miningPool.extractGroup(b);
         // Reconstruct mining pool based on the new information.
         node.reconstructMiningPool();
         //Consider starting or stopping mining.

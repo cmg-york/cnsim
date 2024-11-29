@@ -12,9 +12,9 @@ public class StandardNodeSampler extends AbstractNodeSampler {
     	random = new Random();
     }
 	
-    public StandardNodeSampler(Sampler s, long[] seedArray, boolean[] flagArray, Simulation sim) {
+    public StandardNodeSampler(Sampler s, long[] seedArray, boolean[] flagArray, int sim) {
     	this(s);
-    	seedManager = new SeedManager(seedArray,flagArray,sim.getSimID());
+    	seedManager = new SeedManager(seedArray,flagArray,sim);
     	seedManager.updateSeed(random);
     }
 	
@@ -35,7 +35,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
 	}
     
     /**
-     * See parent. Uses method {@linkplain StandardSampler#getNextMiningIntervalMiliSeconds(double, double)}.
+     * TODO
      * Result in miliseconds.
      */
     @Override
@@ -63,7 +63,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
     }
 
     /**
-     * As {@linkplain StandardSampler#getNextMiningIntervalMiliSeconds(double, double) but in seconds}
+     * TODO
      *
      * @param hashPower The hashpower for which the interval to be sampled.
      * @param difficulty The difficulty for which the interval to be sampled.
@@ -79,7 +79,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
     }
     /**
      * Get a random sample of the number of seconds needed to successfull validate given specific hash power and difficulty.
-     * Works by first calling {@linkplain StandardSampler#getNextMiningInterval(double)} to get the needed trials and then 
+     * Works by first calling {@linkplain StandardNodeSampler#getNextMiningInterval(double)} to get the needed trials and then 
      * dividing by the node speed (hashpower Giga-trials/second) 
      * @param hashPower The node's hashpower in Giga trials per second (billion trials per second)
      * @param difficulty The difficulty under which validation is taking place [Search Space]/[Success Space]
