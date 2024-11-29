@@ -118,7 +118,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.2</version>
         <configuration>
-          <!--<forkCount>0</forkCount>-->
+        <!--<redirectTestOutputToFile>false</redirectTestOutputToFile>
+          <forkCount>0</forkCount>-->
           <excludedGroups>exclude</excludedGroups>
           <excludes>
             <exclude>**/commandline/ConfigInitializerTest.java</exclude>

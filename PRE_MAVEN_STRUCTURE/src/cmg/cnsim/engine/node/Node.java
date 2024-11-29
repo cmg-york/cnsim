@@ -317,7 +317,7 @@ public abstract class Node implements INode {
 	        if (!n.equals(this)){
 	            long inter = sim.getNetwork().getPropagationTime(this.getID(), n.getID(), t.getSize());
 	            if (inter<=0) {
-	            	System.err.println("Error in 'propagateTransaction' Negative interval between " + this.getID() + " and " + n.getID());
+	            	System.err.println("Error in 'propagateTransaction' negative interval between " + this.getID() + " and " + n.getID() + " interval is " + inter);
 	            	assert(inter > 0);
 	            }
 	            Event_TransactionPropagation e = new Event_TransactionPropagation(t, n, time + inter);

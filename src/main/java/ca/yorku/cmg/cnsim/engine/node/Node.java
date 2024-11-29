@@ -1,10 +1,12 @@
 package ca.yorku.cmg.cnsim.engine.node;
 
+import ca.yorku.cmg.cnsim.engine.Config;
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.event.Event;
 import ca.yorku.cmg.cnsim.engine.event.Event_ContainerArrival;
 import ca.yorku.cmg.cnsim.engine.event.Event_ContainerValidation;
 import ca.yorku.cmg.cnsim.engine.event.Event_TransactionPropagation;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 import ca.yorku.cmg.cnsim.engine.transaction.TransactionGroup;
@@ -316,10 +318,16 @@ public abstract class Node implements INode {
 	    for (INode n : ns_list) {
 	        if (!n.equals(this)){
 	            long inter = sim.getNetwork().getPropagationTime(this.getID(), n.getID(), t.getSize());
-	            if (inter<=0) {
-	            	System.err.println("Error in 'propagateTransaction' Negative interval between " + this.getID() + " and " + n.getID() + " for size " + t.getSize() + " of transaction " + t.getID());
+	            if (inter<0) {
+	            	String error = "Error in 'propagateTransaction' Negative interval between " + this.getID() + " and " + n.getID() + " for size " + t.getSize() + " of transaction " + t.getID() +  " interval is " + inter;
+	            	Reporter.addErrorEntry(error);
+	            	System.err.println(error);
 	            	assert(inter > 0);
 	            }
+
+	            //TODO: do something more elaborate perhaps
+	            inter+= Config.getPropertyInt("net.propagationTime");
+	            
 	            Event_TransactionPropagation e = new Event_TransactionPropagation(t, n, time + inter);
 	            sim.schedule(e);
 	        }
