@@ -23,6 +23,7 @@ public class Simulation {
 	public static int currentSimulationID = 1;
 
 	
+	
 	private int simID;
 		
 	private final EventTimeComparator comp = new EventTimeComparator();
@@ -34,6 +35,9 @@ public class Simulation {
 
 		
 	private long latestKnownEventTime = 0;
+	private long terminationTime = 0;
+
+
 	private long numEventsScheduled = 0;
 	private long numEventsProcessed = 0;
 	
@@ -44,11 +48,16 @@ public class Simulation {
 	public long getNumEventsScheduled() {
 		return numEventsScheduled;
 	}
-
+	
 	public long getNumEventsProcessed() {
 		return numEventsProcessed;
 	}
 
+	public void setTerminationTime(long terminationTime) {
+		this.terminationTime = terminationTime;
+	}
+
+	
 
 	public String getStatistics() {
 		String s;
@@ -205,6 +214,10 @@ public class Simulation {
 	        e = queue.poll(); //it removes the last element of the queue
 	        numEventsProcessed++;
             Simulation.currTime = e.getTime();
+            if (Simulation.currTime > this.terminationTime) {
+            	System.out.println("\n\n    Sim #" + this.getSimID() + ": reached termination time. Ignoring remaining queue and exiting.");
+            	break;
+            }
             e.happen(this);
 	    }
 		sysEndTime = System.currentTimeMillis();

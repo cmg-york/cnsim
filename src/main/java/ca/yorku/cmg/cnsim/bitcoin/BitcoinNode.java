@@ -139,6 +139,7 @@ public class BitcoinNode extends Node {
 
 	protected void reconstructMiningPool() {
 		miningPool  = pool.getTopN(Config.getPropertyLong("bitcoin.maxBlockSize"), new TxValuePerSizeComparator());
+		//miningPool.extractGroup(blockchain.getAllOrphanTransactions());
 	}
 
 	

@@ -3,6 +3,7 @@ package ca.yorku.cmg.cnsim.bitcoin;
 import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.IStructure;
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 import ca.yorku.cmg.cnsim.engine.transaction.TransactionGroup;
@@ -478,7 +479,7 @@ public class Blockchain implements IStructure {
 
 			if (found1 || found2) {
 				//TODO: this is never happening. Is it normal?
-				System.out.println("Block " + block.getID() + " is contained in the blockchain at height " + counter);
+				Reporter.addErrorEntry("Block " + block.getID() + " is contained in the blockchain at height " + counter);
 				return true; // Found the block in the parental structure
 				}
 

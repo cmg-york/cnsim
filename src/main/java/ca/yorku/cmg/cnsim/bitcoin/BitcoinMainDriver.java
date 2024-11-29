@@ -219,6 +219,8 @@ public class BitcoinMainDriver {
         //Schedule the workload
         s.schedule(ts);
 
+        //Set hard termination time
+        s.setTerminationTime(Config.getPropertyLong("sim.terminate.atTime"));
         
         //Schedule reporting events
         ReportEventFactory r = new ReportEventFactory();

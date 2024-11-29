@@ -275,15 +275,20 @@ public class Reporter {
 	 */
 	public static void flushErrorReport() {
 		FileWriter writer;
+		boolean errorsExist = false;
 		try {
 			writer = new FileWriter(path + "ErrorLog - " + runId + ".txt");
 			for(String str: errorLog) {
-				  writer.write(str + System.lineSeparator());
-				}
+				writer.write(str + System.lineSeparator());
+				errorsExist = true;
+			}
 			writer.close();
+			if (errorsExist) {
+				System.err.println("    Errors were produced. Please check " + path + "ErrorLog - " + runId + ".txt");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		} 
+		}
 	}
 	
 	
