@@ -4,25 +4,49 @@ format: html
 editor: visual
 ---
 
+# Index
+
++-----------------------------------+-----------------------------------------------------------------------------+
+| Configuration                     | Description                                                                 |
++===================================+=============================================================================+
+| `bitcoin.application.properties`  | Realistic Bitcoin Simulation with                                           |
+|                                   |                                                                             |
+| ([Standard Bitcoin Network])      | -   30 nodes                                                                |
+|                                   |                                                                             |
+|                                   | -   Difficulty, power, arrival rate, tx size, parameters as of `2024-11-25` |
++-----------------------------------+-----------------------------------------------------------------------------+
+|                                   |                                                                             |
++-----------------------------------+-----------------------------------------------------------------------------+
+|                                   |                                                                             |
++-----------------------------------+-----------------------------------------------------------------------------+
+
+: Configuration Files
+
 # Standard Bitcoin Network
 
-The first simulation is that of the Bitcoin network with properties as exhibited at a specific arbitrary date namely `2024-11-25`. We begin by collecting macroscopic information about the network at that day using open-source resources.
+Configuration file: `bitcoin.application.properties`
+
+Workload: `bitcoin.application.workload.cvs`
 
 ## Overview
 
-We simulate Bitcoin assuming 30 nodes for a duration of 1 hour. Each node is a stand-in for a greater number of nodes; e.g., a pool. The node has the power of the sum of the powers of the nodes it represents. We are interested in 1 hour of simulation.
+We simulate the Bitcoin network with properties as exhibited at a specific arbitrary date namely `2024-11-25`.
+
+We assume 30 nodes. Each node is a stand-in for a greater number of nodes; e.g., a pool. The node has the power of the sum of the powers of the nodes it represents.
+
+We are interested in 1 hour of simulation.
 
 ## Difficulty and hashpowers
 
 Difficulty is fetched from [CoinWarz](https://www.coinwarz.com/mining/bitcoin/difficulty-chart) and at the time of fetching it (`2024-11-25`) is `102.29T`. We need to convert this Bitcoin-specific difficulty to CNSim difficulty (search space/success space) using the `BitcoinDIfficulyUtility.java` routine `BTCToCNSIM(double BTCDiff)`. The result seen below is given as a parameter:
 
-```{}       
+```         
 pow.difficulty = 4.3933637821322E+23
 ```
 
 The hashpower of the network estimated on `2024-11-25` is `859.34M TH/s`, according to [YCharts](https://ycharts.com/indicators/bitcoin_network_hash_rate). This is `8.5934e+20 H/s`. For simplicity we assume that this is shared among our 30 nodes, so each has an average power `2.8644667e+19 H/S`. We further assume a `10%` coefficient of variation (CV) so the standard deviation will be `2.8644667e+18 H/S`. Note that, with this way of splitting the hashpowers, summing up the individual hashpowers will likely deviate from the original total hashpower measurement.
 
-```{}       
+```         
 pow.hashPowerMean = 2.8644667e+19
 pow.hashPowerSD = 2.8644667e+18
 ```
@@ -48,7 +72,7 @@ sigma
 
 Hence the following is the transaction configuration:
 
-```{}       
+```         
 workload.lambda = 6.494f
 ...
 workload.txSizeMean = 225f
@@ -61,7 +85,13 @@ workload.txFeeValueSD = 369.19f
 
 We finally assume an average `25MBps` end-to-end bandwidth between any two nodes with a CV of `10%`. Hence:
 
-```{}   
+```         
 net.throughputMean = 25000f
 net.throughputSD = 2500f
 ```
+
+## Target Transaction
+
+We use 10 (10) transactions (200, 210, ..., 300) as the sample of transactions on which to perform the analysis.
+
+# Lightweight Bitcoin Simulation
