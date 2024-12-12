@@ -59,6 +59,12 @@ public class Event_NewTransactionArrival extends Event {
         		getTime());
         
         ProgressBar.printProgress((int) transaction.getID(),sim.totalqueuedTransactions,4);
+
+        // If the transaction has been marked (at TransactionWorkload) as seed changing.
+        // update the node seeds. (Transaction Sampler seeds have been updated at workload creation).
+        if (transaction.isSeedChanging()) {
+        	sim.getSampler().getNodeSampler().updateSeed();
+        }
         
     }
 }

@@ -1,6 +1,7 @@
 package ca.yorku.cmg.cnsim.engine;
 
 import ca.yorku.cmg.cnsim.engine.commandline.CommandLineParser;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +60,13 @@ public class ConfigInitializer {
 
         // Initialize Config prop with the properties
         Config.prop.putAll(properties);
+     
+        Reporter.reportEvents(Config.getPropertyBoolean("reporter.reportEvents"));
+        Reporter.reportTransactions(Config.getPropertyBoolean("reporter.reportTransactions"));
+        Reporter.reportNodes(Config.getPropertyBoolean("reporter.reportNodes"));
+        Reporter.reportNetEvents(Config.getPropertyBoolean("reporter.reportNetEvents"));
+        Reporter.reportBeliefs(Config.getPropertyBoolean("reporter.reportBeliefs"));
+        
     }
 
     /**

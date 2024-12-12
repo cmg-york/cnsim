@@ -141,6 +141,23 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
     public int getRandomNum(int min, int max) {
         return(alternativeSampler.getRandomNum(min, max));
     }
+
+	@Override
+	public void updateSeed() {
+		alternativeSampler.updateSeed();
+	}
+
+	@Override
+	public long getSeedChangeTx() {
+		return(alternativeSampler.getSeedChangeTx());
+	}
+
+	@Override
+	public boolean seedUpdateEnabled() {
+		return(alternativeSampler.seedUpdateEnabled());
+	}
+    
+    
     
 
 }

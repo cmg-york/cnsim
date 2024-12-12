@@ -194,7 +194,6 @@ class StandardNodeSamplerTest {
 		 */
 		
 		double difficulty = BitcoinDifficultyUtility.BTCToCNSIM(1.0229E14);
-		System.err.println(difficulty);
 		double hashpower = 7.06791930063E11; //Giga-trials per second
 		
 		

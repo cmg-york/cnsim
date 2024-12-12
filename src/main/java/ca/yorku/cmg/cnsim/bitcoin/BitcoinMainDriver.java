@@ -21,6 +21,7 @@ import ca.yorku.cmg.cnsim.engine.node.AbstractNodeFactory;
 import ca.yorku.cmg.cnsim.engine.node.Node;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
 import ca.yorku.cmg.cnsim.engine.reporter.ReportEventFactory;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 import ca.yorku.cmg.cnsim.engine.transaction.TransactionWorkload;
 
@@ -49,6 +50,12 @@ public class BitcoinMainDriver {
             System.exit(1);
         }
 
+        
+        //INitialize Bitcoin reporter
+        BitcoinReporter.reportBlockEvents(Config.getPropertyBoolean("reporter.reportBlockEvents"));
+        BitcoinReporter.reportStructureEvents(Config.getPropertyBoolean("reporter.reportStructureEvents"));
+        
+        
         // Get the number of simulations to run
         int numSimulations = Config.getPropertyInt("sim.numSimulations");
 
@@ -137,8 +144,9 @@ public class BitcoinMainDriver {
             sampler.setTransactionSampler(
                     new TransactionSamplerFactory().getSampler(
                             Config.getPropertyString("workload.sampler.file"),
-                            (Config.hasProperty("workload.sampler.seed") ? Config.getPropertyLong("workload.sampler.seed") : null),
-                            (Config.hasProperty("workload.sampler.seed.updateSeed") ? Config.getPropertyBoolean("workload.sampler.seed.updateSeed") : null),
+                            //(Config.hasProperty("workload.sampler.seed") ? Config.getPropertyLong("workload.sampler.seed") : null),
+                            //(Config.hasProperty("workload.sampler.seed.updateSeed") ? Config.getPropertyBoolean("workload.sampler.seed.updateSeed") : null),
+                            //(Config.hasProperty("workload.sampler.seed.updateTransaction") ? Config.getPropertyLong("workload.sampler.seed.updateTransaction") : null),
                             sampler,
                             s));
         } catch (Exception e) {

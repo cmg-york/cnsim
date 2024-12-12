@@ -11,7 +11,16 @@ public class Transaction {
 	protected long creationTime;
 	protected int nodeID = -1;
 	protected Type type;
+	protected boolean seedChanging;
 
+	public void makeSeedChanging() {
+		this.seedChanging = true;
+	}
+
+	public boolean isSeedChanging() {
+		return(this.seedChanging);
+	}
+	
 	/**
 	 * Constructor 
 	 * @param ID The ID of the transaction.

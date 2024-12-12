@@ -207,6 +207,8 @@ public abstract class AbstractTransactionSampler implements ISowable {
 	 */
     public abstract float getNextTransactionArrivalInterval() throws Exception;
 
+    
+    
     /**
      * Get a sample transaction fee value.
      * @return Transaction fee value (local tokens).
@@ -230,6 +232,15 @@ public abstract class AbstractTransactionSampler implements ISowable {
 	 */
     public abstract int getRandomNum(int min, int max);
 
+	//
+    //
+    // Seed management
+    //
+    //
+    
+    public abstract void updateSeed();
+    public abstract long getSeedChangeTx();
+	public abstract boolean seedUpdateEnabled();
 	
     
 }

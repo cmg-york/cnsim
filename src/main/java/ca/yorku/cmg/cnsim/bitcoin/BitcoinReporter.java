@@ -21,6 +21,19 @@ public class BitcoinReporter extends Reporter {
 	protected static FileWriter blockWriter;
 
 	
+	protected static boolean reportBlockEvents;
+	protected static boolean reportStructureEvents;
+	
+	public static void reportBlockEvents(boolean reportBlockEvents) {
+		BitcoinReporter.reportBlockEvents = reportBlockEvents;
+	}
+
+
+	public static void reportStructureEvents(boolean reportStructureEvents) {
+		BitcoinReporter.reportStructureEvents = reportStructureEvents;
+	}
+
+	
 	static {
 		blockLog.add("SimID, SimTime,SysTime,NodeID,"
 				+ "BlockID,ParentID,Height,BlockContent,"
@@ -36,13 +49,15 @@ public class BitcoinReporter extends Reporter {
 	 * @author Sotirios Liaskos
 	 */
 	public static void reportBlockChainState(String[] blockchain, String[] orphans) {
-		for (String s :blockchain) {
-			//s = SimTime + "," + SysTime + "," + blockID + "," + s + ",blockchain";
-			structureLog.add(s);
-		}
-		for (String s :orphans) {
-			//s = SimTime + "," + SysTime + "," + blockID + "," + s + ",orphans";
-			structureLog.add(s);
+		if (BitcoinReporter.reportStructureEvents) {
+			for (String s :blockchain) {
+				//s = SimTime + "," + SysTime + "," + blockID + "," + s + ",blockchain";
+				structureLog.add(s);
+			}
+			for (String s :orphans) {
+				//s = SimTime + "," + SysTime + "," + blockID + "," + s + ",orphans";
+				structureLog.add(s);
+			}
 		}
 	}
 	
@@ -67,7 +82,8 @@ public class BitcoinReporter extends Reporter {
 			int blockID, int parentID, int height, String txInvolved,
 			String blockEvt,
 			double difficulty, //Difficulty: the difficulty under which the block was validated.
-			double cycles) { //Cycles: the number of cycles dedicated to validate the block. 
+			double cycles) { //Cycles: the number of cycles dedicated to validate the block.
+		if (BitcoinReporter.reportBlockEvents)
 		blockLog.add(simID + "," +
 				simTime + "," + 
 				sysTime + "," +

@@ -1,5 +1,6 @@
 package ca.yorku.cmg.cnsim.engine.transaction;
 
+import ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler;
 import ca.yorku.cmg.cnsim.engine.Sampler;
 
 import java.util.ArrayList;
@@ -9,7 +10,8 @@ public class TransactionWorkload extends TransactionGroup {
 
     private Sampler sampler;
     private long timeEnd = 0;
-    
+
+   
     //Sampler based workload generation
     @Deprecated
     public void ___________________Sampler_Based() {}
@@ -20,6 +22,7 @@ public class TransactionWorkload extends TransactionGroup {
      */
     public TransactionWorkload(Sampler sampler) {
         this.sampler = sampler;
+
     }
     
     /**
@@ -48,6 +51,8 @@ public class TransactionWorkload extends TransactionGroup {
         timeEnd = currTime;
     }
 
+    
+    
     /**
      * Appends a specified number of transactions after the last transaction in the workload.
      * @param num The number of transactions to append.
@@ -69,12 +74,22 @@ public class TransactionWorkload extends TransactionGroup {
      */
     public void addTransaction(long currTime) throws Exception{
         Transaction t;
-
-        t = new Transaction(Transaction.getNextTxID(),
+        
+        long trID = Transaction.getNextTxID();
+        
+        t = new Transaction(trID,
                 currTime,
                 sampler.getTransactionSampler().getNextTransactionFeeValue(),
                 sampler.getTransactionSampler().getNextTransactionSize());
         t.setType(Transaction.Type.HONEST);
+        
+        if (trID == sampler.getTransactionSampler().getSeedChangeTx()) {
+        	if (sampler.getTransactionSampler().seedUpdateEnabled()) {
+            	t.makeSeedChanging();
+            	sampler.getTransactionSampler().updateSeed();
+        	}
+        }
+        
         addTransaction(t);
     }
     
@@ -116,6 +131,24 @@ public class TransactionWorkload extends TransactionGroup {
     	super(fileName, hasHeader);
     }
 
-          
+        
+    
+    // 
+    //
+    //  S E E D   M A N A G E M E N T
+    //
+    //
+    
+    
+    
+    
+    //If (a) transactionID is exceeding the one in node.sampler.seedUpdateTransaction
+    //   (b) node.sampler.updateSeedFlag is true
+    //   INPUT: transation.getID, sim.getSeedUpdateTransaction() (inputed during configuration), sim.doNodesUpdateSeeds() (inputed during configuration)
+    //Then: 
+    //   Do exactly what the happen in the update event:
+    //sim.getSampler().updateSeed();
+    
+    
 }
     

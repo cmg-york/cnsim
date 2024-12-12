@@ -35,7 +35,37 @@ public class Reporter {
 	protected static String runId;
 	protected static String path;
 	protected static String root = "./log/";
+	
 
+	protected static boolean reportEvents;
+	protected static boolean reportTransactions;
+	protected static boolean reportNodes;
+	protected static boolean reportNetEvents;
+	protected static boolean reportBeliefs;
+
+
+	public static void reportEvents(boolean reportEvents) {
+		Reporter.reportEvents = reportEvents;
+	}
+
+	public static void reportTransactions(boolean reportTransactions) {
+		Reporter.reportTransactions = reportTransactions;
+	}
+
+	public static void reportNodes(boolean reportNodes) {
+		Reporter.reportNodes = reportNodes;
+	}
+
+	public static void reportNetEvents(boolean reportNetEvents) {
+		Reporter.reportNetEvents = reportNetEvents;
+	}
+
+	public static void reportBeliefs(boolean reportBeliefs) {
+		Reporter.reportBeliefs = reportBeliefs;
+	}
+
+	
+	
 	static {
 		root = Config.getPropertyString("sim.output.directory");
 
@@ -78,7 +108,8 @@ public class Reporter {
 	 */
 	public static void addEvent(int simID, long evtID, long simTime, long sysTime, 
 			String evtType, int nodeInvolved, long objInvolved) {
-		eventLog.add(simID + "," + 
+		if (Reporter.reportEvents)
+			eventLog.add(simID + "," + 
 					evtID + "," + 
 					simTime + "," + 
 					sysTime + "," +
@@ -98,7 +129,8 @@ public class Reporter {
 	 * @author Sotirios Liaskos
 	 */
 	public static void addTx(int simID, long txID, float size, float value, long simTime) {
-		inputTxLog.add(simID + "," +
+		if (Reporter.reportTransactions)
+			inputTxLog.add(simID + "," +
 					txID + "," + 
 					size + "," +
 					value + "," +
@@ -116,8 +148,9 @@ public class Reporter {
 	 * @author Sotirios Liaskos
 	 */
 	public static void addNode(int simID, int nodeID, float hashPower, float electricPower, 
-			float electricityCost, double totalCycles) {
-		nodeLog.add(simID + "," +
+		float electricityCost, double totalCycles) {
+			if (Reporter.reportNodes)
+				nodeLog.add(simID + "," +
 					nodeID + "," + 
 					hashPower + "," +
 					electricPower + "," +
@@ -140,7 +173,8 @@ public class Reporter {
 	 * @param simTime The time at which the event happened
 	 */
 	public static void addNetEvent(int simID, int from, int to, float bandwidth, long simTime) {
-		netLog.add(simID + "," +
+		if (Reporter.reportNetEvents)
+			netLog.add(simID + "," +
 					from + "," + 
 					to + "," +
 					bandwidth + "," +
@@ -158,7 +192,8 @@ public class Reporter {
 	 * @param simTime The time at which the report is produced.
 	 */
 	public static void addBeliefEntry(int simID, int node, long tx, boolean believes, long simTime) {
-		beliefLog.add(simID + "," +
+		if (Reporter.reportBeliefs)
+			beliefLog.add(simID + "," +
 					node + "," + 
 					tx + "," +
 					believes + "," +
@@ -173,10 +208,7 @@ public class Reporter {
 	public static void addErrorEntry(String errorMsg) {
 		errorLog.add(errorMsg);
 	}
-	
-	
-	
-	
+		
 	
 	
 	/**
