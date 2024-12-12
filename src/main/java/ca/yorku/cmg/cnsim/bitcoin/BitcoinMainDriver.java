@@ -13,6 +13,7 @@ import ca.yorku.cmg.cnsim.engine.Profiling;
 import ca.yorku.cmg.cnsim.engine.Sampler;
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.TransactionSamplerFactory;
+import ca.yorku.cmg.cnsim.engine.event.Event_NewTransactionArrival;
 import ca.yorku.cmg.cnsim.engine.network.AbstractNetwork;
 import ca.yorku.cmg.cnsim.engine.network.FileBasedEndToEndNetwork;
 import ca.yorku.cmg.cnsim.engine.network.RandomEndToEndNetwork;
@@ -218,7 +219,9 @@ public class BitcoinMainDriver {
 
         //Schedule the workload
         s.schedule(ts);
-
+        
+        
+        
         //Set hard termination time
         s.setTerminationTime(Config.getPropertyLong("sim.terminate.atTime"));
         

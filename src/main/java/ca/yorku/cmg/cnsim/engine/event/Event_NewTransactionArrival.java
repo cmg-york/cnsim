@@ -58,7 +58,7 @@ public class Event_NewTransactionArrival extends Event {
         		transaction.getValue(),
         		getTime());
         
-        ProgressBar.printProgress((int) transaction.getID(),Event_NewTransactionArrival.totalqueuedTransactions,4);
+        ProgressBar.printProgress((int) transaction.getID(),sim.totalqueuedTransactions,4);
         
     }
 }

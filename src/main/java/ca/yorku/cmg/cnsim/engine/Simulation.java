@@ -33,11 +33,12 @@ public class Simulation {
 	//protected AbstractSampler sampler;
 	protected Sampler sampler;
 
+
+	public int totalqueuedTransactions = 0;
 		
 	private long latestKnownEventTime = 0;
 	private long terminationTime = 0;
-
-
+	
 	private long numEventsScheduled = 0;
 	private long numEventsProcessed = 0;
 	
@@ -187,7 +188,7 @@ public class Simulation {
 			}
 	        this.schedule(e);
 		}
-		Event_NewTransactionArrival.totalqueuedTransactions += ts.getCount();
+		this.totalqueuedTransactions += ts.getCount();
 	}
 
 	
